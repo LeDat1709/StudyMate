@@ -1,0 +1,44 @@
+# ── Credentials / Secrets ─────────────────────────────────────────────────────
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+# ── .NET Build Output ─────────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+
+# ── Visual Studio ─────────────────────────────────────────────────────────────
+.vs/
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ── Rider ─────────────────────────────────────────────────────────────────────
+.idea/
+*.sln.iml
+
+# ── Rider / VS Code ───────────────────────────────────────────────────────────
+.vscode/
+
+# ── NuGet ─────────────────────────────────────────────────────────────────────
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ── EF Core migrations backup ─────────────────────────────────────────────────
+# Không ignore Migrations/ — cần commit migration
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Uploads (dev local) ───────────────────────────────────────────────────────
+wwwroot/uploads/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
