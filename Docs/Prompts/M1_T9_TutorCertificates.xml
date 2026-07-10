@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T9</taskId>
+    <taskName>Upload Chứng Chỉ (Tutor only)</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-09; Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-06 (fields tham chiếu)</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T9</breakTaskReference>
+    <dependsOn>M1-T7 (Profile, login), Role Tutor đã seed</dependsOn>
+  </meta>
+
+  <goal>
+    Tutor upload bằng cấp/chứng chỉ (JPG/PNG/PDF ≤ 10MB), lưu file + metadata,
+    hiển thị danh sách với trạng thái "Chờ xác minh". Student/Guest không truy cập được.
+  </goal>
+
+  <context>
+    <readFile>StudyMate/Controllers/AccountController.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+  </context>
+
+  <currentState>
+    - M2 TutorProfile / TutorCertificate CHƯA có trong code.
+    - Schema SQL gốc dùng TutorProfileId — M2 chưa sẵn → M1-T9 dùng UserId (FK AspNetUsers) tạm thời.
+    - AccountController chưa có Certificates / UploadCertificate.
+    - Chưa có migration bảng TutorCertificates.
+  </currentState>
+
+  <taskUnit>
+    1. Tạo Models/TutorCertificate.cs (UserId-based temporary model)
+    2. DbSet + fluent config trong ApplicationDbContext
+    3. EF Migration AddTutorCertificates
+    4. ViewModels upload + list item
+    5. Certificates GET + UploadCertificate POST ([Authorize(Roles="Tutor")])
+    6. Views/Account/Certificates.cshtml
+    7. Optional: AccessDenied view nếu chưa có
+  </taskUnit>
+
+  <scope>
+    - TutorCertificate fields: Id, UserId, Title, IssuedBy, IssuedDate, FileUrl, CertType, IsVerified (default false), AiVerifyNote (null), CreatedAt
+    - File: JPG, JPEG, PNG, PDF; max 10MB; lưu wwwroot/uploads/certificates/{userId}_{timestamp}{ext}
+    - CertType options: Degree, Certificate, IELTS, TOEIC
+    - GET Certificates: list của user hiện tại, form upload
+    - POST UploadCertificate: validate + save file + DB + redirect list + TempData success
+    - Không implement AI verify / Admin duyệt
+  </scope>
+
+  <hardRules>
+    - KHÔNG implement AI (AiVerifyNote luôn null lúc upload)
+    - KHÔNG làm Admin duyệt chứng chỉ
+    - KHÔNG tạo full TutorProfile (M2)
+    - KHÔNG sửa Register/Login/Profile/ChangePassword logic hiện có (chỉ inject DbContext nếu cần + thêm actions)
+    - CHỈ Tutor: [Authorize(Roles = "Tutor")]
+    - ValidateAntiForgeryToken trên POST
+  </hardRules>
+
+  <acceptanceCriteria>
+    - [ ] Tutor upload PDF/JPG/PNG hợp lệ → hiện trong list, badge "Chờ xác minh"
+    - [ ] File sai định dạng / &gt; 10MB → lỗi
+    - [ ] Student truy cập → Access Denied / 403
+    - [ ] Guest → redirect Login
+    - [ ] Migration apply được, build pass
+  </acceptanceCriteria>
+
+  <outputRequired>
+    <create>Docs/Prompts/M1_T9_TutorCertificates.xml</create>
+    <create>StudyMate/Models/TutorCertificate.cs</create>
+    <create>StudyMate/ViewModels/Account/UploadCertificateViewModel.cs</create>
+    <create>StudyMate/Views/Account/Certificates.cshtml</create>
+    <create>StudyMate/wwwroot/uploads/certificates/.gitkeep</create>
+    <modify>StudyMate/Data/ApplicationDbContext.cs</modify>
+    <modify>StudyMate/Controllers/AccountController.cs</modify>
+    <create>Migrations/…AddTutorCertificates…</create>
+    <create>Docs/Reports/Report_M1_T9_YYYY-MM-DD.md</create>
+  </outputRequired>
+
+</prompt>

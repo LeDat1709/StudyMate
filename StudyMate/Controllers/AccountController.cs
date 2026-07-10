@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StudyMate.Data;
 using StudyMate.Models;
 using StudyMate.Services.Interfaces;
 using StudyMate.ViewModels.Account;
@@ -21,6 +23,10 @@ public class AccountController : Controller
     private readonly IOtpService _otpService;
     private readonly ILogger<AccountController> _logger;
     private readonly IWebHostEnvironment _env;
+    private readonly ApplicationDbContext _db;
+
+    private static readonly string[] CertificateAllowedExtensions = [".jpg", ".jpeg", ".png", ".pdf"];
+    private const long CertificateMaxBytes = 10 * 1024 * 1024; // 10MB
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
@@ -29,7 +35,8 @@ public class AccountController : Controller
         IEmailService emailService,
         IOtpService otpService,
         ILogger<AccountController> logger,
-        IWebHostEnvironment env)
+        IWebHostEnvironment env,
+        ApplicationDbContext db)
     {
         _userManager   = userManager;
         _signInManager = signInManager;
@@ -38,6 +45,7 @@ public class AccountController : Controller
         _otpService    = otpService;
         _logger        = logger;
         _env           = env;
+        _db            = db;
     }
 
     // ── Register ─────────────────────────────────────────────────────────────
@@ -274,6 +282,130 @@ public class AccountController : Controller
 
         TempData["ChangePasswordSuccess"] = true;
         return RedirectToAction(nameof(ChangePassword));
+    }
+
+    // ── Tutor Certificates ────────────────────────────────────────────────────
+
+    /// <summary>Lists certificates and shows upload form (Tutor only).</summary>
+    [Authorize(Roles = "Tutor")]
+    [HttpGet]
+    public async Task<IActionResult> Certificates()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        var vm = await BuildCertificatesPageAsync(user.Id);
+        ViewData["UploadSuccess"] = TempData["CertificateUploadSuccess"];
+        return View(vm);
+    }
+
+    /// <summary>Uploads a certificate file for the current Tutor.</summary>
+    [Authorize(Roles = "Tutor")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadCertificate(
+        [Bind(Prefix = "Upload")] UploadCertificateViewModel model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        ModelState.Clear();
+
+        if (string.IsNullOrWhiteSpace(model.Title))
+            ModelState.AddModelError("Upload.Title", "Vui lòng nhập tên chứng chỉ");
+        else if (model.Title.Length > 200)
+            ModelState.AddModelError("Upload.Title", "Tên chứng chỉ tối đa 200 ký tự");
+
+        if (model.File == null || model.File.Length == 0)
+        {
+            ModelState.AddModelError("Upload.File", "Vui lòng chọn file chứng chỉ");
+        }
+        else
+        {
+            var ext = Path.GetExtension(model.File.FileName).ToLowerInvariant();
+            if (!CertificateAllowedExtensions.Contains(ext))
+                ModelState.AddModelError("Upload.File", "Định dạng không được hỗ trợ. Chỉ JPG, PNG, PDF.");
+            else if (model.File.Length > CertificateMaxBytes)
+                ModelState.AddModelError("Upload.File", "Kích thước file vượt quá 10MB.");
+        }
+
+        if (!ModelState.IsValid)
+            return View("Certificates", await BuildCertificatesPageAsync(user.Id, model));
+
+        var file = model.File!;
+        var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "certificates");
+        if (!Directory.Exists(uploadsDir))
+            Directory.CreateDirectory(uploadsDir);
+
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var filename = $"{user.Id}_{timestamp}{fileExt}";
+        var fullPath = Path.Combine(uploadsDir, filename);
+
+        await using (var fs = System.IO.File.Create(fullPath))
+        {
+            await file.CopyToAsync(fs);
+        }
+
+        var cert = new TutorCertificate
+        {
+            UserId = user.Id,
+            Title = model.Title.Trim(),
+            IssuedBy = string.IsNullOrWhiteSpace(model.IssuedBy) ? null : model.IssuedBy.Trim(),
+            IssuedDate = model.IssuedDate,
+            CertType = string.IsNullOrWhiteSpace(model.CertType) ? null : model.CertType.Trim(),
+            FileUrl = $"/uploads/certificates/{filename}",
+            IsVerified = false,
+            AiVerifyNote = null,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.TutorCertificates.Add(cert);
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Tutor certificate uploaded: User={Email}, Title={Title}, Id={Id}",
+            user.Email, cert.Title, cert.Id);
+
+        TempData["CertificateUploadSuccess"] = true;
+        return RedirectToAction(nameof(Certificates));
+    }
+
+    private async Task<CertificatesPageViewModel> BuildCertificatesPageAsync(
+        string userId,
+        UploadCertificateViewModel? upload = null)
+    {
+        var items = await _db.TutorCertificates
+            .AsNoTracking()
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new CertificateItemViewModel
+            {
+                Id = c.Id,
+                Title = c.Title,
+                IssuedBy = c.IssuedBy,
+                IssuedDate = c.IssuedDate,
+                FileUrl = c.FileUrl,
+                CertType = c.CertType,
+                IsVerified = c.IsVerified,
+                CreatedAt = c.CreatedAt
+            })
+            .ToListAsync();
+
+        return new CertificatesPageViewModel
+        {
+            Certificates = items,
+            Upload = upload ?? new UploadCertificateViewModel()
+        };
+    }
+
+    /// <summary>Shown when authenticated user lacks required role.</summary>
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        return View();
     }
 
     // ── Login ─────────────────────────────────────────────────────────────────
