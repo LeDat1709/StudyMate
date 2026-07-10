@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T2</taskId>
+    <taskName>OTP Service</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-01, UC-M1-02, UC-M1-05</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T2</breakTaskReference>
+    <dependsOn>M1-T1 (IEmailService đã có sẵn)</dependsOn>
+  </meta>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <goal>
+    Tạo OtpService để sinh mã OTP 6 số, lưu vào DB, xác thực OTP.
+    Service này dùng chung cho xác thực email (T3/T4) và reset mật khẩu (T6).
+    Không gửi email trong service này — đó là việc của IEmailService (T1).
+  </goal>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <context>
+    <!-- Agent PHẢI đọc hết các file này trước khi bắt đầu viết code -->
+    <readFile>StudyMate/Models/OtpCode.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/IEmailService.cs</readFile>
+    <readFile>StudyMate/Services/Implementations/EmailService.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+    <readFile>StudyMate/appsettings.json</readFile>
+  </context>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <currentState>
+    - OtpCode.cs đã có: Id, UserId, Code, Purpose, ExpiredAt, IsUsed, CreatedAt
+    - OtpCode CHƯA có field FailedAttempts — agent cần thêm vào và tạo migration mới
+    - ApplicationDbContext đã có DbSet&lt;OtpCode&gt; OtpCodes với đầy đủ config
+    - IEmailService và EmailService đã có từ M1-T1
+    - Program.cs đã đăng ký IEmailService
+    - appsettings.json đã có section Otp: ExpiryMinutes=5, ResetPasswordExpiryMinutes=10
+    - Services/Interfaces/ và Services/Implementations/ đã tồn tại
+    - IOtpService và OtpService CHƯA tồn tại — agent cần tạo mới
+  </currentState>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <taskUnit>
+    1. Thêm field FailedAttempts vào OtpCode.cs
+    2. Tạo migration AddOtpFailedAttempts
+    3. Tạo enum OtpValidationResult
+    4. Tạo interface IOtpService với 3 methods
+    5. Tạo class OtpService implement IOtpService
+    6. Đăng ký DI trong Program.cs
+  </taskUnit>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <scope>
+    - Thêm field vào OtpCode.cs:
+      + FailedAttempts int = 0 (số lần nhập sai)
+
+    - Tạo migration: dotnet ef migrations add AddOtpFailedAttempts
+    - Chạy: dotnet ef database update
+
+    - Tạo enum OtpValidationResult trong Services/Interfaces/:
+      Valid | Invalid | Expired | AlreadyUsed | TooManyAttempts
+
+    - Tạo interface IOtpService trong Services/Interfaces/:
+      + Task&lt;string&gt; GenerateAndSaveOtpAsync(string userId, string purpose)
+      + Task&lt;OtpValidationResult&gt; ValidateOtpAsync(string userId, string code, string purpose)
+      + Task InvalidateAllOtpAsync(string userId, string purpose)
+
+    - Tạo class OtpService trong Services/Implementations/:
+      + Constructor inject ApplicationDbContext, IConfiguration
+      + GenerateAndSaveOtpAsync:
+        - Gọi InvalidateAllOtpAsync trước (vô hiệu hóa OTP cũ cùng purpose)
+        - Sinh mã 6 chữ số ngẫu nhiên bằng Random.Shared
+        - ExpiredAt: Purpose="EmailVerify" → UtcNow + 5 phút, Purpose="ForgotPassword" → UtcNow + 10 phút (đọc từ appsettings)
+        - Lưu OtpCode mới vào DB với FailedAttempts=0, trả về mã OTP
+      + ValidateOtpAsync:
+        - Query OtpCode theo UserId + Purpose + IsUsed=false, order by CreatedAt desc, lấy record mới nhất
+        - Nếu không có record → Invalid
+        - Nếu record.FailedAttempts &gt;= 3 → TooManyAttempts
+        - Nếu record.ExpiredAt &lt; UtcNow → Expired
+        - Nếu record.IsUsed = true → AlreadyUsed
+        - Nếu Code không khớp → tăng FailedAttempts += 1, SaveChanges → Invalid (hoặc TooManyAttempts nếu đạt 3)
+        - Nếu khớp → set IsUsed=true, SaveChanges → Valid
+      + InvalidateAllOtpAsync:
+        - Set IsUsed=true cho tất cả OTP chưa dùng của UserId + Purpose
+
+    - Đăng ký DI Scoped trong Program.cs:
+      builder.Services.AddScoped&lt;IOtpService, OtpService&gt;()
+  </scope>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <hardRules>
+    - KHÔNG sửa ApplicationDbContext.cs
+    - KHÔNG sửa IEmailService.cs hay EmailService.cs
+    - KHÔNG gửi email trong OtpService — chỉ sinh và xác thực OTP
+    - KHÔNG tạo Controller, View, ViewModel trong task này
+    - KHÔNG thêm package mới
+    - KHÔNG hardcode số phút hết hạn — đọc từ appsettings section "Otp"
+    - KHÔNG dùng Random cũ (new Random()) — dùng Random.Shared hoặc RandomNumberGenerator
+    - KHÔNG sửa Program.cs ngoài việc thêm đúng 1 dòng DI của OtpService
+    - Được phép sửa OtpCode.cs (chỉ thêm field FailedAttempts)
+    - Được phép tạo migration mới (chỉ 1 migration cho FailedAttempts)
+  </hardRules>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <tasks>
+    1. Đọc tất cả file trong &lt;context&gt;
+    2. Tóm tắt lại cho engineer:
+       - OtpCode model có những field nào hiện tại
+       - appsettings có những key Otp nào
+       - IEmailService đã có những method nào (để biết rõ ranh giới)
+       → Chờ engineer xác nhận trước khi code
+    3. Thêm field FailedAttempts vào OtpCode.cs
+    4. Tạo migration: dotnet ef migrations add AddOtpFailedAttempts (trong thư mục StudyMate/)
+    5. Chạy: dotnet ef database update
+    6. Tạo Services/Interfaces/OtpValidationResult.cs (enum)
+    7. Tạo Services/Interfaces/IOtpService.cs
+    8. Tạo Services/Implementations/OtpService.cs
+    9. Cập nhật Program.cs — thêm 1 dòng DI OtpService
+    10. Self-review: kiểm tra đúng file trong outputRequired, không file nào khác bị sửa
+    11. Chạy dotnet build, báo cáo kết quả
+    12. Báo cáo thay đổi và rủi ro
+  </tasks>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC
+    - Namespace: StudyMate.Services.Interfaces và StudyMate.Services.Implementations
+    - Tất cả method async phải có suffix Async
+    - Private field dùng prefix _: _context, _configuration
+    - Public method phải có XML doc comment
+    - Tất cả DB call phải dùng async/await (ToListAsync, SaveChangesAsync...)
+  </constraints>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <acceptanceCriteria>
+    - [ ] OtpValidationResult enum tồn tại với đủ 5 giá trị
+    - [ ] IOtpService.cs tồn tại với đúng 3 method signatures
+    - [ ] OtpService.cs đọc ExpiryMinutes từ config, không hardcode
+    - [ ] GenerateAndSaveOtpAsync tự động vô hiệu OTP cũ trước khi tạo mới
+    - [ ] ValidateOtpAsync trả về đúng OtpValidationResult cho từng trường hợp
+    - [ ] Program.cs có thêm đúng 1 dòng AddScoped IOtpService
+    - [ ] dotnet build thành công, không có error
+  </acceptanceCriteria>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <testPlan>
+    1. Chạy dotnet build → pass
+    2. Inject IOtpService vào HomeController tạm thời:
+       - Gọi GenerateAndSaveOtpAsync(userId, "EmailVerify") → kiểm tra DB có record mới trong bảng OtpCodes
+       - Gọi ValidateOtpAsync với mã đúng → kết quả Valid, IsUsed=true trong DB
+       - Gọi ValidateOtpAsync với mã sai 3 lần → kết quả TooManyAttempts
+    3. Xóa code test tạm thời sau khi verify — KHÔNG commit code test
+  </testPlan>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <outputRequired>
+    <create>StudyMate/Services/Interfaces/OtpValidationResult.cs</create>
+    <create>StudyMate/Services/Interfaces/IOtpService.cs</create>
+    <create>StudyMate/Services/Implementations/OtpService.cs</create>
+    <modify>StudyMate/Program.cs (chỉ thêm 1 dòng DI registration)</modify>
+  </outputRequired>
+
+</prompt>
