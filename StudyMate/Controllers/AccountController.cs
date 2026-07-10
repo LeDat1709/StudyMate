@@ -208,6 +208,160 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    // ── ForgotPassword ────────────────────────────────────────────────────────
+
+    /// <summary>Displays the forgot password form (step 1 — enter email).</summary>
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View(new ForgotPasswordViewModel());
+    }
+
+    /// <summary>Sends OTP to the provided email if it exists.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        // Always show same message — do not reveal whether email exists
+        if (user != null && user.EmailConfirmed)
+        {
+            var otpCode = await _otpService.GenerateAndSaveOtpAsync(user.Id, "ForgotPassword");
+
+            var emailBody = $@"
+                <div style='font-family:sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:8px'>
+                    <h2 style='color:#1d4ed8'>Đặt lại mật khẩu StudyMate</h2>
+                    <p>Xin chào <strong>{user.FullName}</strong>,</p>
+                    <p>Mã OTP để đặt lại mật khẩu của bạn là:</p>
+                    <div style='font-size:2rem;font-weight:bold;letter-spacing:0.3rem;color:#1d4ed8;text-align:center;padding:16px 0'>{otpCode}</div>
+                    <p style='color:#6b7280'>Mã có hiệu lực trong <strong>10 phút</strong>. Không chia sẻ mã này cho bất kỳ ai.</p>
+                    <hr style='border:none;border-top:1px solid #e5e7eb'/>
+                    <p style='color:#9ca3af;font-size:0.85rem'>StudyMate — Nền tảng kết nối gia sư</p>
+                </div>";
+
+            await _emailService.SendEmailAsync(
+                to: user.Email!,
+                subject: "[StudyMate] Mã đặt lại mật khẩu của bạn",
+                body: emailBody,
+                isHtml: true);
+
+            _logger.LogInformation("Password reset OTP sent to: {Email}", user.Email);
+        }
+
+        TempData["ForgotPasswordEmail"] = model.Email;
+        return RedirectToAction(nameof(VerifyResetOtp));
+    }
+
+    // ── VerifyResetOtp ────────────────────────────────────────────────────────
+
+    /// <summary>Displays the OTP verification form for password reset (step 2).</summary>
+    [HttpGet]
+    public IActionResult VerifyResetOtp()
+    {
+        var email = TempData["ForgotPasswordEmail"] as string;
+        if (string.IsNullOrEmpty(email))
+            return RedirectToAction(nameof(ForgotPassword));
+
+        return View(new VerifyOtpViewModel { Email = email });
+    }
+
+    /// <summary>Validates the reset OTP and redirects to ResetPassword on success.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyResetOtp(VerifyOtpViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ForgotPasswordEmail"] = model.Email;
+            return View(model);
+        }
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return RedirectToAction(nameof(ForgotPassword));
+
+        var result = await _otpService.ValidateOtpAsync(user.Id, model.Code, "ForgotPassword");
+
+        switch (result)
+        {
+            case OtpValidationResult.Valid:
+                TempData["ResetPasswordEmail"] = model.Email;
+                return RedirectToAction(nameof(ResetPassword));
+
+            case OtpValidationResult.Expired:
+                ModelState.AddModelError(nameof(model.Code), "Mã OTP đã hết hạn. Vui lòng yêu cầu lại.");
+                break;
+
+            case OtpValidationResult.TooManyAttempts:
+                ModelState.AddModelError(nameof(model.Code), "Bạn đã nhập sai quá nhiều lần. Vui lòng yêu cầu lại OTP mới.");
+                break;
+
+            default:
+                ModelState.AddModelError(nameof(model.Code), "Mã OTP không chính xác");
+                break;
+        }
+
+        TempData["ForgotPasswordEmail"] = model.Email;
+        return View(model);
+    }
+
+    // ── ResetPassword ─────────────────────────────────────────────────────────
+
+    /// <summary>Displays the new password form (step 3).</summary>
+    [HttpGet]
+    public IActionResult ResetPassword()
+    {
+        var email = TempData["ResetPasswordEmail"] as string;
+        if (string.IsNullOrEmpty(email))
+            return RedirectToAction(nameof(ForgotPassword));
+
+        return View(new ResetPasswordViewModel { Email = email });
+    }
+
+    /// <summary>Updates the user's password and signs them in.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ResetPasswordEmail"] = model.Email;
+            return View(model);
+        }
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return RedirectToAction(nameof(ForgotPassword));
+
+        // Remove old password and set new one
+        var token  = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+            TempData["ResetPasswordEmail"] = model.Email;
+            return View(model);
+        }
+
+        // Invalidate all existing sessions
+        await _userManager.UpdateSecurityStampAsync(user);
+
+        // Sign in with new password
+        await _signInManager.SignOutAsync();
+        await _signInManager.SignInAsync(user, isPersistent: false);
+
+        _logger.LogInformation("Password reset successfully for: {Email}", user.Email);
+
+        TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công!";
+        return RedirectToAction("Index", "Home");
+    }
+
     /// <summary>Displays the OTP verification form.</summary>
     [HttpGet]
     public IActionResult VerifyEmail()
