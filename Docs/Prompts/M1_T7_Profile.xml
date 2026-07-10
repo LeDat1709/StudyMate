@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T7</taskId>
+    <taskName>Trang Profile + Upload Avatar</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-06, UC-M1-07</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T7</breakTaskReference>
+    <dependsOn>M1-T5 (Login/Logout đã có), M1-T3/M1-T4 (AccountController, Identity user model đã có)</dependsOn>
+  </meta>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <goal>
+    Tạo trang cá nhân cho người dùng đã đăng nhập, cho phép sửa thông tin cá nhân và upload ảnh đại diện.
+    Avatar phải lưu trong `wwwroot/uploads/avatars/` và hiển thị ngay sau khi upload thành công.
+  </goal>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <context>
+    <readFile>StudyMate/Controllers/AccountController.cs</readFile>
+    <readFile>StudyMate/ViewModels/Account/ProfileViewModel.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+    <readFile>StudyMate/Views/Shared/_Layout.cshtml</readFile>
+    <readFile>StudyMate/Views/Shared/_ValidationScriptsPartial.cshtml</readFile>
+  </context>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <currentState>
+    - ApplicationUser đã có field `AvatarUrl`.
+    - AccountController đã có chỗ cho Profile GET/POST và UploadAvatar POST.
+    - ViewModels/Account/ProfileViewModel đã tồn tại.
+    - Views/Account/Profile.cshtml đã tồn tại.
+    - Thư mục uploads chưa chắc đã tồn tại, cần tạo khi upload.
+  </currentState>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <taskUnit>
+    1. Review ProfileViewModel và AccountController hiện tại.
+    2. Đảm bảo Profile GET/POST hoạt động với thông tin Email, FullName, PhoneNumber, AvatarUrl.
+    3. Đảm bảo upload avatar qua AJAX đến `UploadAvatar` POST.
+    4. Kiểm tra validation file: JPG/PNG/WEBP, <= 2MB.
+    5. Kiểm tra ảnh mới hiển thị ngay khi upload thành công.
+  </taskUnit>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <scope>
+    - Profile GET:
+      + Chỉ cho user đã login truy cập (`[Authorize]`).
+      + Load user hiện tại từ `_userManager.GetUserAsync(User)`.
+      + Trả về `ProfileViewModel` với Email, FullName, PhoneNumber, AvatarUrl.
+      + Hiển thị thông báo thành công nếu `TempData["ProfileUpdateSuccess"]` được set.
+
+    - Profile POST:
+      + Validate ModelState.
+      + Lưu `FullName` và `PhoneNumber` vào user.
+      + Không cho phép sửa Email từ form.
+      + Update `UpdatedAt`.
+      + Nếu cập nhật thành công, set `TempData["ProfileUpdateSuccess"] = true` và redirect trở lại Profile.
+
+    - UploadAvatar POST:
+      + Chỉ định dạng file hợp lệ: `.jpg`, `.jpeg`, `.png`, `.webp`.
+      + Kích thước tối đa 2MB.
+      + Tạo folder `wwwroot/uploads/avatars/` nếu chưa tồn tại.
+      + Lưu file với tên `{userId}_{timestamp}{ext}`.
+      + Cập nhật `user.AvatarUrl = "/uploads/avatars/{filename}"`.
+      + Trả về JSON `{ success: true, url: user.AvatarUrl }`.
+      + Nếu lỗi validation, trả về `BadRequest({ error: "..." })`.
+
+    - Profile view:
+      + Hiển thị email read-only.
+      + Cho phép sửa FullName và PhoneNumber.
+      + Upload avatar bằng input file và AJAX.
+      + Khi upload thành công, cập nhật `src` ảnh avatar ngay.
+      + Các lỗi client và server cần hiển thị rõ ràng.
+  </scope>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <hardRules>
+    - KHÔNG sửa các action Register/VerifyEmail/ResendOtp/Login/Logout hiện có.
+    - KHÔNG thêm package mới.
+    - KHÔNG cho phép upload file > 2MB.
+    - KHÔNG cho phép upload file ngoài định dạng JPG, PNG, WEBP.
+    - Email trên Profile chỉ hiển thị và disabled, không submit.
+    - UploadAvatar phải bảo vệ CSRF và chỉ chấp nhận POST.
+    - Không dùng query string để truyền dữ liệu nhạy cảm.
+  </hardRules>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <acceptanceCriteria>
+    - [ ] GET /Account/Profile khi login hiển thị đúng thông tin người dùng.
+    - [ ] Thay đổi FullName/PhoneNumber lưu được và hiển thị lại sau refresh.
+    - [ ] Upload avatar thành công, ảnh mới hiển thị ngay.
+    - [ ] File > 2MB trả lỗi rõ ràng.
+    - [ ] File sai định dạng trả lỗi rõ ràng.
+    - [ ] Build `dotnet build` pass.
+  </acceptanceCriteria>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <testPlan>
+    1. dotnet build → pass.
+    2. Login và truy cập /Account/Profile.
+    3. Kiểm tra email hiển thị read-only.
+    4. Chỉnh FullName/PhoneNumber → lưu → load lại trang.
+    5. Upload avatar PNG < 2MB → ảnh cập nhật ngay.
+    6. Upload file exe hoặc > 2MB → nhận thông báo lỗi.
+  </testPlan>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <outputRequired>
+    <create>Docs/Prompts/M1_T7_Profile.xml</create>
+    <modify>StudyMate/Controllers/AccountController.cs (Profile + UploadAvatar behavior)</modify>
+    <modify>StudyMate/Views/Account/Profile.cshtml</modify>
+    <read>StudyMate/ViewModels/Account/ProfileViewModel.cs</read>
+  </outputRequired>
+
+</prompt>

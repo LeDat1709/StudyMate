@@ -1,0 +1,85 @@
+@model StudyMate.ViewModels.Account.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<h2>Thông tin cá nhân</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <img id="avatarImg" src="@(Model.AvatarUrl ?? "/images/default-avatar.png")" class="card-img-top" alt="Avatar" />
+            <div class="card-body">
+                <input type="file" id="avatarFile" accept="image/*" class="form-control-file" />
+                <div id="avatarMsg" class="text-danger mt-2"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <form asp-action="Profile" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" disabled />
+            </div>
+            <div class="form-group">
+                <label asp-for="FullName"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            @if (ViewData["ProfileUpdateSuccess"] != null)
+            {
+                <span class="text-success ml-3">Cập nhật thành công</span>
+            }
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('avatarFile').addEventListener('change', async function (e) {
+    var file = e.target.files[0];
+    var msg = document.getElementById('avatarMsg');
+    msg.textContent = '';
+    if (!file) return;
+    var allowed = ['image/jpeg','image/png','image/webp'];
+    if (allowed.indexOf(file.type) === -1) {
+        msg.textContent = 'Định dạng không được hỗ trợ. Chỉ JPG, PNG, WEBP.';
+        return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+        msg.textContent = 'Kích thước file vượt quá 2MB.';
+        return;
+    }
+
+    var fd = new FormData();
+    fd.append('file', file);
+    // antiforgery token
+    var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    fd.append('__RequestVerificationToken', token);
+
+    var btn = document.getElementById('avatarFile');
+    btn.disabled = true;
+    try {
+        var resp = await fetch('/Account/UploadAvatar', { method: 'POST', body: fd });
+        if (!resp.ok) {
+            var err = await resp.json();
+            msg.textContent = err.error || 'Upload thất bại';
+            return;
+        }
+        var data = await resp.json();
+        if (data.success) {
+            document.getElementById('avatarImg').src = data.url + '?t=' + Date.now();
+        } else {
+            msg.textContent = data.error || 'Upload thất bại';
+        }
+    } finally {
+        btn.disabled = false;
+    }
+});
+</script>

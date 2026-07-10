@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using StudyMate.Models;
 using StudyMate.Services.Interfaces;
 using StudyMate.ViewModels.Account;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace StudyMate.Controllers;
 
@@ -17,6 +20,7 @@ public class AccountController : Controller
     private readonly IEmailService _emailService;
     private readonly IOtpService _otpService;
     private readonly ILogger<AccountController> _logger;
+    private readonly IWebHostEnvironment _env;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
@@ -24,14 +28,16 @@ public class AccountController : Controller
         RoleManager<IdentityRole> roleManager,
         IEmailService emailService,
         IOtpService otpService,
-        ILogger<AccountController> logger)
+        ILogger<AccountController> logger,
+        IWebHostEnvironment env)
     {
-        _userManager  = userManager;
+        _userManager   = userManager;
         _signInManager = signInManager;
-        _roleManager  = roleManager;
-        _emailService = emailService;
-        _otpService   = otpService;
-        _logger       = logger;
+        _roleManager   = roleManager;
+        _emailService  = emailService;
+        _otpService    = otpService;
+        _logger        = logger;
+        _env           = env;
     }
 
     // ── Register ─────────────────────────────────────────────────────────────
@@ -115,6 +121,101 @@ public class AccountController : Controller
         _logger.LogInformation("New user registered: {Email}, Role: {Role}", user.Email, model.Role);
 
         return RedirectToAction(nameof(VerifyEmail));
+    }
+
+    // ── Profile / Avatar ───────────────────────────────────────────────────
+
+    /// <summary>Displays the profile page for the currently authenticated user.</summary>
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Profile()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        var vm = new ProfileViewModel
+        {
+            Email = user.Email ?? string.Empty,
+            FullName = user.FullName,
+            PhoneNumber = user.PhoneNumber,
+            AvatarUrl = user.AvatarUrl
+        };
+
+        ViewData["ProfileUpdateSuccess"] = TempData["ProfileUpdateSuccess"];
+        return View(vm);
+    }
+
+    /// <summary>Updates profile fields (FullName, PhoneNumber).</summary>
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(ProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        user.FullName = model.FullName.Trim();
+        user.PhoneNumber = model.PhoneNumber?.Trim();
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var res = await _userManager.UpdateAsync(user);
+        if (!res.Succeeded)
+        {
+            foreach (var e in res.Errors)
+                ModelState.AddModelError(string.Empty, e.Description);
+            return View(model);
+        }
+
+        TempData["ProfileUpdateSuccess"] = true;
+        return RedirectToAction(nameof(Profile));
+    }
+
+    /// <summary>Uploads avatar file via AJAX and returns the new image URL.</summary>
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
+    {
+        if (file == null)
+            return BadRequest(new { error = "Không có file được gửi." });
+
+        var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowed.Contains(ext))
+            return BadRequest(new { error = "Định dạng không được hỗ trợ. Chỉ JPG, PNG, WEBP." });
+
+        const long MaxBytes = 2 * 1024 * 1024; // 2MB
+        if (file.Length > MaxBytes)
+            return BadRequest(new { error = "Kích thước file vượt quá 2MB." });
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "avatars");
+        if (!Directory.Exists(uploadsDir))
+            Directory.CreateDirectory(uploadsDir);
+
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var safeName = Path.GetFileNameWithoutExtension(file.FileName);
+        var filename = $"{user.Id}_{timestamp}{ext}";
+        var fullPath = Path.Combine(uploadsDir, filename);
+
+        await using (var fs = System.IO.File.Create(fullPath))
+        {
+            await file.CopyToAsync(fs);
+        }
+
+        user.AvatarUrl = $"/uploads/avatars/{filename}";
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
+
+        return Json(new { success = true, url = user.AvatarUrl });
     }
 
     // ── Login ─────────────────────────────────────────────────────────────────
