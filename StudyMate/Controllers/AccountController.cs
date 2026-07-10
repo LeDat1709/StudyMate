@@ -117,7 +117,96 @@ public class AccountController : Controller
         return RedirectToAction(nameof(VerifyEmail));
     }
 
-    // ── VerifyEmail ───────────────────────────────────────────────────────────
+    // ── Login ─────────────────────────────────────────────────────────────────
+
+    /// <summary>Displays the login form.</summary>
+    [HttpGet]
+    public IActionResult Login(string? returnUrl = null)
+    {
+        // Already authenticated — redirect away
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToLocal(returnUrl);
+
+        ViewData["ReturnUrl"] = returnUrl;
+        return View(new LoginViewModel());
+    }
+
+    /// <summary>Processes login form submission.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = returnUrl;
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        // Do not reveal whether email exists or not
+        if (user == null)
+        {
+            ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không chính xác");
+            return View(model);
+        }
+
+        if (!user.IsActive)
+        {
+            ModelState.AddModelError(string.Empty, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin để được hỗ trợ.");
+            return View(model);
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            TempData["RegisteredEmail"] = user.Email;
+            ModelState.AddModelError(string.Empty, "Vui lòng xác thực email trước khi đăng nhập.");
+            ViewData["ShowResendLink"] = true;
+            return View(model);
+        }
+
+        var result = await _signInManager.PasswordSignInAsync(
+            user.UserName!,
+            model.Password,
+            model.RememberMe,
+            lockoutOnFailure: true);
+
+        if (result.Succeeded)
+        {
+            _logger.LogInformation("User logged in: {Email}", user.Email);
+            return RedirectToLocal(returnUrl);
+        }
+
+        if (result.IsLockedOut)
+        {
+            _logger.LogWarning("User account locked out: {Email}", user.Email);
+            ModelState.AddModelError(string.Empty, "Tài khoản tạm khóa do nhập sai quá nhiều lần. Vui lòng thử lại sau.");
+            return View(model);
+        }
+
+        ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không chính xác");
+        return View(model);
+    }
+
+    // ── Logout ────────────────────────────────────────────────────────────────
+
+    /// <summary>Signs the user out and redirects to home.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await _signInManager.SignOutAsync();
+        _logger.LogInformation("User signed out");
+        return RedirectToAction("Index", "Home");
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private IActionResult RedirectToLocal(string? returnUrl)
+    {
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+        return RedirectToAction("Index", "Home");
+    }
 
     /// <summary>Displays the OTP verification form.</summary>
     [HttpGet]

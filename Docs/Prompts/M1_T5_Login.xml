@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T5</taskId>
+    <taskName>Trang Login + Remember Me + Logout</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-03, UC-M1-04</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T5</breakTaskReference>
+    <dependsOn>M1-T2 (Identity đã config), M1-T3 (AccountController đã có)</dependsOn>
+  </meta>
+
+  <goal>
+    Tạo trang đăng nhập với Remember Me checkbox và action Logout.
+    Xử lý các trường hợp: email chưa verify, tài khoản bị khóa, sai thông tin.
+    Sau login thành công redirect đúng returnUrl hoặc trang chủ.
+  </goal>
+
+  <context>
+    <readFile>StudyMate/Controllers/AccountController.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+    <readFile>StudyMate/Views/Shared/_Layout.cshtml</readFile>
+    <readFile>StudyMate/Views/Shared/_ValidationScriptsPartial.cshtml</readFile>
+  </context>
+
+  <currentState>
+    - AccountController đã có: Register GET/POST, VerifyEmail GET/POST, ResendOtp POST
+    - Identity config: RequireConfirmedEmail=true, Lockout MaxFailedAttempts=5, LoginPath=/Account/Login
+    - Cookie config: LoginPath, LogoutPath, AccessDeniedPath đã set trong Program.cs
+    - Views/Account/ đã có Register.cshtml, VerifyEmail.cshtml
+    - LoginViewModel CHƯA tồn tại
+    - Login/Logout actions CHƯA tồn tại trong AccountController
+    - Views/Account/Login.cshtml CHƯA tồn tại
+  </currentState>
+
+  <taskUnit>
+    1. Tạo ViewModels/Account/LoginViewModel.cs
+    2. Thêm Login GET + POST, Logout POST vào AccountController
+    3. Tạo Views/Account/Login.cshtml
+  </taskUnit>
+
+  <scope>
+    - LoginViewModel:
+      + Email: Required, EmailAddress
+      + Password: Required, DataType.Password
+      + RememberMe: bool (default false)
+
+    - Login GET:
+      + Nếu user đã login → redirect Home
+      + Trả về View(new LoginViewModel())
+
+    - Login POST:
+      + Validate ModelState → fail → return View(model)
+      + FindByEmailAsync → tìm user
+      + Nếu user null → ModelState error chung "Email hoặc mật khẩu không chính xác" (không lộ info)
+      + Nếu user.IsActive = false → ModelState error "Tài khoản của bạn đã bị khóa. Liên hệ admin."
+      + Nếu user.EmailConfirmed = false → ModelState error "Vui lòng xác thực email trước khi đăng nhập."
+        → Thêm link resend: TempData["RegisteredEmail"] = user.Email, link đến /Account/VerifyEmail
+      + Gọi SignInManager.PasswordSignInAsync(user.UserName, password, rememberMe, lockoutOnFailure: true)
+      + Nếu Succeeded → redirect returnUrl hoặc Home/Index
+      + Nếu IsLockedOut → ModelState error "Tài khoản tạm khóa do nhập sai quá nhiều lần. Thử lại sau."
+      + Nếu fail → ModelState error chung "Email hoặc mật khẩu không chính xác"
+
+    - Logout POST:
+      + SignOutAsync()
+      + Redirect Home/Index
+
+    - Login.cshtml:
+      + Card căn giữa, max-width 420px, Bootstrap 5
+      + Fields: Email, Password
+      + Checkbox Remember Me
+      + Nút Submit "Đăng nhập"
+      + Link "Quên mật khẩu?" → /Account/ForgotPassword
+      + Link "Chưa có tài khoản? Đăng ký" → /Account/Register
+      + Validation inline + _ValidationScriptsPartial
+      + asp-route-returnUrl để giữ returnUrl qua form submit
+  </scope>
+
+  <hardRules>
+    - KHÔNG sửa Register/VerifyEmail/ResendOtp actions đã có
+    - KHÔNG sửa Program.cs, ApplicationUser.cs, ApplicationDbContext.cs
+    - KHÔNG sửa các Service
+    - KHÔNG thêm package mới
+    - KHÔNG lộ thông tin "email đúng nhưng password sai" hay ngược lại — phải dùng lỗi chung
+    - Logout PHẢI là POST (không phải GET) — tránh CSRF
+    - returnUrl PHẢI validate bằng Url.IsLocalUrl() trước khi redirect — tránh open redirect
+  </hardRules>
+
+  <tasks>
+    1. Đọc tất cả file trong &lt;context&gt;
+    2. Tóm tắt: AccountController hiện có những action nào, Identity config lockout thế nào
+       → Chờ engineer xác nhận
+    3. Tạo ViewModels/Account/LoginViewModel.cs
+    4. Thêm Login GET/POST, Logout POST vào AccountController
+    5. Tạo Views/Account/Login.cshtml
+    6. Self-review: chỉ file trong outputRequired bị thay đổi
+    7. dotnet build → báo cáo
+  </tasks>
+
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC
+    - Namespace ViewModel: StudyMate.ViewModels.Account
+    - Bootstrap 5, async/await, prefix _ cho private field
+    - Public method có XML doc comment
+  </constraints>
+
+  <acceptanceCriteria>
+    - [ ] GET /Account/Login → hiển thị form đúng
+    - [ ] Submit sai → lỗi chung, không lộ info
+    - [ ] Email chưa verify → lỗi + hướng dẫn verify
+    - [ ] Tài khoản bị khóa → lỗi rõ ràng
+    - [ ] Đăng nhập đúng → redirect returnUrl hoặc trang chủ
+    - [ ] Remember Me checked → persistent cookie
+    - [ ] Logout → cookie xóa, redirect trang chủ
+    - [ ] dotnet build pass
+  </acceptanceCriteria>
+
+  <testPlan>
+    1. dotnet build → pass
+    2. Truy cập /Account/Login → form hiển thị
+    3. Submit sai password → lỗi chung
+    4. Login bằng tài khoản chưa verify (đăng ký mới, chưa nhập OTP) → lỗi
+    5. Login bằng admin@studymate.dev / Test@1234 → redirect trang chủ
+    6. Logout → cookie xóa, truy cập /Account/Profile → redirect /Account/Login
+    7. Login với Remember Me → đóng browser → vẫn còn session (kiểm tra cookie expires)
+  </testPlan>
+
+  <outputRequired>
+    <create>StudyMate/ViewModels/Account/LoginViewModel.cs</create>
+    <modify>StudyMate/Controllers/AccountController.cs (thêm Login GET/POST, Logout POST)</modify>
+    <create>StudyMate/Views/Account/Login.cshtml</create>
+  </outputRequired>
+
+</prompt>
