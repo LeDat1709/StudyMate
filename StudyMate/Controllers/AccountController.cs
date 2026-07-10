@@ -117,14 +117,114 @@ public class AccountController : Controller
         return RedirectToAction(nameof(VerifyEmail));
     }
 
-    // ── VerifyEmail placeholder ───────────────────────────────────────────────
+    // ── VerifyEmail ───────────────────────────────────────────────────────────
 
-    /// <summary>Placeholder — will be fully implemented in M1-T4.</summary>
+    /// <summary>Displays the OTP verification form.</summary>
     [HttpGet]
     public IActionResult VerifyEmail()
     {
         var email = TempData["RegisteredEmail"] as string;
-        ViewBag.Email = email;
-        return View();
+
+        // If accessed directly without going through Register, redirect back
+        if (string.IsNullOrEmpty(email))
+            return RedirectToAction(nameof(Register));
+
+        return View(new VerifyOtpViewModel { Email = email });
+    }
+
+    /// <summary>Processes OTP submission and verifies the user's email.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyEmail(VerifyOtpViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["RegisteredEmail"] = model.Email;
+            return View(model);
+        }
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+        {
+            ModelState.AddModelError(string.Empty, "Không tìm thấy tài khoản");
+            TempData["RegisteredEmail"] = model.Email;
+            return View(model);
+        }
+
+        var result = await _otpService.ValidateOtpAsync(user.Id, model.Code, "EmailVerify");
+
+        switch (result)
+        {
+            case OtpValidationResult.Valid:
+                user.EmailConfirmed   = true;
+                user.IsEmailVerified  = true;
+                user.UpdatedAt        = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                _logger.LogInformation("Email verified and signed in: {Email}", user.Email);
+                return RedirectToAction("Index", "Home");
+
+            case OtpValidationResult.Expired:
+                ModelState.AddModelError(nameof(model.Code), "Mã OTP đã hết hạn. Vui lòng nhấn \"Gửi lại OTP\".");
+                break;
+
+            case OtpValidationResult.AlreadyUsed:
+                ModelState.AddModelError(nameof(model.Code), "Mã OTP đã được sử dụng. Vui lòng nhấn \"Gửi lại OTP\".");
+                break;
+
+            case OtpValidationResult.TooManyAttempts:
+                ModelState.AddModelError(nameof(model.Code), "Bạn đã nhập sai quá nhiều lần. Vui lòng nhấn \"Gửi lại OTP\" để lấy mã mới.");
+                break;
+
+            default: // Invalid
+                ModelState.AddModelError(nameof(model.Code), "Mã OTP không chính xác");
+                break;
+        }
+
+        TempData["RegisteredEmail"] = model.Email;
+        return View(model);
+    }
+
+    /// <summary>Invalidates old OTP and sends a new one to the user's email.</summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResendOtp(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+            return RedirectToAction(nameof(Register));
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+            return RedirectToAction(nameof(Register));
+
+        // Already verified — no need to resend
+        if (user.EmailConfirmed)
+            return RedirectToAction("Index", "Home");
+
+        var otpCode = await _otpService.GenerateAndSaveOtpAsync(user.Id, "EmailVerify");
+
+        var emailBody = $@"
+            <div style='font-family:sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:8px'>
+                <h2 style='color:#1d4ed8'>Xác thực email StudyMate</h2>
+                <p>Xin chào <strong>{user.FullName}</strong>,</p>
+                <p>Mã OTP xác thực email mới của bạn là:</p>
+                <div style='font-size:2rem;font-weight:bold;letter-spacing:0.3rem;color:#1d4ed8;text-align:center;padding:16px 0'>{otpCode}</div>
+                <p style='color:#6b7280'>Mã có hiệu lực trong <strong>5 phút</strong>. Không chia sẻ mã này cho bất kỳ ai.</p>
+                <hr style='border:none;border-top:1px solid #e5e7eb'/>
+                <p style='color:#9ca3af;font-size:0.85rem'>StudyMate — Nền tảng kết nối gia sư</p>
+            </div>";
+
+        await _emailService.SendEmailAsync(
+            to: user.Email!,
+            subject: "[StudyMate] Mã xác thực email mới của bạn",
+            body: emailBody,
+            isHtml: true);
+
+        TempData["RegisteredEmail"] = email;
+        TempData["ResendSuccess"]   = true;
+
+        _logger.LogInformation("OTP resent to: {Email}", email);
+
+        return RedirectToAction(nameof(VerifyEmail));
     }
 }
