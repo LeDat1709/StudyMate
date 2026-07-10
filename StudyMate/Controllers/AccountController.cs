@@ -218,6 +218,64 @@ public class AccountController : Controller
         return Json(new { success = true, url = user.AvatarUrl });
     }
 
+    // ── Change Password ───────────────────────────────────────────────────────
+
+    /// <summary>Displays the change-password form for the authenticated user.</summary>
+    [Authorize]
+    [HttpGet]
+    public IActionResult ChangePassword()
+    {
+        return View(new ChangePasswordViewModel());
+    }
+
+    /// <summary>Validates current password and updates to the new password.</summary>
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Challenge();
+
+        if (string.Equals(model.CurrentPassword, model.NewPassword, StringComparison.Ordinal))
+        {
+            ModelState.AddModelError(nameof(model.NewPassword),
+                "Mật khẩu mới không được trùng mật khẩu hiện tại");
+            return View(model);
+        }
+
+        var result = await _userManager.ChangePasswordAsync(
+            user, model.CurrentPassword, model.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                if (error.Code is "PasswordMismatch")
+                {
+                    ModelState.AddModelError(nameof(model.CurrentPassword),
+                        "Mật khẩu hiện tại không chính xác");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return View(model);
+        }
+
+        await _signInManager.RefreshSignInAsync(user);
+        _logger.LogInformation("Password changed successfully for: {Email}", user.Email);
+
+        TempData["ChangePasswordSuccess"] = true;
+        return RedirectToAction(nameof(ChangePassword));
+    }
+
     // ── Login ─────────────────────────────────────────────────────────────────
 
     /// <summary>Displays the login form.</summary>
