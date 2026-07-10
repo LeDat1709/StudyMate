@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T1</taskId>
+    <taskName>Email Service (SMTP)</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-01, UC-M1-02, UC-M1-05</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T1</breakTaskReference>
+  </meta>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <goal>
+    Tạo EmailService để gửi email qua SMTP (Gmail).
+    Service này sẽ được dùng chung cho OTP xác thực email (T2/T3) và reset mật khẩu (T6).
+    Sau task này, hệ thống có khả năng gửi email plain text hoặc HTML đơn giản.
+  </goal>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <context>
+    <!-- Agent PHẢI đọc hết các file này trước khi bắt đầu viết code -->
+    <readFile>StudyMate/Program.cs</readFile>
+    <readFile>StudyMate/appsettings.json</readFile>
+    <readFile>StudyMate/appsettings.Development.json</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+  </context>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <currentState>
+    <!-- Mô tả trạng thái hiện tại của project để agent không làm lại thứ đã có -->
+    - ApplicationUser.cs đã có, kế thừa IdentityUser, có đủ field mở rộng
+    - ApplicationDbContext.cs đã cấu hình Identity + OtpCodes DbSet
+    - Migration InitIdentity đã apply
+    - Program.cs đã có: DbContext, Identity, Cookie config, SeedRoles, AddControllersWithViews
+    - appsettings.json đã có section Email: SmtpHost, SmtpPort, SenderEmail, SenderName, Password
+    - Package MailKit CHƯA được cài — agent cần cài trong task này
+    - Services/ folder CHƯA tồn tại — agent cần tạo mới
+  </currentState>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <taskUnit>
+    <!-- Đơn vị công việc nhỏ nhất — liệt kê để ước lượng và kiểm soát scope -->
+    1. Cài package MailKit
+    2. Tạo thư mục Services/Interfaces/ và Services/Implementations/
+    3. Tạo interface IEmailService với method SendEmailAsync
+    4. Tạo class EmailService implement IEmailService dùng MailKit + đọc config từ IConfiguration
+    5. Đăng ký DI trong Program.cs
+  </taskUnit>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <scope>
+    <!-- Làm đúng những gì này, không thêm không bớt -->
+    - Cài package MailKit (dotnet add package MailKit)
+    - Tạo interface IEmailService trong Services/Interfaces/
+      + Method: Task SendEmailAsync(string to, string subject, string body, bool isHtml = false)
+    - Tạo class EmailService trong Services/Implementations/
+      + Constructor inject IConfiguration
+      + Đọc config từ section "Email" trong appsettings.json
+      + Dùng MailKit (SmtpClient) để gửi email qua Gmail SMTP (host: smtp.gmail.com, port: 587, STARTTLS)
+      + Log lỗi khi gửi fail bằng ILogger, không throw exception ra ngoài (tránh crash app)
+    - Đăng ký DI Scoped trong Program.cs:
+      builder.Services.AddScoped&lt;IEmailService, EmailService&gt;()
+  </scope>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <hardRules>
+    <!-- Agent KHÔNG được vi phạm bất kỳ rule nào dưới đây dù có lý do gì -->
+    - KHÔNG sửa appsettings.json (config đã có đủ, không thêm key mới)
+    - KHÔNG sửa appsettings.Development.json
+    - KHÔNG tạo Controller, View, ViewModel trong task này
+    - KHÔNG sửa ApplicationUser.cs, ApplicationDbContext.cs, OtpCode.cs
+    - KHÔNG sửa bất kỳ Migration nào
+    - KHÔNG thêm package nào ngoài MailKit
+    - KHÔNG dùng System.Net.Mail (SmtpClient cũ) — phải dùng MailKit
+    - KHÔNG hardcode email, password, host vào code — phải đọc từ IConfiguration
+    - KHÔNG tạo queue, retry logic, background job trong task này
+    - KHÔNG tạo HTML email template phức tạp — plain text hoặc HTML inline đơn giản là đủ
+    - KHÔNG sửa Program.cs ngoài việc thêm đúng 1 dòng đăng ký DI của EmailService
+    - KHÔNG thêm middleware, route, hoặc bất kỳ config nào khác vào Program.cs
+  </hardRules>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <tasks>
+    <!-- Agent thực hiện theo đúng thứ tự này, không được bỏ bước -->
+    1. Đọc tất cả file trong &lt;context&gt;
+    2. Tóm tắt lại cho engineer:
+       - Cấu trúc Program.cs hiện tại (những service đã đăng ký)
+       - Section Email trong appsettings.json có những key nào
+       - Xác nhận Services/ folder chưa tồn tại
+       → Chờ engineer xác nhận tóm tắt đúng trước khi code
+    3. Cài package: dotnet add package MailKit (trong thư mục StudyMate/)
+    4. Tạo thư mục Services/Interfaces/ và Services/Implementations/
+    5. Tạo Services/Interfaces/IEmailService.cs
+    6. Tạo Services/Implementations/EmailService.cs
+    7. Cập nhật Program.cs — thêm dòng đăng ký DI đúng vị trí (sau section 3 Cookie, trước section 4 MVC)
+    8. Self-review: đảm bảo không có file nào ngoài outputRequired bị sửa
+    9. Chạy dotnet build, báo cáo kết quả
+    10. Báo cáo thay đổi và rủi ro
+  </tasks>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <constraints>
+    <!-- Ràng buộc kỹ thuật bắt buộc -->
+    - .NET 10 / ASP.NET Core MVC
+    - Namespace: StudyMate.Services.Interfaces và StudyMate.Services.Implementations
+    - Tất cả method async phải có suffix Async
+    - Private field dùng prefix _: _configuration, _logger
+    - Public method phải có XML doc comment
+    - Tuân theo cấu trúc thư mục trong PlanSetup.md
+  </constraints>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <acceptanceCriteria>
+    <!-- Tất cả phải đạt — không đạt = task chưa xong -->
+    - [ ] IEmailService.cs tồn tại tại Services/Interfaces/ với đúng method signature
+    - [ ] EmailService.cs tồn tại tại Services/Implementations/, không hardcode credential
+    - [ ] EmailService đọc đúng từ config section "Email" (SmtpHost, SmtpPort, SenderEmail, SenderName, Password)
+    - [ ] Program.cs có thêm đúng 1 dòng: builder.Services.AddScoped&lt;IEmailService, EmailService&gt;()
+    - [ ] dotnet build thành công, không có error
+    - [ ] Không có file nào ngoài outputRequired bị tạo mới hoặc sửa đổi
+  </acceptanceCriteria>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <testPlan>
+    <!-- Các bước test cụ thể, thực hiện theo thứ tự -->
+    1. Chạy: dotnet build → phải pass, không error
+    2. Kiểm tra Services/Interfaces/IEmailService.cs tồn tại
+    3. Kiểm tra Services/Implementations/EmailService.cs tồn tại
+    4. Mở Program.cs xác nhận có dòng AddScoped EmailService, không có thay đổi khác
+    5. (Manual) appsettings.Development.json đã có credential sẵn.
+       Inject IEmailService vào HomeController.Index (tạm thời), gọi SendEmailAsync đến một địa chỉ email test
+       → Chạy app, truy cập trang Home → kiểm tra email nhận được trong hộp thư
+    6. Xóa code test tạm thời trong HomeController sau khi verify xong — KHÔNG commit code test này
+  </testPlan>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <outputRequired>
+    <!-- Chỉ những file này được tạo mới hoặc sửa đổi -->
+    <create>StudyMate/Services/Interfaces/IEmailService.cs</create>
+    <create>StudyMate/Services/Implementations/EmailService.cs</create>
+    <modify>StudyMate/Program.cs (chỉ thêm 1 dòng DI registration)</modify>
+  </outputRequired>
+
+</prompt>
