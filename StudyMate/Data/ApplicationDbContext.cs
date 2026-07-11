@@ -50,6 +50,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Wallet> Wallets { get; set; }
     public DbSet<WalletTransaction> Transactions { get; set; }
 
+    // Module 10
+    public DbSet<Review> Reviews { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -279,4 +282,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasDatabaseName("IX_AspNetUsers_Email");
     }
 }
+
 
