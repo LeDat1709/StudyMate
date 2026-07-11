@@ -1,0 +1,94 @@
+@model StudyMate.ViewModels.TutorProfile.TutorProfileFormViewModel
+@{
+    ViewData["Title"] = "Hồ sơ gia sư";
+    var statusBadge = Model.IsVerified
+        ? ("Đã duyệt", "success")
+        : ("Chờ duyệt", "warning");
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Hồ sơ gia sư</h1>
+            <p>Quản lý thông tin công khai và trạng thái nhận học viên.</p>
+        </div>
+        <a asp-action="Edit" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Chỉnh sửa
+        </a>
+    </div>
+
+    @if (ViewData["CreateSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle me-1"></i>
+            Hồ sơ đã được tạo. <strong>Hồ sơ đang chờ xét duyệt</strong> trước khi hiển thị công khai.
+        </div>
+    }
+    @if (ViewData["UpdateSuccess"] != null)
+    {
+        <div class="alert alert-success py-2 small">
+            <i class="bi bi-check-circle me-1"></i> Cập nhật thành công
+        </div>
+    }
+
+    <div class="row g-3">
+        <div class="col-lg-4">
+            <div class="surface-card h-100">
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+                    {
+                        <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle mb-3"
+                             style="width:96px;height:96px;object-fit:cover" />
+                    }
+                    else
+                    {
+                        <div class="avatar-fallback mx-auto mb-3" style="width:96px;height:96px;font-size:2rem">
+                            @(string.IsNullOrWhiteSpace(Model.FullName) ? "?" : Model.FullName.Trim()[0])
+                        </div>
+                    }
+                    <h2 class="h5 fw-bold mb-1">@Model.FullName</h2>
+                    <p class="text-muted small mb-2">@Model.Email</p>
+                    <span class="badge text-bg-@statusBadge.Item2">@statusBadge.Item1</span>
+                    @if (Model.IsAvailable)
+                    {
+                        <span class="badge text-bg-primary">Đang nhận HV</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Tạm dừng</span>
+                    }
+                    <div class="profile-quick-links mt-3">
+                        <a asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> Hồ sơ tài khoản</a>
+                        <a asp-controller="Account" asp-action="Certificates"><i class="bi bi-award"></i> Chứng chỉ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="surface-card">
+                <div class="card-body">
+                    <div class="card-section-title">
+                        <i class="bi bi-mortarboard text-primary"></i> Thông tin dạy học
+                    </div>
+                    <h3 class="h5 fw-semibold">@Model.Headline</h3>
+                    <p class="text-muted" style="white-space:pre-wrap">@Model.Bio</p>
+                    <dl class="row mb-0 small">
+                        <dt class="col-sm-4">Kinh nghiệm</dt>
+                        <dd class="col-sm-8">@Model.YearsOfExperience năm</dd>
+                        <dt class="col-sm-4">Trình độ</dt>
+                        <dd class="col-sm-8">@Model.EducationLevel</dd>
+                        <dt class="col-sm-4">Học phí / giờ</dt>
+                        <dd class="col-sm-8">@Model.HourlyRate.ToString("N0") ₫</dd>
+                        <dt class="col-sm-4">Hình thức</dt>
+                        <dd class="col-sm-8">@Model.TeachingMode</dd>
+                        @if (!string.IsNullOrWhiteSpace(Model.Address))
+                        {
+                            <dt class="col-sm-4">Địa chỉ</dt>
+                            <dd class="col-sm-8">@Model.Address</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

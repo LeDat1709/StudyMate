@@ -1,0 +1,69 @@
+@model StudyMate.ViewModels.TutorProfile.TutorProfileFormViewModel
+@{
+    var educationLevels = StudyMate.Controllers.TutorProfileController.EducationLevels;
+    var teachingModes = StudyMate.Controllers.TutorProfileController.TeachingModes;
+}
+
+<div class="mb-3">
+    <label asp-for="Headline" class="form-label"></label>
+    <input asp-for="Headline" class="form-control" placeholder="VD: Gia sư IELTS 8.0+" />
+    <span asp-validation-for="Headline" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Bio" class="form-label"></label>
+    <textarea asp-for="Bio" class="form-control" rows="5" placeholder="Giới thiệu tối thiểu 100 ký tự"></textarea>
+    <span asp-validation-for="Bio" class="text-danger small"></span>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="YearsOfExperience" class="form-label"></label>
+        <input asp-for="YearsOfExperience" class="form-control" type="number" min="0" max="80" />
+        <span asp-validation-for="YearsOfExperience" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="EducationLevel" class="form-label"></label>
+        <select asp-for="EducationLevel" class="form-select">
+            <option value="">-- Chọn --</option>
+            @foreach (var e in educationLevels)
+            {
+                <option value="@e">@e</option>
+            }
+        </select>
+        <span asp-validation-for="EducationLevel" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="HourlyRate" class="form-label"></label>
+        <input asp-for="HourlyRate" class="form-control" type="number" min="1000" step="1000" />
+        <span asp-validation-for="HourlyRate" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="TeachingMode" class="form-label"></label>
+        <select asp-for="TeachingMode" class="form-select" id="teachingModeSelect">
+            @foreach (var m in teachingModes)
+            {
+                var label = m switch
+                {
+                    "Online" => "Online",
+                    "Offline" => "Offline",
+                    "Both" => "Cả hai",
+                    _ => m
+                };
+                <option value="@m">@label</option>
+            }
+        </select>
+        <span asp-validation-for="TeachingMode" class="text-danger small"></span>
+    </div>
+</div>
+
+<div class="mb-3 mt-3" id="addressGroup">
+    <label asp-for="Address" class="form-label"></label>
+    <input asp-for="Address" class="form-control" placeholder="Địa chỉ dạy offline" />
+    <span asp-validation-for="Address" class="text-danger small"></span>
+</div>
+
+<div class="form-check mb-4">
+    <input asp-for="IsAvailable" class="form-check-input" />
+    <label asp-for="IsAvailable" class="form-check-label"></label>
+</div>
