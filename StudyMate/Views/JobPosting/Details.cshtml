@@ -1,36 +1,150 @@
-﻿@model StudyMate.ViewModels.JobPosting.JobDetailViewModel
-@{ ViewData["Title"] = Model.Title; }
+@model StudyMate.ViewModels.JobPosting.JobDetailViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    string StatusBadge(string s) => s switch
+    {
+        "Open" => "badge-soft-success",
+        "Closed" => "badge-soft-secondary",
+        "Expired" => "badge-soft-warning",
+        _ => "badge-soft-primary"
+    };
+}
+
 <div class="page-shell">
-  @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
-  @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
-  <div class="surface-card"><div class="card-body">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-      <div>
-        <h1 class="h3">@Model.Title</h1>
-        <span class="badge text-bg-secondary">@Model.Status</span>
-      </div>
-      <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Danh sách</a>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success"><i class="bi bi-check-circle me-1"></i>@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i>@TempData["Error"]</div>
+    }
+
+    <div class="page-header">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <h1 class="mb-0">@Model.Title</h1>
+                <span class="badge @StatusBadge(Model.Status)">@Model.Status</span>
+            </div>
+            <p>Chi tiết yêu cầu thuê gia sư</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Danh sách
+        </a>
     </div>
-    <p class="mt-3" style="white-space:pre-wrap">@Model.Description</p>
-    <dl class="row small mb-3">
-      <dt class="col-sm-3">Môn</dt><dd class="col-sm-9">@Model.SubjectName</dd>
-      <dt class="col-sm-3">Trình độ mong muốn</dt><dd class="col-sm-9">@(Model.DesiredLevel ?? "—")</dd>
-      <dt class="col-sm-3">Hình thức</dt><dd class="col-sm-9">@Model.TeachingMode</dd>
-      <dt class="col-sm-3">Địa điểm</dt><dd class="col-sm-9">@(Model.Address ?? "—")</dd>
-      <dt class="col-sm-3">Ngân sách</dt><dd class="col-sm-9">@(Model.BudgetMin?.ToString("N0") ?? "?") – @(Model.BudgetMax?.ToString("N0") ?? "?") ₫</dd>
-      <dt class="col-sm-3">Buổi/tuần · phút</dt><dd class="col-sm-9">@(Model.SessionsPerWeek?.ToString() ?? "—") · @(Model.SessionDuration?.ToString() ?? "—")</dd>
-      <dt class="col-sm-3">Deadline</dt><dd class="col-sm-9">@(Model.Deadline?.ToString("dd/MM/yyyy") ?? "—")</dd>
-      <dt class="col-sm-3">Học viên</dt><dd class="col-sm-9">@Model.StudentName</dd>
-    </dl>
-    <div class="d-flex flex-wrap gap-2">
-      @if (Model.IsOwner && Model.Status == "Open") {
-        <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
-        <form asp-action="Close" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-warning btn-sm">Đóng job</button></form>
-        <form asp-action="Delete" method="post" onsubmit="return confirm('Xóa job?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button></form>
-      }
-      @if (Model.ShowApplyPlaceholder) {
-        <button type="button" class="btn btn-outline-primary btn-sm" disabled title="Module 5">Apply (sắp có M5)</button>
-      }
+
+    <div class="surface-card mb-3">
+        <div class="card-body">
+            <div class="card-section-title">
+                <i class="bi bi-file-text text-primary"></i> Mô tả
+            </div>
+            <p class="text-muted" style="white-space:pre-wrap">@Model.Description</p>
+
+            <div class="card-section-title mt-4">
+                <i class="bi bi-info-circle text-primary"></i> Thông tin
+            </div>
+            <div class="detail-grid">
+                <div>
+                    <div class="detail-label">Môn</div>
+                    <div class="detail-value">@Model.SubjectName</div>
+                </div>
+                <div>
+                    <div class="detail-label">Trình độ mong muốn</div>
+                    <div class="detail-value">@(Model.DesiredLevel ?? "—")</div>
+                </div>
+                <div>
+                    <div class="detail-label">Hình thức</div>
+                    <div class="detail-value">@Model.TeachingMode</div>
+                </div>
+                <div>
+                    <div class="detail-label">Địa điểm</div>
+                    <div class="detail-value">@(Model.Address ?? "—")</div>
+                </div>
+                <div>
+                    <div class="detail-label">Ngân sách</div>
+                    <div class="detail-value text-primary">
+                        @(Model.BudgetMin?.ToString("N0") ?? "?") – @(Model.BudgetMax?.ToString("N0") ?? "?") ₫
+                    </div>
+                </div>
+                <div>
+                    <div class="detail-label">Buổi/tuần · phút</div>
+                    <div class="detail-value">@(Model.SessionsPerWeek?.ToString() ?? "—") · @(Model.SessionDuration?.ToString() ?? "—")</div>
+                </div>
+                <div>
+                    <div class="detail-label">Deadline</div>
+                    <div class="detail-value">@(Model.Deadline?.ToString("dd/MM/yyyy") ?? "—")</div>
+                </div>
+                <div>
+                    <div class="detail-label">Học viên</div>
+                    <div class="detail-value">@Model.StudentName</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                @if (Model.IsOwner && Model.Status == "Open")
+                {
+                    <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+                        <i class="bi bi-pencil me-1"></i> Sửa
+                    </a>
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Application" asp-action="ForJob" asp-route-jobId="@Model.Id">
+                        <i class="bi bi-people me-1"></i> Xem apply
+                    </a>
+                    <form asp-action="Close" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Đóng job</button>
+                    </form>
+                    <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Xóa job?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button>
+                    </form>
+                }
+                @if (Model.IsOwner)
+                {
+                    <form asp-controller="Matching" asp-action="Rematch" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="jobId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-stars me-1"></i> Chạy lại AI match
+                        </button>
+                    </form>
+                }
+                @if (Model.CanApply)
+                {
+                    <a class="btn btn-primary btn-sm" asp-controller="Application" asp-action="Apply" asp-route-jobId="@Model.Id">
+                        <i class="bi bi-send me-1"></i> Apply ngay
+                    </a>
+                }
+                @if (Model.AlreadyApplied)
+                {
+                    <span class="badge badge-soft-secondary px-3 py-2">Đã apply</span>
+                }
+            </div>
+        </div>
     </div>
-  </div></div>
+
+    @if (Model.MatchedTutors.Any())
+    {
+        <div class="surface-card">
+            <div class="card-body">
+                <div class="card-section-title">
+                    <i class="bi bi-stars text-primary"></i> AI gợi ý gia sư
+                </div>
+                <div class="sm-stack">
+                    @foreach (var t in Model.MatchedTutors)
+                    {
+                        <div class="sm-stack-item">
+                            <div>
+                                <span class="badge badge-soft-secondary me-2">#@t.Rank</span>
+                                <a asp-controller="TutorProfile" asp-action="Details" asp-route-id="@t.TutorProfileId" class="item-title">@t.FullName</a>
+                                <div class="small text-muted">@t.Headline</div>
+                            </div>
+                            <span class="score-pill"><i class="bi bi-graph-up-arrow"></i> @t.Score.ToString("0.00")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
