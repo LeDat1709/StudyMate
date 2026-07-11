@@ -1,10 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyMate.Data;
 using StudyMate.Models;
+using StudyMate.Services.Interfaces;
 
 namespace StudyMate.Controllers;
 
@@ -13,11 +14,13 @@ public class ApplicationController : Controller
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
+    private readonly INotificationService _notify;
 
-    public ApplicationController(ApplicationDbContext db, UserManager<ApplicationUser> users)
+    public ApplicationController(ApplicationDbContext db, UserManager<ApplicationUser> users, INotificationService notify)
     {
         _db = db;
         _users = users;
+        _notify = notify;
     }
 
     [Authorize(Roles = "Tutor")]
@@ -32,12 +35,12 @@ public class ApplicationController : Controller
         if (user == null) return Challenge();
         if (!await _db.TutorProfiles.AnyAsync(p => p.UserId == user.Id && p.IsVerified))
         {
-            TempData["Error"] = "Cần hồ sơ gia sư đã duyệt (IsVerified).";
+            TempData["Error"] = "Cáº§n há»“ sÆ¡ gia sÆ° Ä‘Ă£ duyá»‡t (IsVerified).";
             return RedirectToAction("Details", "JobPosting", new { id = jobId });
         }
         if (await _db.Applications.AnyAsync(a => a.JobPostingId == jobId && a.TutorId == user.Id))
         {
-            TempData["Error"] = "Bạn đã apply job này.";
+            TempData["Error"] = "Báº¡n Ä‘Ă£ apply job nĂ y.";
             return RedirectToAction("Details", "JobPosting", new { id = jobId });
         }
 
@@ -58,17 +61,17 @@ public class ApplicationController : Controller
 
         if (!await _db.TutorProfiles.AnyAsync(p => p.UserId == user.Id && p.IsVerified))
         {
-            TempData["Error"] = "Cần hồ sơ gia sư đã duyệt.";
+            TempData["Error"] = "Cáº§n há»“ sÆ¡ gia sÆ° Ä‘Ă£ duyá»‡t.";
             return RedirectToAction("Details", "JobPosting", new { id = model.JobPostingId });
         }
         if (await _db.Applications.AnyAsync(a => a.JobPostingId == model.JobPostingId && a.TutorId == user.Id))
         {
-            TempData["Error"] = "Bạn đã apply job này.";
+            TempData["Error"] = "Báº¡n Ä‘Ă£ apply job nĂ y.";
             return RedirectToAction("Details", "JobPosting", new { id = model.JobPostingId });
         }
 
         if (model.CoverNote?.Length > 500)
-            ModelState.AddModelError(nameof(model.CoverNote), "Tối đa 500 ký tự.");
+            ModelState.AddModelError(nameof(model.CoverNote), "Tá»‘i Ä‘a 500 kĂ½ tá»±.");
         if (!ModelState.IsValid)
         {
             ViewData["JobTitle"] = job.Title;
@@ -85,7 +88,7 @@ public class ApplicationController : Controller
             AppliedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Apply thành công.";
+        TempData["Success"] = "Apply thĂ nh cĂ´ng.";
         return RedirectToAction("Details", "JobPosting", new { id = model.JobPostingId });
     }
 
@@ -119,6 +122,7 @@ public class ApplicationController : Controller
         app.Status = "Accepted";
         app.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
+        await _notify.NotifyAsync(app.TutorId, "Application được chấp nhận", $"JobId={app.JobPostingId}", "ApplyAccepted", app.Id);
         return RedirectToAction(nameof(ForJob), new { jobId = app.JobPostingId });
     }
 
@@ -178,9 +182,10 @@ public class ApplyFormVm
     public int JobPostingId { get; set; }
 
     [StringLength(500)]
-    [Display(Name = "Thư giới thiệu")]
+    [Display(Name = "ThÆ° giá»›i thiá»‡u")]
     public string? CoverNote { get; set; }
 
-    [Display(Name = "Học phí đề xuất")]
+    [Display(Name = "Há»c phĂ­ Ä‘á» xuáº¥t")]
     public decimal? ProposedRate { get; set; }
 }
+
