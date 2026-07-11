@@ -1,0 +1,22 @@
+﻿@model List<StudyMate.Models.Booking>
+@{ ViewData["Title"]="Lịch học"; }
+<div class="page-shell">
+  <h1 class="h4">Bookings</h1>
+  @if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>}
+  @if(!Model.Any()){<p class="text-muted">Chưa có lịch. Tạo từ Application Accepted.</p>}
+  <div class="list-group">@foreach(var b in Model){
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between"><strong>#@b.Id</strong><span class="badge">@b.Status</span></div>
+      <div class="small">@b.ScheduledStart.ToLocalTime() → @b.ScheduledEnd.ToLocalTime()</div>
+      <div class="small">SV: @b.Student?.FullName · GS: @b.Tutor?.FullName</div>
+      @if(!string.IsNullOrEmpty(b.MeetingUrl)){<a href="@b.MeetingUrl" target="_blank" class="small">Meeting</a>}
+      <div class="mt-1 d-flex gap-1 flex-wrap">
+        @if(b.Status=="Pending" && User.IsInRole("Tutor")){
+          <form asp-action="Confirm" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@b.Id"/><button class="btn btn-sm btn-success">Confirm</button></form>}
+        @if(b.Status is "Pending" or "Confirmed"){
+          <form asp-action="Cancel" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@b.Id"/><button class="btn btn-sm btn-outline-danger">Cancel</button></form>
+          <form asp-action="Complete" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@b.Id"/><button class="btn btn-sm btn-primary">Complete</button></form>}
+      </div>
+    </div>
+  }</div>
+</div>
