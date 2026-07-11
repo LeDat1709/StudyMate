@@ -1,0 +1,14 @@
+﻿@{ ViewData["Title"]="Admin"; }
+<div class="page-shell"><h1 class="h4">Admin dashboard</h1>
+<div class="row g-3">
+  <div class="col-md-3"><div class="surface-card"><div class="card-body">Users<br/><strong>@ViewData["Users"]</strong></div></div></div>
+  <div class="col-md-3"><div class="surface-card"><div class="card-body">Jobs<br/><strong>@ViewData["Jobs"]</strong></div></div></div>
+  <div class="col-md-3"><div class="surface-card"><div class="card-body">Tutors<br/><strong>@ViewData["Tutors"]</strong></div></div></div>
+  <div class="col-md-3"><div class="surface-card"><div class="card-body">Pending profiles<br/><strong>@ViewData["PendingProfiles"]</strong></div></div></div>
+</div>
+<div class="mt-3 d-flex gap-2 flex-wrap">
+  <a class="btn btn-outline-primary" asp-action="Users">Users</a>
+  <a class="btn btn-outline-primary" asp-action="TutorProfiles">Tutor profiles</a>
+  <a class="btn btn-outline-primary" asp-action="Reports">Reports</a>
+  <a class="btn btn-outline-primary" asp-action="AiLogs">AI logs</a>
+</div></div>
