@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta><taskId>M2-T10</taskId><taskName>Public tutor profile</taskName>
+  <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T10</breakTaskReference></meta>
+  <goal>Public Details page; only IsVerified profiles for guests.</goal>
+</prompt>
