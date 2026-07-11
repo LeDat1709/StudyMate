@@ -1,0 +1,14 @@
+﻿@model List<StudyMate.Models.JobApplication>
+@{ ViewData["Title"]="Applications"; }
+<div class="page-shell"><h1 class="h4">Apply — @ViewData["JobTitle"]</h1>
+<div class="list-group">@foreach(var a in Model){
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between"><strong>@a.Tutor?.FullName</strong><span class="badge">@a.Status</span></div>
+    <div class="small">@a.CoverNote</div>
+    <div class="small text-muted">Rate: @(a.ProposedRate?.ToString("N0")??"—")</div>
+    @if(a.Status=="Pending"){<div class="mt-2 d-flex gap-1">
+      <form asp-action="Accept" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-success">Accept</button></form>
+      <form asp-action="Reject" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-outline-danger">Reject</button></form>
+    </div>}
+  </div>
+}</div></div>
