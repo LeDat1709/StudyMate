@@ -1,0 +1,13 @@
+﻿@model List<StudyMate.Models.UserReport>
+@{ ViewData["Title"]="Reports"; }
+<div class="page-shell"><h1 class="h4">Reports</h1>
+@foreach(var r in Model){<div class="surface-card mb-2"><div class="card-body">
+  <div>@r.Reason · <strong>@r.Status</strong> · by @r.Reporter?.FullName</div>
+  <form asp-action="ResolveReport" method="post" class="row g-2 mt-2">@Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@r.Id"/>
+    <div class="col-auto"><select name="status" class="form-select form-select-sm"><option>Resolved</option><option>Dismissed</option><option>Pending</option></select></div>
+    <div class="col"><input name="adminNote" class="form-control form-control-sm" placeholder="Note"/></div>
+    <div class="col-auto"><button class="btn btn-sm btn-primary">Save</button></div>
+  </form>
+</div></div>}
+</div>

@@ -1,0 +1,10 @@
+﻿@model List<StudyMate.Models.TutorProfile>
+@{ ViewData["Title"]="Tutor profiles"; }
+<div class="page-shell"><h1 class="h4">Tutor profiles</h1>
+<table class="table"><thead><tr><th>User</th><th>Headline</th><th>Verified</th><th></th></tr></thead><tbody>
+@foreach(var p in Model){<tr><td>@p.User?.FullName</td><td>@p.Headline</td><td>@p.IsVerified</td>
+<td class="d-flex gap-1">
+<form asp-action="VerifyTutor" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.Id"/><input type="hidden" name="verify" value="true"/><button class="btn btn-sm btn-success">Verify</button></form>
+<form asp-action="VerifyTutor" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.Id"/><input type="hidden" name="verify" value="false"/><button class="btn btn-sm btn-outline-secondary">Unverify</button></form>
+</td></tr>}
+</tbody></table></div>

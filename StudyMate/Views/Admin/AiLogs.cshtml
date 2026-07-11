@@ -1,0 +1,6 @@
+﻿@model List<StudyMate.Models.AiLog>
+@{ ViewData["Title"]="AI logs"; }
+<div class="page-shell"><h1 class="h4">AI logs</h1>
+<table class="table table-sm"><thead><tr><th>Action</th><th>Model</th><th>In</th><th>Out</th><th>At</th></tr></thead><tbody>
+@foreach(var l in Model){<tr><td>@l.Action</td><td>@l.ModelUsed</td><td class="small">@l.InputData</td><td class="small">@l.OutputData</td><td class="small">@l.CreatedAt.ToLocalTime()</td></tr>}
+</tbody></table></div>
