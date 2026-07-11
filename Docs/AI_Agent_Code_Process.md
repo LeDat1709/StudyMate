@@ -599,12 +599,16 @@ StudyMate/
 └── Docs/
     ├── AI_Agent_Code_Process.md   ← File này
     ├── FRS/
-    │   ├── FRS_Module1_Auth.md
-    │   ├── FRS_Module2_TutorProfile.md
+    │   ├── FRS_M1_Auth.md
+    │   ├── FRS_M2_TutorProfile.md
+    │   └── ...
+    ├── BreakTasks/                ← Gom toàn bộ break task theo module
+    │   ├── BreakTask_M1_Auth.md
+    │   ├── BreakTask_M2_TutorProfile.md
     │   └── ...
     ├── Prompts/
-    │   ├── M1_T1_Setup_Identity.xml
-    │   ├── M1_T2_Register_Page.xml
+    │   ├── M1_T1_EmailService.xml
+    │   ├── M2_T1_....xml
     │   └── ...
     └── Reports/
         ├── Report_M1_T1_[date].md

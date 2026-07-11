@@ -494,6 +494,8 @@ M1-T1 (EmailService)
 | M1-T9 Tutor Certificates | 45 phút | T7 |
 | **Tổng** | **480 phút (~8 giờ)** | |
 
+> Thư mục break tasks: `Docs/BreakTasks/`  
+> File break task: `Docs/BreakTasks/BreakTask_M1_Auth.md`  
 > Thư mục prompt: `Docs/Prompts/`  
 > Tên file prompt: `M1_T1_EmailService.xml`, `M1_T2_OtpService.xml`, ...  
 > Thư mục report: `Docs/Reports/`  

@@ -8,7 +8,7 @@
     <module>Module 1 — Auth &amp; Account</module>
     <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
     <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-06, UC-M1-07</frsReference>
-    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T7</breakTaskReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M1_Auth.md — M1-T7</breakTaskReference>
     <dependsOn>M1-T5 (Login/Logout đã có), M1-T3/M1-T4 (AccountController, Identity user model đã có)</dependsOn>
   </meta>
 

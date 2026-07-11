@@ -8,7 +8,7 @@
     <module>Module 1 — Auth &amp; Account</module>
     <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
     <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-01</frsReference>
-    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T3</breakTaskReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M1_Auth.md — M1-T3</breakTaskReference>
     <dependsOn>M1-T1 (IEmailService), M1-T2 (IOtpService) — đều đã có sẵn</dependsOn>
   </meta>
 
