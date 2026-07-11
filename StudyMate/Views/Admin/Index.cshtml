@@ -1,0 +1,71 @@
+@{ ViewData["Title"] = "Admin"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Admin dashboard</h1>
+            <p>Tổng quan hệ thống StudyMate</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Users</div>
+                        <div class="stat-value">@ViewData["Users"]</div>
+                    </div>
+                    <span class="stat-icon"><i class="bi bi-people"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Jobs</div>
+                        <div class="stat-value">@ViewData["Jobs"]</div>
+                    </div>
+                    <span class="stat-icon"><i class="bi bi-briefcase"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Tutors</div>
+                        <div class="stat-value">@ViewData["Tutors"]</div>
+                    </div>
+                    <span class="stat-icon"><i class="bi bi-mortarboard"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Pending profiles</div>
+                        <div class="stat-value">@ViewData["PendingProfiles"]</div>
+                    </div>
+                    <span class="stat-icon"><i class="bi bi-hourglass-split"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="surface-card">
+        <div class="card-body">
+            <div class="card-section-title">
+                <i class="bi bi-grid text-primary"></i> Quản trị
+            </div>
+            <div class="admin-nav">
+                <a class="btn btn-outline-primary" asp-action="Users"><i class="bi bi-people me-1"></i> Users</a>
+                <a class="btn btn-outline-primary" asp-action="TutorProfiles"><i class="bi bi-person-badge me-1"></i> Tutor profiles</a>
+                <a class="btn btn-outline-primary" asp-action="Reports"><i class="bi bi-flag me-1"></i> Reports</a>
+                <a class="btn btn-outline-primary" asp-action="AiLogs"><i class="bi bi-cpu me-1"></i> AI logs</a>
+            </div>
+        </div>
+    </div>
+</div>

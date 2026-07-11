@@ -42,6 +42,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // Module 7
     public DbSet<Booking> Bookings { get; set; }
 
+    // Module 8
+    public DbSet<UserReport> Reports { get; set; }
+    public DbSet<AiLog> AiLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -242,6 +246,27 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Tutor).WithMany().HasForeignKey(x => x.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── Report + AiLog (M8) ───────────────────────────────────────────────
+        builder.Entity<UserReport>(e =>
+        {
+            e.ToTable("Reports");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.TargetType).HasMaxLength(50);
+            e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            e.HasOne(x => x.Reporter).WithMany().HasForeignKey(x => x.ReporterId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.TargetUser).WithMany().HasForeignKey(x => x.TargetUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+        builder.Entity<AiLog>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Action).HasMaxLength(100).IsRequired();
+            e.Property(x => x.ModelUsed).HasMaxLength(100);
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // ── Index tối ưu query phổ biến ──────────────────────────────────────
