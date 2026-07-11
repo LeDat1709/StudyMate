@@ -1,11 +1,57 @@
-﻿@model StudyMate.Controllers.AiChatVm
-@{ ViewData["Title"]="AI Assistant"; }
-<div class="page-shell"><div class="surface-card"><div class="card-body">
-  <h1 class="h4">AI Learning Assistant (stub)</h1>
-  <form asp-action="Ask" method="post">@Html.AntiForgeryToken()
-    <div class="mb-3"><textarea asp-for="Question" class="form-control" rows="3" placeholder="Hỏi về học tập, tìm gia sư..."></textarea>
-      <span asp-validation-for="Question" class="text-danger small"></span></div>
-    <button class="btn btn-primary">Hỏi</button>
-  </form>
-  @if(!string.IsNullOrEmpty(Model.Answer)){<div class="alert alert-info mt-3">@Model.Answer</div>}
-</div></div></div>
+@model StudyMate.Controllers.AiChatVm
+@{ ViewData["Title"] = "AI Assistant"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>AI Learning Assistant</h1>
+            <p>Hỏi đáp học tập và gợi ý gia sư (stub response)</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="surface-card">
+                <div class="card-body">
+                    <div class="card-section-title">
+                        <i class="bi bi-robot text-primary"></i> Đặt câu hỏi
+                    </div>
+                    <form asp-action="Ask" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="Question" class="form-label">Câu hỏi</label>
+                            <textarea asp-for="Question" class="form-control" rows="4"
+                                      placeholder="VD: Làm sao tìm gia sư IELTS band 7?"></textarea>
+                            <span asp-validation-for="Question" class="text-danger small"></span>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i> Hỏi AI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="surface-card h-100">
+                <div class="card-body">
+                    <div class="card-section-title">
+                        <i class="bi bi-chat-quote text-primary"></i> Trả lời
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Answer))
+                    {
+                        <div class="alert alert-info mb-0" style="white-space:pre-wrap">@Model.Answer</div>
+                    }
+                    else
+                    {
+                        <div class="empty-state py-4">
+                            <i class="bi bi-lightbulb"></i>
+                            <p class="mb-0">Câu trả lời sẽ hiện ở đây sau khi bạn hỏi.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
