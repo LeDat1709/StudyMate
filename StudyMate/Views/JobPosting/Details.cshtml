@@ -25,6 +25,7 @@
     <div class="d-flex flex-wrap gap-2">
       @if (Model.IsOwner && Model.Status == "Open") {
         <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+        <a class="btn btn-outline-primary btn-sm" asp-controller="Application" asp-action="ForJob" asp-route-jobId="@Model.Id">Xem apply</a>
         <form asp-action="Close" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-warning btn-sm">Đóng job</button></form>
         <form asp-action="Delete" method="post" onsubmit="return confirm('Xóa job?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button></form>
       }
@@ -35,8 +36,11 @@
           <button type="submit" class="btn btn-outline-info btn-sm">Chạy lại AI match</button>
         </form>
       }
-      @if (Model.ShowApplyPlaceholder) {
-        <button type="button" class="btn btn-outline-primary btn-sm" disabled title="Module 5">Apply (sắp có M5)</button>
+      @if (Model.CanApply) {
+        <a class="btn btn-primary btn-sm" asp-controller="Application" asp-action="Apply" asp-route-jobId="@Model.Id">Apply ngay</a>
+      }
+      @if (Model.AlreadyApplied) {
+        <span class="btn btn-outline-secondary btn-sm disabled">Đã apply</span>
       }
     </div>
   </div></div>

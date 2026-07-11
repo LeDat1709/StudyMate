@@ -206,6 +206,7 @@ public class JobPostingController : Controller
         if (j == null) return NotFound();
 
         var userId = _users.GetUserId(User);
+        var already = userId != null && await _db.Applications.AnyAsync(a => a.JobPostingId == id && a.TutorId == userId);
         var matched = await _db.MatchingResults.AsNoTracking()
             .Include(m => m.TutorProfile)!.ThenInclude(t => t!.User)
             .Where(m => m.JobPostingId == id)
@@ -242,7 +243,8 @@ public class JobPostingController : Controller
             StudentName = j.Student?.FullName,
             StudentAvatar = j.Student?.AvatarUrl,
             IsOwner = userId == j.StudentId,
-            ShowApplyPlaceholder = User.IsInRole("Tutor") && j.Status == "Open",
+            CanApply = User.IsInRole("Tutor") && j.Status == "Open" && !already,
+            AlreadyApplied = already,
             MatchedTutors = matched
         });
     }
@@ -345,7 +347,12 @@ public class JobPostingController : Controller
         var j = await _db.JobPostings.FirstOrDefaultAsync(x => x.Id == id && x.StudentId == user.Id);
         if (j == null) return NotFound();
 
-        // M5: block delete when Applications exist
+        if (await _db.Applications.AnyAsync(a => a.JobPostingId == id))
+        {
+            TempData["Error"] = "Job đã có application — chỉ được Đóng, không xóa.";
+            return RedirectToAction(nameof(MyJobs));
+        }
+
         _db.JobPostings.Remove(j);
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã xóa job.";
