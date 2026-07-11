@@ -28,9 +28,29 @@
         <form asp-action="Close" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-warning btn-sm">Đóng job</button></form>
         <form asp-action="Delete" method="post" onsubmit="return confirm('Xóa job?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button></form>
       }
+      @if (Model.IsOwner) {
+        <form asp-controller="Matching" asp-action="Rematch" method="post" class="d-inline">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="jobId" value="@Model.Id" />
+          <button type="submit" class="btn btn-outline-info btn-sm">Chạy lại AI match</button>
+        </form>
+      }
       @if (Model.ShowApplyPlaceholder) {
         <button type="button" class="btn btn-outline-primary btn-sm" disabled title="Module 5">Apply (sắp có M5)</button>
       }
     </div>
   </div></div>
+  @if (Model.MatchedTutors.Any()) {
+    <div class="surface-card mt-3"><div class="card-body">
+      <h2 class="h6">AI gợi ý gia sư (stub)</h2>
+      <ul class="list-group list-group-flush">
+        @foreach (var t in Model.MatchedTutors) {
+          <li class="list-group-item d-flex justify-content-between">
+            <span>#@t.Rank <a asp-controller="TutorProfile" asp-action="Details" asp-route-id="@t.TutorProfileId">@t.FullName</a> — @t.Headline</span>
+            <span class="badge text-bg-primary">@t.Score.ToString("0.00")</span>
+          </li>
+        }
+      </ul>
+    </div></div>
+  }
 </div>
