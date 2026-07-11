@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StudyMate.Data;
 using StudyMate.Models;
@@ -7,7 +7,7 @@ using StudyMate.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── 1. Database + EF Core ─────────────────────────────────────────────────────
+// â”€â”€ 1. Database + EF Core â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -15,7 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
-// ── 2. ASP.NET Identity ───────────────────────────────────────────────────────
+// â”€â”€ 2. ASP.NET Identity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     // Password policy
@@ -32,39 +32,40 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     // User
     options.User.RequireUniqueEmail          = true;
 
-    // Sign-in: bắt buộc xác thực email trước khi đăng nhập
+    // Sign-in: báº¯t buá»™c xĂ¡c thá»±c email trÆ°á»›c khi Ä‘Äƒng nháº­p
     options.SignIn.RequireConfirmedEmail     = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ── 3. Cookie / Session ───────────────────────────────────────────────────────
+// â”€â”€ 3. Cookie / Session â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath           = "/Account/Login";
     options.LogoutPath          = "/Account/Logout";
     options.AccessDeniedPath    = "/Account/AccessDenied";
     options.SlidingExpiration   = true;
-    options.ExpireTimeSpan      = TimeSpan.FromDays(1);  // mặc định 1 ngày
+    options.ExpireTimeSpan      = TimeSpan.FromDays(1);  // máº·c Ä‘á»‹nh 1 ngĂ y
 });
 
-// ── 4. Application Services ───────────────────────────────────────────────────
+// â”€â”€ 4. Application Services â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IContentModerationService, ContentModerationService>();
 builder.Services.AddScoped<IMatchingService, MatchingService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
-// ── 5. MVC ────────────────────────────────────────────────────────────────────
+// â”€â”€ 5. MVC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ── 6. Seed Roles + Subjects khi khởi động ────────────────────────────────────
+// â”€â”€ 6. Seed Roles + Subjects khi khá»Ÿi Ä‘á»™ng â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 await SeedRolesAsync(app);
 await SeedSubjectsAsync(app);
 
-// ── 7. Middleware pipeline ────────────────────────────────────────────────────
+// â”€â”€ 7. Middleware pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -74,7 +75,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication();   // phải trước UseAuthorization
+app.UseAuthentication();   // pháº£i trÆ°á»›c UseAuthorization
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -86,7 +87,7 @@ app.MapControllerRoute(
 
 app.Run();
 
-// ── Seed Roles helper ─────────────────────────────────────────────────────────
+// â”€â”€ Seed Roles helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static async Task SeedRolesAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
@@ -100,10 +101,11 @@ static async Task SeedRolesAsync(WebApplication app)
     }
 }
 
-// ── Seed Subjects (M2-T1) ─────────────────────────────────────────────────────
+// â”€â”€ Seed Subjects (M2-T1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static async Task SeedSubjectsAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await SeedData.SeedSubjectsAsync(db);
 }
+

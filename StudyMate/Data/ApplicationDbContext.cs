@@ -53,6 +53,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // Module 10
     public DbSet<Review> Reviews { get; set; }
 
+    // Module 11
+    public DbSet<Notification> Notifications { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -282,5 +285,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasDatabaseName("IX_AspNetUsers_Email");
     }
 }
+
 
 
