@@ -1,0 +1,47 @@
+@model StudyMate.Controllers.BookingFormVm
+@{ ViewData["Title"] = "Tạo booking"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Tạo lịch học</h1>
+            <p>@ViewData["JobTitle"]</p>
+        </div>
+    </div>
+
+    <div class="surface-card" style="max-width:640px">
+        <div class="card-body">
+            <div class="card-section-title">
+                <i class="bi bi-calendar-plus text-primary"></i> Thông tin buổi học
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ApplicationId" />
+                <div class="mb-3">
+                    <label asp-for="ScheduledStart" class="form-label"></label>
+                    <input asp-for="ScheduledStart" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="ScheduledStart" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="ScheduledEnd" class="form-label"></label>
+                    <input asp-for="ScheduledEnd" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="ScheduledEnd" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="MeetingUrl" class="form-label"></label>
+                    <input asp-for="MeetingUrl" class="form-control" placeholder="https://meet.google.com/..." />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label"></label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Ghi chú cho buổi học"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2 me-1"></i> Tạo booking
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Danh sách</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

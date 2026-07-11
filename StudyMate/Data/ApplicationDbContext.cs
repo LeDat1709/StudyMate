@@ -39,6 +39,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<ChatMessage> Messages { get; set; }
 
+    // Module 7
+    public DbSet<Booking> Bookings { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -225,6 +228,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasOne(x => x.Sender).WithMany().HasForeignKey(x => x.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.ConversationId, x.SentAt });
+        });
+
+        // ── Booking (M7) ─────────────────────────────────────────────────────
+        builder.Entity<Booking>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            e.Property(x => x.MeetingUrl).HasMaxLength(500);
+            e.HasOne(x => x.Application).WithMany().HasForeignKey(x => x.ApplicationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Student).WithMany().HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Tutor).WithMany().HasForeignKey(x => x.TutorId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── Index tối ưu query phổ biến ──────────────────────────────────────

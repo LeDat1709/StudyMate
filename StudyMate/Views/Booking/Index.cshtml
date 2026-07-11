@@ -1,0 +1,92 @@
+@model List<StudyMate.Models.Booking>
+@{
+    ViewData["Title"] = "Lịch học";
+    string StatusBadge(string s) => s switch
+    {
+        "Pending" => "badge-soft-warning",
+        "Confirmed" => "badge-soft-primary",
+        "Completed" => "badge-soft-success",
+        "Cancelled" => "badge-soft-secondary",
+        _ => "badge-soft-info"
+    };
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Lịch học (Bookings)</h1>
+            <p>Xác nhận, hoàn thành hoặc hủy buổi học</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success"><i class="bi bi-check-circle me-1"></i>@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i>@TempData["Error"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-calendar-x"></i>
+                <p class="mb-0">Chưa có lịch học.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sm-stack">
+            @foreach (var b in Model)
+            {
+                <div class="sm-stack-item" style="align-items:flex-start">
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <strong class="item-title">Booking #@b.Id</strong>
+                            <span class="badge @StatusBadge(b.Status)">@b.Status</span>
+                        </div>
+                        <div class="meta-row mb-1">
+                            <span><i class="bi bi-clock"></i> @b.ScheduledStart.ToLocalTime().ToString("dd/MM/yyyy HH:mm") → @b.ScheduledEnd.ToLocalTime().ToString("HH:mm")</span>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-person me-1"></i>SV: @b.Student?.FullName
+                            · GS: @b.Tutor?.FullName
+                        </div>
+                        <div class="d-flex flex-wrap gap-1 mt-2">
+                            @if (b.Status == "Pending" && User.IsInRole("Tutor"))
+                            {
+                                <form asp-action="Confirm" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@b.Id" />
+                                    <button class="btn btn-sm btn-primary" type="submit">Confirm</button>
+                                </form>
+                            }
+                            @if (b.Status is "Pending" or "Confirmed")
+                            {
+                                <form asp-action="Complete" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@b.Id" />
+                                    <button class="btn btn-sm btn-outline-primary" type="submit">Complete</button>
+                                </form>
+                                <form asp-action="Cancel" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@b.Id" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
+                                </form>
+                            }
+                            @if (b.Status == "Completed" && User.IsInRole("Student"))
+                            {
+                                <a class="btn btn-sm btn-outline-primary" asp-controller="Review" asp-action="Create" asp-route-bookingId="@b.Id">
+                                    <i class="bi bi-star me-1"></i> Review
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
