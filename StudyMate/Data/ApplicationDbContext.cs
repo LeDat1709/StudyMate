@@ -26,6 +26,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TutorAvailability> TutorAvailabilities { get; set; }
     public DbSet<DemoLesson> DemoLessons { get; set; }
 
+    // Module 3
+    public DbSet<JobPosting> JobPostings { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -134,6 +137,33 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .WithMany(s => s.TutorSubjects)
              .HasForeignKey(x => x.SubjectId)
              .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── JobPosting (M3) ──────────────────────────────────────────────────
+        builder.Entity<JobPosting>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.StudentId).HasMaxLength(450).IsRequired();
+            e.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            e.Property(x => x.DesiredLevel).HasMaxLength(100);
+            e.Property(x => x.TeachingMode).HasMaxLength(20);
+            e.Property(x => x.Address).HasMaxLength(300);
+            e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Open");
+            e.Property(x => x.BudgetMin).HasPrecision(10, 2);
+            e.Property(x => x.BudgetMax).HasPrecision(10, 2);
+
+            e.HasOne(x => x.Student)
+             .WithMany()
+             .HasForeignKey(x => x.StudentId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.Subject)
+             .WithMany()
+             .HasForeignKey(x => x.SubjectId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasIndex(x => x.StudentId).HasDatabaseName("IX_JobPostings_StudentId");
+            e.HasIndex(x => new { x.Status, x.Deadline }).HasDatabaseName("IX_JobPostings_Status");
         });
 
         // ── Index tối ưu query phổ biến ──────────────────────────────────────

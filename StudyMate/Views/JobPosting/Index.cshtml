@@ -1,0 +1,131 @@
+@model StudyMate.ViewModels.JobPosting.JobListViewModel
+@{ ViewData["Title"] = "Việc làm"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Yêu cầu thuê gia sư</h1>
+            <p><strong>@Model.TotalCount</strong> job đang mở — tìm việc phù hợp với bạn</p>
+        </div>
+        @if (User.IsInRole("Student"))
+        {
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary btn-sm" asp-action="MyJobs">
+                    <i class="bi bi-folder2-open me-1"></i> Job của tôi
+                </a>
+                <a class="btn btn-primary btn-sm" asp-action="Create">
+                    <i class="bi bi-plus-lg me-1"></i> Đăng yêu cầu
+                </a>
+            </div>
+        }
+    </div>
+
+    <form method="get" class="surface-card filter-toolbar mb-3">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small">Từ khóa</label>
+                    <input name="q" value="@Model.Keyword" class="form-control" placeholder="Tiêu đề, mô tả" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Môn</label>
+                    <select name="subjectId" class="form-select">
+                        <option value="">Tất cả</option>
+                        @foreach (var s in Model.Subjects)
+                        {
+                            <option value="@s.Id" selected="@(Model.SubjectId == s.Id)">@s.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Hình thức</label>
+                    <select name="teachingMode" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="Online" selected="@(Model.TeachingMode == "Online")">Online</option>
+                        <option value="Offline" selected="@(Model.TeachingMode == "Offline")">Offline</option>
+                        <option value="Both" selected="@(Model.TeachingMode == "Both")">Both</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small">Min</label>
+                    <input name="budgetMin" value="@Model.BudgetMin" type="number" class="form-control" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small">Max</label>
+                    <input name="budgetMax" value="@Model.BudgetMax" type="number" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Sắp xếp</label>
+                    <select name="sort" class="form-select">
+                        <option value="Newest" selected="@(Model.Sort == "Newest")">Mới nhất</option>
+                        <option value="BudgetDesc" selected="@(Model.Sort == "BudgetDesc")">Budget cao</option>
+                        <option value="Deadline" selected="@(Model.Sort == "Deadline")">Sắp hết hạn</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100" title="Lọc">
+                        <i class="bi bi-funnel"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-briefcase"></i>
+                <p class="mb-0">Không có job phù hợp. Thử đổi bộ lọc.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var j in Model.Items)
+            {
+                <div class="col-md-6">
+                    <div class="entity-card">
+                        <div class="card-body">
+                            <a asp-action="Details" asp-route-id="@j.Id" class="stretched-link-title h5 d-block mb-2">@j.Title</a>
+                            <div class="meta-row mb-2">
+                                <span><i class="bi bi-book"></i> @j.SubjectName</span>
+                                <span><i class="bi bi-laptop"></i> @j.TeachingMode</span>
+                            </div>
+                            <div class="d-flex flex-wrap justify-content-between gap-2 align-items-end">
+                                <div>
+                                    <div class="fw-800 text-primary">
+                                        @(j.BudgetMin?.ToString("N0") ?? "?") – @(j.BudgetMax?.ToString("N0") ?? "?") ₫/giờ
+                                    </div>
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-person me-1"></i>@j.StudentName
+                                        · deadline @(j.Deadline?.ToString("dd/MM/yyyy") ?? "—")
+                                    </div>
+                                </div>
+                                <span class="badge badge-soft-primary">Open</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-4" aria-label="Phân trang">
+            <ul class="pagination justify-content-center">
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-q="@Model.Keyword"
+                           asp-route-subjectId="@Model.SubjectId" asp-route-teachingMode="@Model.TeachingMode"
+                           asp-route-budgetMin="@Model.BudgetMin" asp-route-budgetMax="@Model.BudgetMax"
+                           asp-route-sort="@Model.Sort">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

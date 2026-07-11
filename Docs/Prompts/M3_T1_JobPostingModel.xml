@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M3-T1</taskId>
+    <taskName>JobPosting model + migration</taskName>
+    <timeEstimate>30 minutes</timeEstimate>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T1</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+  </meta>
+  <goal>Create JobPosting entity, DbSet, Fluent API, EF migration. No controllers/views.</goal>
+  <hardRules>
+    - Only JobPosting model this task (no Application/Matching)
+    - Map fields to Database/StudyMate_Schema.sql JobPostings
+    - Status default Open; Budget decimal(10,2)
+  </hardRules>
+  <outputRequired>
+    - Models/JobPosting.cs
+    - ApplicationDbContext update
+    - Migration AddJobPosting
+    - Prompt + Report
+  </outputRequired>
+</prompt>

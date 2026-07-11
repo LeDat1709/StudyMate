@@ -1,0 +1,67 @@
+@model StudyMate.ViewModels.JobPosting.JobPostingFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" placeholder="VD: Cần gia sư IELTS 7.5+" />
+    <span asp-validation-for="Title" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="5" placeholder="Mô tả tối thiểu 50 ký tự"></textarea>
+    <span asp-validation-for="Description" class="text-danger small"></span>
+</div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="SubjectId" class="form-label"></label>
+        <select asp-for="SubjectId" class="form-select">
+            <option value="">-- Chọn môn --</option>
+            @foreach (var s in Model.Subjects)
+            {
+                <option value="@s.Id">@s.Name (@s.Category)</option>
+            }
+        </select>
+        <span asp-validation-for="SubjectId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="TeachingMode" class="form-label"></label>
+        <select asp-for="TeachingMode" class="form-select">
+            @foreach (var m in StudyMate.Controllers.JobPostingController.TeachingModes)
+            {
+                <option value="@m">@m</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="DesiredLevel" class="form-label"></label>
+        <input asp-for="DesiredLevel" class="form-control" placeholder="VD: Intermediate" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control" placeholder="Địa điểm (nếu offline)" />
+        <span asp-validation-for="Address" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="BudgetMin" class="form-label"></label>
+        <input asp-for="BudgetMin" class="form-control" type="number" min="0" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="BudgetMax" class="form-label"></label>
+        <input asp-for="BudgetMax" class="form-control" type="number" min="0" />
+        <span asp-validation-for="BudgetMax" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="SessionsPerWeek" class="form-label"></label>
+        <input asp-for="SessionsPerWeek" class="form-control" type="number" min="1" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="SessionDuration" class="form-label"></label>
+        <input asp-for="SessionDuration" class="form-control" type="number" min="15" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Deadline" class="form-label"></label>
+        <input asp-for="Deadline" class="form-control" type="date" />
+        <span asp-validation-for="Deadline" class="text-danger small"></span>
+    </div>
+</div>
