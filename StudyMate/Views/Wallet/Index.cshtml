@@ -1,0 +1,14 @@
+﻿@model List<StudyMate.Models.WalletTransaction>
+@{ ViewData["Title"]="Ví"; }
+<div class="page-shell">
+  <h1 class="h4">Số dư: @(((decimal)ViewData["Balance"]!).ToString("N0")) ₫</h1>
+  @if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>}
+  @if(TempData["Error"]!=null){<div class="alert alert-danger">@TempData["Error"]</div>}
+  <form asp-action="Deposit" method="post" class="d-flex gap-2 mb-3">@Html.AntiForgeryToken()
+    <input name="amount" type="number" class="form-control" style="max-width:200px" value="100000" min="1000"/>
+    <button class="btn btn-primary">Nạp (stub)</button>
+  </form>
+  <div class="list-group">@foreach(var t in Model){
+    <div class="list-group-item d-flex justify-content-between"><span>@t.Type · @t.Status · @t.Note</span><strong>@t.Amount.ToString("N0") ₫</strong></div>
+  }</div>
+</div>
