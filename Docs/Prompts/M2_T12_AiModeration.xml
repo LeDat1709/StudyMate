@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta><taskId>M2-T12</taskId><taskName>AI moderation stub</taskName>
+  <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T12</breakTaskReference></meta>
+  <goal>IContentModerationService stub sets AiVerifyNote on cert upload.</goal>
+</prompt>
