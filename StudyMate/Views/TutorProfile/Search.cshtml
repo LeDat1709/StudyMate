@@ -1,0 +1,121 @@
+@model StudyMate.ViewModels.TutorProfile.TutorSearchViewModel
+@{
+    ViewData["Title"] = "Tìm gia sư";
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Tìm gia sư</h1>
+            <p>Lọc theo môn, học phí, hình thức — @Model.TotalCount kết quả</p>
+        </div>
+    </div>
+
+    <form method="get" class="surface-card mb-3">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small">Từ khóa</label>
+                    <input name="q" value="@Model.Keyword" class="form-control" placeholder="Tên, headline..." />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Môn</label>
+                    <select name="subjectId" class="form-select">
+                        <option value="">Tất cả</option>
+                        @foreach (var s in Model.Subjects)
+                        {
+                            <option value="@s.Id" selected="@(Model.SubjectId == s.Id)">@s.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Giá min</label>
+                    <input name="minRate" value="@Model.MinRate" type="number" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Giá max</label>
+                    <input name="maxRate" value="@Model.MaxRate" type="number" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Hình thức</label>
+                    <select name="teachingMode" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="Online" selected="@(Model.TeachingMode == "Online")">Online</option>
+                        <option value="Offline" selected="@(Model.TeachingMode == "Offline")">Offline</option>
+                        <option value="Both" selected="@(Model.TeachingMode == "Both")">Cả hai</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+            </div>
+            <div class="row g-2 mt-2">
+                <div class="col-md-3">
+                    <label class="form-label small">Sắp xếp</label>
+                    <select name="sort" class="form-select">
+                        <option value="Newest" selected="@(Model.Sort == "Newest")">Mới nhất</option>
+                        <option value="RatingDesc" selected="@(Model.Sort == "RatingDesc")">Rating cao</option>
+                        <option value="PriceAsc" selected="@(Model.Sort == "PriceAsc")">Giá thấp</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="row g-3">
+        @if (Model.Results.Count == 0)
+        {
+            <div class="col-12"><p class="text-muted">Không tìm thấy gia sư phù hợp.</p></div>
+        }
+        @foreach (var t in Model.Results)
+        {
+            <div class="col-md-4 col-sm-6">
+                <div class="surface-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex gap-2 mb-2">
+                            @if (!string.IsNullOrWhiteSpace(t.AvatarUrl))
+                            {
+                                <img src="@t.AvatarUrl" class="rounded-circle" style="width:48px;height:48px;object-fit:cover" alt="" />
+                            }
+                            <div>
+                                <a asp-action="Details" asp-route-id="@t.Id" class="fw-semibold text-decoration-none">@t.FullName</a>
+                                <div class="small text-muted">@t.Headline</div>
+                            </div>
+                        </div>
+                        <div class="small mb-2">⭐ @t.AverageRating.ToString("0.0") · @(t.HourlyRate?.ToString("N0") ?? "—") ₫/h · @t.TeachingMode</div>
+                        <div>
+                            @foreach (var s in t.Subjects.Take(4))
+                            {
+                                <span class="badge text-bg-light border me-1">@s</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination">
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Search"
+                           asp-route-page="@p"
+                           asp-route-subjectId="@Model.SubjectId"
+                           asp-route-minRate="@Model.MinRate"
+                           asp-route-maxRate="@Model.MaxRate"
+                           asp-route-teachingMode="@Model.TeachingMode"
+                           asp-route-educationLevel="@Model.EducationLevel"
+                           asp-route-minRating="@Model.MinRating"
+                           asp-route-q="@Model.Keyword"
+                           asp-route-sort="@Model.Sort">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

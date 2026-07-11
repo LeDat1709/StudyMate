@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta><taskId>M2-T11</taskId><taskName>Search and filter tutors</taskName>
+  <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T11</breakTaskReference></meta>
+  <goal>Public search with filters, sort, page size 12.</goal>
+</prompt>
