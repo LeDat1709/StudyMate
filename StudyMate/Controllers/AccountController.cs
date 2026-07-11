@@ -286,7 +286,7 @@ public class AccountController : Controller
 
     // ── Tutor Certificates ────────────────────────────────────────────────────
 
-    /// <summary>Lists certificates and shows upload form (Tutor only).</summary>
+    /// <summary>Lists certificates and shows upload form (Tutor only). M2-T2: filter by TutorProfileId.</summary>
     [Authorize(Roles = "Tutor")]
     [HttpGet]
     public async Task<IActionResult> Certificates()
@@ -295,12 +295,16 @@ public class AccountController : Controller
         if (user == null)
             return Challenge();
 
-        var vm = await BuildCertificatesPageAsync(user.Id);
+        var profileId = await GetTutorProfileIdAsync(user.Id);
+        if (profileId == null)
+            ViewData["NeedTutorProfile"] = true;
+
+        var vm = await BuildCertificatesPageAsync(profileId);
         ViewData["UploadSuccess"] = TempData["CertificateUploadSuccess"];
         return View(vm);
     }
 
-    /// <summary>Uploads a certificate file for the current Tutor.</summary>
+    /// <summary>Uploads a certificate file for the current Tutor (requires TutorProfile).</summary>
     [Authorize(Roles = "Tutor")]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -310,6 +314,15 @@ public class AccountController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
             return Challenge();
+
+        var profileId = await GetTutorProfileIdAsync(user.Id);
+        if (profileId == null)
+        {
+            ModelState.AddModelError(string.Empty,
+                "Bạn cần tạo hồ sơ gia sư trước khi upload chứng chỉ.");
+            ViewData["NeedTutorProfile"] = true;
+            return View("Certificates", await BuildCertificatesPageAsync(null, model));
+        }
 
         ModelState.Clear();
 
@@ -332,7 +345,7 @@ public class AccountController : Controller
         }
 
         if (!ModelState.IsValid)
-            return View("Certificates", await BuildCertificatesPageAsync(user.Id, model));
+            return View("Certificates", await BuildCertificatesPageAsync(profileId, model));
 
         var file = model.File!;
         var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -352,7 +365,7 @@ public class AccountController : Controller
 
         var cert = new TutorCertificate
         {
-            UserId = user.Id,
+            TutorProfileId = profileId.Value,
             Title = model.Title.Trim(),
             IssuedBy = string.IsNullOrWhiteSpace(model.IssuedBy) ? null : model.IssuedBy.Trim(),
             IssuedDate = model.IssuedDate,
@@ -366,33 +379,44 @@ public class AccountController : Controller
         _db.TutorCertificates.Add(cert);
         await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Tutor certificate uploaded: User={Email}, Title={Title}, Id={Id}",
-            user.Email, cert.Title, cert.Id);
+        _logger.LogInformation("Tutor certificate uploaded: User={Email}, ProfileId={ProfileId}, Title={Title}, Id={Id}",
+            user.Email, profileId, cert.Title, cert.Id);
 
         TempData["CertificateUploadSuccess"] = true;
         return RedirectToAction(nameof(Certificates));
     }
 
+    private async Task<int?> GetTutorProfileIdAsync(string userId)
+    {
+        return await _db.TutorProfiles
+            .AsNoTracking()
+            .Where(p => p.UserId == userId)
+            .Select(p => (int?)p.Id)
+            .FirstOrDefaultAsync();
+    }
+
     private async Task<CertificatesPageViewModel> BuildCertificatesPageAsync(
-        string userId,
+        int? tutorProfileId,
         UploadCertificateViewModel? upload = null)
     {
-        var items = await _db.TutorCertificates
-            .AsNoTracking()
-            .Where(c => c.UserId == userId)
-            .OrderByDescending(c => c.CreatedAt)
-            .Select(c => new CertificateItemViewModel
-            {
-                Id = c.Id,
-                Title = c.Title,
-                IssuedBy = c.IssuedBy,
-                IssuedDate = c.IssuedDate,
-                FileUrl = c.FileUrl,
-                CertType = c.CertType,
-                IsVerified = c.IsVerified,
-                CreatedAt = c.CreatedAt
-            })
-            .ToListAsync();
+        var items = tutorProfileId == null
+            ? new List<CertificateItemViewModel>()
+            : await _db.TutorCertificates
+                .AsNoTracking()
+                .Where(c => c.TutorProfileId == tutorProfileId.Value)
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new CertificateItemViewModel
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    IssuedBy = c.IssuedBy,
+                    IssuedDate = c.IssuedDate,
+                    FileUrl = c.FileUrl,
+                    CertType = c.CertType,
+                    IsVerified = c.IsVerified,
+                    CreatedAt = c.CreatedAt
+                })
+                .ToListAsync();
 
         return new CertificatesPageViewModel
         {

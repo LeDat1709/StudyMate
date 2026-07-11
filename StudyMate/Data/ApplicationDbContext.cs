@@ -18,13 +18,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // Module 1
     public DbSet<OtpCode> OtpCodes { get; set; }
 
-    // Module 1-T9 / chuẩn bị M2 — chứng chỉ Tutor (FK UserId tạm thời; M2-T2 → TutorProfileId)
-    public DbSet<TutorCertificate> TutorCertificates { get; set; }
-
     // Module 2
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<TutorProfile> TutorProfiles { get; set; }
     public DbSet<TutorSubject> TutorSubjects { get; set; }
+    public DbSet<TutorCertificate> TutorCertificates { get; set; }
+    public DbSet<TutorAvailability> TutorAvailabilities { get; set; }
+    public DbSet<DemoLesson> DemoLessons { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -42,7 +42,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // ── TutorCertificate ─────────────────────────────────────────────────
+        // ── TutorCertificate (FK TutorProfile) ────────────────────────────────
         builder.Entity<TutorCertificate>(e =>
         {
             e.HasKey(x => x.Id);
@@ -51,11 +51,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.Property(x => x.FileUrl).HasMaxLength(500);
             e.Property(x => x.CertType).HasMaxLength(50);
             e.Property(x => x.IsVerified).HasDefaultValue(false);
-            e.HasOne<ApplicationUser>()
-             .WithMany()
-             .HasForeignKey(x => x.UserId)
+            e.HasOne(x => x.TutorProfile)
+             .WithMany(p => p.Certificates)
+             .HasForeignKey(x => x.TutorProfileId)
              .OnDelete(DeleteBehavior.Cascade);
-            e.HasIndex(x => x.UserId).HasDatabaseName("IX_TutorCertificates_UserId");
+            e.HasIndex(x => x.TutorProfileId).HasDatabaseName("IX_TutorCertificates_TutorProfileId");
+        });
+
+        // ── TutorAvailability ────────────────────────────────────────────────
+        builder.Entity<TutorAvailability>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasOne(x => x.TutorProfile)
+             .WithMany(p => p.Availabilities)
+             .HasForeignKey(x => x.TutorProfileId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.TutorProfileId).HasDatabaseName("IX_TutorAvailabilities_TutorProfileId");
+        });
+
+        // ── DemoLesson ───────────────────────────────────────────────────────
+        builder.Entity<DemoLesson>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            e.Property(x => x.VideoUrl).HasMaxLength(500);
+            e.HasOne(x => x.TutorProfile)
+             .WithMany(p => p.DemoLessons)
+             .HasForeignKey(x => x.TutorProfileId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.TutorProfileId).HasDatabaseName("IX_DemoLessons_TutorProfileId");
         });
 
         // ── Subject ──────────────────────────────────────────────────────────
