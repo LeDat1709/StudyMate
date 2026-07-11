@@ -1,9 +1,64 @@
-﻿@model List<StudyMate.Models.JobApplication>
-@{ ViewData["Title"]="My applications"; }
-<div class="page-shell"><h1 class="h4">Apply của tôi</h1>
-<div class="list-group">@foreach(var a in Model){
-  <div class="list-group-item d-flex justify-content-between">
-    <div><a asp-controller="JobPosting" asp-action="Details" asp-route-id="@a.JobPostingId">@a.JobPosting?.Title</a> <span class="badge">@a.Status</span></div>
-    @if(a.Status=="Pending"){<form asp-action="Cancel" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-outline-danger">Cancel</button></form>}
-  </div>
-}</div></div>
+@model List<StudyMate.Models.JobApplication>
+@{
+    ViewData["Title"] = "Apply của tôi";
+    string StatusBadge(string s) => s switch
+    {
+        "Pending" => "badge-soft-warning",
+        "Accepted" => "badge-soft-success",
+        "Rejected" => "badge-soft-danger",
+        "Cancelled" => "badge-soft-secondary",
+        _ => "badge-soft-primary"
+    };
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Apply của tôi</h1>
+            <p>Theo dõi trạng thái đơn ứng tuyển job</p>
+        </div>
+        <a asp-controller="Matching" asp-action="RecommendedJobs" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-stars me-1"></i> Job gợi ý
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-send"></i>
+                <p class="mb-0">Bạn chưa apply job nào.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sm-stack">
+            @foreach (var a in Model)
+            {
+                <div class="sm-stack-item">
+                    <div class="min-w-0">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@a.JobPostingId" class="item-title">
+                                @(a.JobPosting?.Title ?? $"Job #{a.JobPostingId}")
+                            </a>
+                            <span class="badge @StatusBadge(a.Status)">@a.Status</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(a.CoverNote))
+                        {
+                            <div class="small text-muted text-truncate" style="max-width:480px">@a.CoverNote</div>
+                        }
+                    </div>
+                    @if (a.Status == "Pending")
+                    {
+                        <form asp-action="Cancel" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Hủy apply</button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
