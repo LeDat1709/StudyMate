@@ -29,6 +29,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // Module 3
     public DbSet<JobPosting> JobPostings { get; set; }
 
+    // Module 4
+    public DbSet<MatchingResult> MatchingResults { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -164,6 +167,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             e.HasIndex(x => x.StudentId).HasDatabaseName("IX_JobPostings_StudentId");
             e.HasIndex(x => new { x.Status, x.Deadline }).HasDatabaseName("IX_JobPostings_Status");
+        });
+
+        // ── MatchingResult (M4) ──────────────────────────────────────────────
+        builder.Entity<MatchingResult>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.SimilarityScore).HasPrecision(5, 4);
+            e.Property(x => x.ModelVersion).HasMaxLength(50);
+            e.HasOne(x => x.JobPosting).WithMany().HasForeignKey(x => x.JobPostingId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.Student).WithMany().HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.TutorProfile).WithMany().HasForeignKey(x => x.TutorProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.JobPostingId);
         });
 
         // ── Index tối ưu query phổ biến ──────────────────────────────────────
