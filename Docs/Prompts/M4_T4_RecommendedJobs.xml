@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M4-T4</taskId>
+    <taskName>Tutor RecommendedJobs</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 4 — AI Matching</module>
+    <frsReference>Docs/FRS/FRS_M4_AIMatching.md — UC-M4-02</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T4</breakTaskReference>
+    <dependsOn>M4-T2</dependsOn>
+  </meta>
+  <goal>
+    Tutor xem danh sách job Open được gợi ý theo hồ sơ (RecommendJobsForTutorAsync).
+  </goal>
+  <context>
+    <readFile>StudyMate/Services/Interfaces/IMatchingService.cs</readFile>
+    <readFile>StudyMate/Controllers/MatchingController.cs</readFile>
+  </context>
+  <scope>
+    - RecommendedJobs GET [Authorize Tutor]
+    - Cần TutorProfile; không có → redirect MyProfile
+    - View list title + score + link Details
+    - Navbar "Job gợi ý"
+  </scope>
+  <hardRules>
+    - Chỉ job Open
+    - Không expose job Closed
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Tutor verified thấy list
+    - [ ] Click vào job Details
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Login Tutor có profile + subject trùng job Open
+    2. /Matching/RecommendedJobs
+  </testPlan>
+  <outputRequired>
+    <modify>MatchingController.cs</modify>
+    <create>Views/Matching/RecommendedJobs.cshtml</create>
+    <modify>_Layout.cshtml</modify>
+  </outputRequired>
+</prompt>

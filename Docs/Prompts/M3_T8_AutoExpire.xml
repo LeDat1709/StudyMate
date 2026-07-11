@@ -1,11 +1,36 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M3_T8_AutoExpire</taskId>
-    <taskName>Auto expire</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T8_AutoExpire</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T8</taskId>
+    <taskName>Auto-expire job theo Deadline</taskName>
+    <timeEstimate>30 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — Business Rules Auto expire</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T8</breakTaskReference>
+    <dependsOn>M3-T1, M3-T3</dependsOn>
   </meta>
-  <goal>Auto expire for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+  <goal>
+    Job Open có Deadline &lt; UtcNow → Status=Expired khi chạy helper trước Index/Details/MyJobs.
+    (Không bắt buộc Hangfire/BackgroundService trong task này.)
+  </goal>
+  <scope>
+    - Private ExpireOverdueJobsAsync() trong JobPostingController
+    - Gọi ở đầu Index, Details, MyJobs
+  </scope>
+  <hardRules>
+    - CHỈ đổi Open → Expired
+    - KHÔNG xóa job
+    - KHÔNG đụng Closed
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Job quá deadline biến mất list public
+    - [ ] Status DB = Expired
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Tạo job Deadline hôm qua (seed/SQL update)
+    2. Mở Index → job không còn Open; DB Expired
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController (ExpireOverdueJobsAsync)</modify>
+  </outputRequired>
 </prompt>

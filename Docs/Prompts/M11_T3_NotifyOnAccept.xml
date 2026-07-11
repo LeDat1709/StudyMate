@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M12-T1</taskId>
-    <taskName>AI Assistant stub</taskName>
+    <taskId>M11-T3</taskId>
+    <taskName>Notify on Accept</taskName>
     <timeEstimate>30-60 minutes</timeEstimate>
     <module>StudyMate module task</module>
     <planReference>Docs/PlanSetup.md</planReference>
-    <frsReference>Docs/FRS/FRS_M12_AIAssistant.md</frsReference>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M12_AIAssistant.md — M12-T1</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M11_Notification.md</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M11_Notification.md — M11-T3</breakTaskReference>
   </meta>
   <goal>
-    Trang AI chat rule-based; log AiLog Chatbot; navbar AI.
+    Accept application → NotifyAsync tutor.
   </goal>
   <context>
-    <readFile>Docs/BreakTasks/BreakTask_M12_AIAssistant.md</readFile>
-    <readFile>Docs/FRS/FRS_M12_AIAssistant.md</readFile>
+    <readFile>Docs/BreakTasks/BreakTask_M11_Notification.md</readFile>
+    <readFile>Docs/FRS/FRS_M11_Notification.md</readFile>
     <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
     <readFile>StudyMate/Program.cs</readFile>
   </context>
@@ -23,14 +23,14 @@
     - Engineer dung de review/replay agent neu can re-implement.
   </currentState>
   <taskUnit>
-    - Implement dung goal va output: AiAssistantController, Views, Layout
+    - Implement dung goal va output: ApplicationController Accept
   </taskUnit>
   <scope>
-    - Trang AI chat rule-based; log AiLog Chatbot; navbar AI.
-    - Output: AiAssistantController, Views, Layout
+    - Accept application → NotifyAsync tutor.
+    - Output: ApplicationController Accept
   </scope>
   <hardRules>
-    - KHONG LLM that bat buoc`n    - Log moi request
+    - Khong fail Accept neu notify error (tuy chon try)
     - KHONG mo rong sang module khac
     - KHONG sua appsettings secrets
     - AntiForgery tren moi POST form
@@ -46,10 +46,10 @@
   <constraints>
     - .NET 10 / ASP.NET Core MVC / EF Core
     - Bootstrap 5
-    - Commit message 1 dong: feat(mx): ... - M12-T1
+    - Commit message 1 dong: feat(mx): ... - M11-T3
   </constraints>
   <acceptanceCriteria>
-    - [ ] Dung FRS/BreakTask cho M12-T1
+    - [ ] Dung FRS/BreakTask cho M11-T3
     - [ ] Output files ton tai
     - [ ] dotnet build pass
     - [ ] Report day du section M1
@@ -60,7 +60,7 @@
     3. Kiem tra khong regress module truoc
   </testPlan>
   <outputRequired>
-    <item>AiAssistantController, Views, Layout</item>
-    <item>Docs/Reports/Report_M12_T1_YYYY-MM-DD.md (hoac Report_M12-T1_...)</item>
+    <item>ApplicationController Accept</item>
+    <item>Docs/Reports/Report_M11_T3_YYYY-MM-DD.md (hoac Report_M11-T3_...)</item>
   </outputRequired>
 </prompt>

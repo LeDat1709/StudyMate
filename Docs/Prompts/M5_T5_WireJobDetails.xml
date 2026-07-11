@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M5-T5</taskId>
+    <taskName>Wire Apply trên Job Details</taskName>
+    <timeEstimate>20 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M5_Application.md — UC-M5-01 UX</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T5</breakTaskReference>
+    <dependsOn>M5-T2, M3 Details</dependsOn>
+  </meta>
+  <goal>
+    Details: Tutor Open chưa apply → nút Apply; đã apply → "Đã apply";
+    Owner → link ForJob; Delete job chặn nếu có Applications.
+  </goal>
+  <scope>
+    - JobDetailViewModel CanApply / AlreadyApplied
+    - Details.cshtml buttons
+    - Delete check Applications.Any
+  </scope>
+  <hardRules>
+    - KHÔNG duplicate apply logic (dùng ApplicationController)
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Nút Apply đúng state
+    - [ ] Delete job có apply → lỗi
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Tutor Details → Apply
+    2. Reload → Đã apply
+    3. Owner delete job đã apply → fail
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController.Details/Delete</modify>
+    <modify>Views/JobPosting/Details.cshtml</modify>
+  </outputRequired>
+</prompt>

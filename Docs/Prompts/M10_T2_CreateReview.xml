@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M12-T1</taskId>
-    <taskName>AI Assistant stub</taskName>
+    <taskId>M10-T2</taskId>
+    <taskName>Create review</taskName>
     <timeEstimate>30-60 minutes</timeEstimate>
     <module>StudyMate module task</module>
     <planReference>Docs/PlanSetup.md</planReference>
-    <frsReference>Docs/FRS/FRS_M12_AIAssistant.md</frsReference>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M12_AIAssistant.md — M12-T1</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M10_Review.md</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M10_Review.md — M10-T2</breakTaskReference>
   </meta>
   <goal>
-    Trang AI chat rule-based; log AiLog Chatbot; navbar AI.
+    Student review sau booking Completed; cap nhat AverageRating.
   </goal>
   <context>
-    <readFile>Docs/BreakTasks/BreakTask_M12_AIAssistant.md</readFile>
-    <readFile>Docs/FRS/FRS_M12_AIAssistant.md</readFile>
+    <readFile>Docs/BreakTasks/BreakTask_M10_Review.md</readFile>
+    <readFile>Docs/FRS/FRS_M10_Review.md</readFile>
     <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
     <readFile>StudyMate/Program.cs</readFile>
   </context>
@@ -23,14 +23,14 @@
     - Engineer dung de review/replay agent neu can re-implement.
   </currentState>
   <taskUnit>
-    - Implement dung goal va output: AiAssistantController, Views, Layout
+    - Implement dung goal va output: ReviewController, Views/Review, Booking Index link
   </taskUnit>
   <scope>
-    - Trang AI chat rule-based; log AiLog Chatbot; navbar AI.
-    - Output: AiAssistantController, Views, Layout
+    - Student review sau booking Completed; cap nhat AverageRating.
+    - Output: ReviewController, Views/Review, Booking Index link
   </scope>
   <hardRules>
-    - KHONG LLM that bat buoc`n    - Log moi request
+    - Chi Student + Completed`n    - 1 review/booking
     - KHONG mo rong sang module khac
     - KHONG sua appsettings secrets
     - AntiForgery tren moi POST form
@@ -46,10 +46,10 @@
   <constraints>
     - .NET 10 / ASP.NET Core MVC / EF Core
     - Bootstrap 5
-    - Commit message 1 dong: feat(mx): ... - M12-T1
+    - Commit message 1 dong: feat(mx): ... - M10-T2
   </constraints>
   <acceptanceCriteria>
-    - [ ] Dung FRS/BreakTask cho M12-T1
+    - [ ] Dung FRS/BreakTask cho M10-T2
     - [ ] Output files ton tai
     - [ ] dotnet build pass
     - [ ] Report day du section M1
@@ -60,7 +60,7 @@
     3. Kiem tra khong regress module truoc
   </testPlan>
   <outputRequired>
-    <item>AiAssistantController, Views, Layout</item>
-    <item>Docs/Reports/Report_M12_T1_YYYY-MM-DD.md (hoac Report_M12-T1_...)</item>
+    <item>ReviewController, Views/Review, Booking Index link</item>
+    <item>Docs/Reports/Report_M10_T2_YYYY-MM-DD.md (hoac Report_M10-T2_...)</item>
   </outputRequired>
 </prompt>

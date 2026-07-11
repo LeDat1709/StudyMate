@@ -2,9 +2,61 @@
 <prompt>
   <meta>
     <taskId>M6-T1</taskId>
-    <taskName>Conversation + Message models</taskName>
+    <taskName>Conversation + ChatMessage models + migration</taskName>
+    <timeEstimate>30 minutes</timeEstimate>
+    <module>Module 6 — Chat</module>
+    <planReference>Docs/PlanSetup.md — Chat / SignalR (MVP MVC trước)</planReference>
+    <frsReference>Docs/FRS/FRS_M6_Chat.md — Conversations, Messages</frsReference>
     <breakTaskReference>Docs/BreakTasks/BreakTask_M6_Chat.md — M6-T1</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M6_Chat.md</frsReference>
+    <dependsOn>M1 ApplicationUser</dependsOn>
   </meta>
-  <goal>EF models Conversation, ChatMessage (table Messages), migration. No UI.</goal>
+  <goal>
+    Tạo Conversation (User1Id, User2Id) và ChatMessage (table Messages), Fluent + migration.
+    Không UI, không SignalR trong task này.
+  </goal>
+  <context>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+  </context>
+  <currentState>
+    - Identity users đã có
+    - Chat models CHƯA có (trên branch M6)
+  </currentState>
+  <taskUnit>
+    1. Models/Conversation.cs (+ ChatMessage)
+    2. DbContext DbSets + Fluent
+    3. Migration AddChat
+  </taskUnit>
+  <scope>
+    - Conversation: User1Id, User2Id, CreatedAt
+    - ChatMessage: ConversationId, SenderId, Content, FileUrl, FileType, IsRead, IsFlagged, AiFlagNote, SentAt
+    - ToTable Messages; Cascade messages; Restrict users
+    - Index (ConversationId, SentAt)
+  </scope>
+  <hardRules>
+    - KHÔNG Controller/View
+    - KHÔNG SignalR Hub
+    - KHÔNG file upload message (chỉ schema FileUrl)
+  </hardRules>
+  <tasks>
+    1. Đọc schema MODULE 6
+    2. Tạo models + Fluent
+    3. ef migrations add AddChat
+    4. build
+  </tasks>
+  <constraints>.NET 10 / EF Core; XML doc</constraints>
+  <acceptanceCriteria>
+    - [ ] Migration Conversations + Messages
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. dotnet build
+    2. Kiểm tra CreateTable trong migration
+  </testPlan>
+  <outputRequired>
+    <create>Models/Conversation.cs</create>
+    <modify>ApplicationDbContext.cs</modify>
+    <create>Migrations/*AddChat*</create>
+  </outputRequired>
 </prompt>

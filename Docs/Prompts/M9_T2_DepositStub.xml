@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M12-T1</taskId>
-    <taskName>AI Assistant stub</taskName>
+    <taskId>M9-T2</taskId>
+    <taskName>Deposit stub</taskName>
     <timeEstimate>30-60 minutes</timeEstimate>
     <module>StudyMate module task</module>
     <planReference>Docs/PlanSetup.md</planReference>
-    <frsReference>Docs/FRS/FRS_M12_AIAssistant.md</frsReference>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M12_AIAssistant.md — M12-T1</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M9_Payment.md</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M9_Payment.md — M9-T2</breakTaskReference>
   </meta>
   <goal>
-    Trang AI chat rule-based; log AiLog Chatbot; navbar AI.
+    Wallet UI + Deposit stub cong balance Status Success.
   </goal>
   <context>
-    <readFile>Docs/BreakTasks/BreakTask_M12_AIAssistant.md</readFile>
-    <readFile>Docs/FRS/FRS_M12_AIAssistant.md</readFile>
+    <readFile>Docs/BreakTasks/BreakTask_M9_Payment.md</readFile>
+    <readFile>Docs/FRS/FRS_M9_Payment.md</readFile>
     <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
     <readFile>StudyMate/Program.cs</readFile>
   </context>
@@ -23,14 +23,14 @@
     - Engineer dung de review/replay agent neu can re-implement.
   </currentState>
   <taskUnit>
-    - Implement dung goal va output: AiAssistantController, Views, Layout
+    - Implement dung goal va output: WalletController, Views/Wallet, Layout
   </taskUnit>
   <scope>
-    - Trang AI chat rule-based; log AiLog Chatbot; navbar AI.
-    - Output: AiAssistantController, Views, Layout
+    - Wallet UI + Deposit stub cong balance Status Success.
+    - Output: WalletController, Views/Wallet, Layout
   </scope>
   <hardRules>
-    - KHONG LLM that bat buoc`n    - Log moi request
+    - Gateway=Stub only
     - KHONG mo rong sang module khac
     - KHONG sua appsettings secrets
     - AntiForgery tren moi POST form
@@ -46,10 +46,10 @@
   <constraints>
     - .NET 10 / ASP.NET Core MVC / EF Core
     - Bootstrap 5
-    - Commit message 1 dong: feat(mx): ... - M12-T1
+    - Commit message 1 dong: feat(mx): ... - M9-T2
   </constraints>
   <acceptanceCriteria>
-    - [ ] Dung FRS/BreakTask cho M12-T1
+    - [ ] Dung FRS/BreakTask cho M9-T2
     - [ ] Output files ton tai
     - [ ] dotnet build pass
     - [ ] Report day du section M1
@@ -60,7 +60,7 @@
     3. Kiem tra khong regress module truoc
   </testPlan>
   <outputRequired>
-    <item>AiAssistantController, Views, Layout</item>
-    <item>Docs/Reports/Report_M12_T1_YYYY-MM-DD.md (hoac Report_M12-T1_...)</item>
+    <item>WalletController, Views/Wallet, Layout</item>
+    <item>Docs/Reports/Report_M9_T2_YYYY-MM-DD.md (hoac Report_M9-T2_...)</item>
   </outputRequired>
 </prompt>

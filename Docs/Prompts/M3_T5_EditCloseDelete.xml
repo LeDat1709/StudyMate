@@ -1,11 +1,40 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M3_T5_EditCloseDelete</taskId>
-    <taskName>Edit Close Delete</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T5_EditCloseDelete</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T5</taskId>
+    <taskName>Sửa / Đóng / Xóa Job</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — UC-M3-04, UC-M3-05</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T5</breakTaskReference>
+    <dependsOn>M3-T4</dependsOn>
   </meta>
-  <goal>Edit Close Delete for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+  <goal>
+    Student owner: Edit chỉ khi Open; Close → Status=Closed; Delete khi chưa có Application
+    (M3: chưa có Applications → xóa được; khi M5 có thì chặn nếu có apply).
+  </goal>
+  <scope>
+    - Edit GET/POST [Authorize Student], owner only
+    - Close POST, Delete POST + AntiForgery
+    - Views/JobPosting/Edit.cshtml reuse _Form
+  </scope>
+  <hardRules>
+    - KHÔNG cho sửa job Closed/Expired
+    - KHÔNG cho student khác sửa job
+    - Close không xóa record — chỉ đổi Status
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Edit Open OK; Closed không edit
+    - [ ] Close → mất khỏi list public
+    - [ ] Delete OK (hoặc báo lỗi nếu có apply M5)
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Edit title → Details cập nhật
+    2. Close → Index public không còn
+    3. Delete job không apply → MyJobs hết dòng
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController Edit/Close/Delete</modify>
+    <create>Views/JobPosting/Edit.cshtml</create>
+  </outputRequired>
 </prompt>

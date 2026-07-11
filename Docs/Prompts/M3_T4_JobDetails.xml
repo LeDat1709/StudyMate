@@ -1,11 +1,44 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M3_T4_JobDetails</taskId>
-    <taskName>Job details</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T4_JobDetails</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T4</taskId>
+    <taskName>Trang chi tiết Job</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — UC-M3-03</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T4</breakTaskReference>
+    <dependsOn>M3-T2, M3-T3</dependsOn>
   </meta>
-  <goal>Job details for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+  <goal>
+    Details(id) AllowAnonymous: full job info + student name/avatar.
+    Owner thấy nút Sửa/Đóng; Tutor thấy placeholder Apply (M5) nếu Open.
+  </goal>
+  <context>
+    <readFile>StudyMate/Controllers/JobPostingController.cs</readFile>
+    <readFile>StudyMate/Views/JobPosting/Index.cshtml</readFile>
+  </context>
+  <scope>
+    - Details GET + JobDetailViewModel
+    - Views/JobPosting/Details.cshtml
+    - IsOwner = current user == StudentId
+  </scope>
+  <hardRules>
+    - KHÔNG implement Apply thật (M5)
+    - KHÔNG Matching list (M4) trừ khi đã có branch M4
+    - 404 nếu id không tồn tại
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Hiển thị đủ field job
+    - [ ] Guest xem được
+    - [ ] Owner thấy action quản lý
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Mở Details từ card list
+    2. Login owner → thấy Edit/Close
+    3. Guest → không thấy Edit
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController.Details</modify>
+    <create>Views/JobPosting/Details.cshtml</create>
+  </outputRequired>
 </prompt>

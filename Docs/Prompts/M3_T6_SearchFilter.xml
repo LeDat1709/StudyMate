@@ -1,11 +1,39 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M3_T6_SearchFilter</taskId>
-    <taskName>Search filter</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T6_SearchFilter</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T6</taskId>
+    <taskName>Tìm kiếm &amp; lọc Job</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — UC-M3-06</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T6</breakTaskReference>
+    <dependsOn>M3-T3</dependsOn>
   </meta>
-  <goal>Search filter for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+  <goal>
+    Mở rộng Index: filter keyword, subjectId, teachingMode, budget min/max, address;
+    sort Newest/BudgetDesc/Deadline; query string shareable; vẫn chỉ Open.
+  </goal>
+  <scope>
+    - Query params trên Index GET
+    - Form filter trên Index.cshtml
+    - Pagination giữ filter
+  </scope>
+  <hardRules>
+    - KHÔNG trả Closed/Expired
+    - KHÔNG full-text SQL phức tạp — Contains đủ
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Filter môn + budget đúng subset
+    - [ ] Copy URL mở lại cùng filter
+    - [ ] Sort deadline / budget hoạt động
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Tạo 2 job khác môn → filter 1 môn
+    2. Budget max thấp → lọc job đắt
+    3. Share URL page=2&amp;subjectId=...
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController.Index</modify>
+    <modify>Views/JobPosting/Index.cshtml</modify>
+  </outputRequired>
 </prompt>

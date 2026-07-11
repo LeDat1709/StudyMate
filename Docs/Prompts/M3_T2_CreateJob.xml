@@ -1,11 +1,97 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
+
   <meta>
-    <taskId>M3_T2_CreateJob</taskId>
-    <taskName>Create job Student</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T2_CreateJob</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T2</taskId>
+    <taskName>Form tạo Job (Student)</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <module>Module 3 — Job Posting</module>
+    <planReference>Docs/PlanSetup.md — JobPostingController, ViewModels/JobPosting</planReference>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — UC-M3-01</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T2</breakTaskReference>
+    <dependsOn>M3-T1 JobPosting model + migration</dependsOn>
   </meta>
-  <goal>Create job Student for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+
+  <goal>
+    Student tạo JobPosting qua form: validation đầy đủ, max 5 job Open,
+    Status=Open, redirect Details sau khi lưu.
+  </goal>
+
+  <context>
+    <readFile>StudyMate/Models/JobPosting.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Data/SeedData.cs</readFile>
+    <readFile>StudyMate/Views/Account/Register.cshtml</readFile>
+    <readFile>StudyMate/Views/Shared/_Layout.cshtml</readFile>
+  </context>
+
+  <currentState>
+    - JobPosting entity + migration đã có (M3-T1)
+    - Subjects đã seed
+    - JobPostingController / Create view CHƯA có (hoặc đang scaffold)
+  </currentState>
+
+  <taskUnit>
+    1. JobPostingFormViewModel
+    2. JobPostingController Create GET/POST
+    3. Views/JobPosting/Create.cshtml + _Form.cshtml
+  </taskUnit>
+
+  <scope>
+    - ViewModel fields: Title (req), Description (min 50), SubjectId, DesiredLevel,
+      TeachingMode Online/Offline/Both, Address, BudgetMin/Max, SessionsPerWeek,
+      SessionDuration, Deadline, list Subjects
+    - Create GET: [Authorize(Roles=Student)], load Subjects
+    - Create POST:
+      + Offline/Both → Address required
+      + Deadline phải tương lai nếu có
+      + BudgetMax >= BudgetMin
+      + Count Open jobs của student &lt; 5
+      + Status = "Open"
+    - Redirect Details(id) sau success (Details có thể placeholder T4)
+  </scope>
+
+  <hardRules>
+    - KHÔNG làm Index/Search/Edit/Delete trong task này nếu chưa tới
+    - KHÔNG Apply / Matching
+    - KHÔNG sửa model JobPosting field mới
+    - AntiForgeryToken trên POST
+  </hardRules>
+
+  <tasks>
+    1. Đọc context; tóm tắt field form vs FRS
+    2. Tạo ViewModel + Controller Create + Views
+    3. dotnet build
+    4. Báo cáo AC + rủi ro
+  </tasks>
+
+  <constraints>
+    - Bootstrap 5, jQuery unobtrusive validation
+    - Namespace StudyMate.ViewModels.JobPosting
+  </constraints>
+
+  <acceptanceCriteria>
+    - [ ] Student mở /JobPosting/Create thấy form đủ field
+    - [ ] Description &lt; 50 ký tự → lỗi
+    - [ ] Offline không Address → lỗi
+    - [ ] Đã 5 job Open → lỗi max
+    - [ ] Submit OK → DB Status=Open, redirect Details
+    - [ ] Guest/Tutor → redirect login hoặc 403
+    - [ ] build pass
+  </acceptanceCriteria>
+
+  <testPlan>
+    1. dotnet build
+    2. Login Student → Create → thiếu field → validation
+    3. Submit hợp lệ → kiểm tra DB
+    4. Tạo thêm đến 6 job Open → job 6 fail
+  </testPlan>
+
+  <outputRequired>
+    <create>StudyMate/ViewModels/JobPosting/JobPostingFormViewModel.cs</create>
+    <create>StudyMate/Controllers/JobPostingController.cs (Create)</create>
+    <create>StudyMate/Views/JobPosting/Create.cshtml</create>
+    <create>StudyMate/Views/JobPosting/_Form.cshtml</create>
+  </outputRequired>
+
 </prompt>
