@@ -1,11 +1,42 @@
-﻿@model StudyMate.Controllers.ApplyFormVm
-@{ ViewData["Title"]="Apply"; }
-<div class="page-shell"><div class="surface-card"><div class="card-body">
-  <h1 class="h4">Apply: @ViewData["JobTitle"]</h1>
-  <form asp-action="Apply" method="post">@Html.AntiForgeryToken()
-    <input type="hidden" asp-for="JobPostingId"/>
-    <div class="mb-3"><label asp-for="CoverNote" class="form-label"></label><textarea asp-for="CoverNote" class="form-control" rows="4" maxlength="500"></textarea></div>
-    <div class="mb-3"><label asp-for="ProposedRate" class="form-label"></label><input asp-for="ProposedRate" class="form-control" type="number"/></div>
-    <button class="btn btn-primary">Gửi apply</button>
-  </form>
-</div></div></div>
+@model StudyMate.Controllers.ApplyFormVm
+@{ ViewData["Title"] = "Apply"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Ứng tuyển job</h1>
+            <p>@ViewData["JobTitle"]</p>
+        </div>
+        <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@Model.JobPostingId" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Chi tiết job
+        </a>
+    </div>
+
+    <div class="surface-card" style="max-width:640px">
+        <div class="card-body">
+            <div class="card-section-title">
+                <i class="bi bi-send text-primary"></i> Đơn apply
+            </div>
+            <form asp-action="Apply" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="JobPostingId" />
+                <div class="mb-3">
+                    <label asp-for="CoverNote" class="form-label"></label>
+                    <textarea asp-for="CoverNote" class="form-control" rows="4" maxlength="500"
+                              placeholder="Giới thiệu ngắn về kinh nghiệm phù hợp với job này..."></textarea>
+                    <span asp-validation-for="CoverNote" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="ProposedRate" class="form-label"></label>
+                    <input asp-for="ProposedRate" class="form-control" type="number" placeholder="VND / giờ" />
+                    <span asp-validation-for="ProposedRate" class="text-danger small"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i> Gửi apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
