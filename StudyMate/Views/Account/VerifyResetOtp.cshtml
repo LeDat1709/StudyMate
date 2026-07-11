@@ -1,49 +1,43 @@
 @model StudyMate.ViewModels.Account.VerifyOtpViewModel
 @{
     ViewData["Title"] = "Nhập mã OTP";
+    ViewData["FullBleed"] = true;
 }
 
-<div class="row justify-content-center mt-4">
-    <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
+<div class="auth-shell">
+    <div class="auth-card auth-card-narrow">
+        <div class="auth-card-header">
+            <div class="auth-icon"><i class="bi bi-shield-lock"></i></div>
+            <h1 class="auth-title">Nhập mã xác nhận</h1>
+            <p>
+                Mã OTP đã gửi đến <strong class="text-dark">@Model.Email</strong>.<br />
+                Hiệu lực trong 10 phút.
+            </p>
+        </div>
 
-                <h4 class="card-title text-center mb-1">Nhập mã xác nhận</h4>
-                <p class="text-center text-muted small mb-4">
-                    Mã OTP đã được gửi đến <strong>@Model.Email</strong>.<br />
-                    Mã có hiệu lực trong 10 phút.
-                </p>
+        <form asp-action="VerifyResetOtp" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <input type="hidden" asp-for="Email" />
 
-                <form asp-action="VerifyResetOtp" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
-
-                    <input type="hidden" asp-for="Email" />
-
-                    <div class="mb-3">
-                        <label asp-for="Code" class="form-label">Mã OTP (6 chữ số)</label>
-                        <input asp-for="Code"
-                               class="form-control form-control-lg text-center"
-                               maxlength="6"
-                               placeholder="000000"
-                               autocomplete="one-time-code"
-                               inputmode="numeric"
-                               style="letter-spacing: 0.4rem; font-size: 1.5rem;" />
-                        <span asp-validation-for="Code" class="text-danger small"></span>
-                    </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Xác nhận</button>
-                    </div>
-                </form>
-
-                <hr class="my-3" />
-
-                <p class="text-center mb-0 small">
-                    Không nhận được mã?
-                    <a asp-action="ForgotPassword">Gửi lại</a>
-                </p>
-
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label">Mã OTP (6 chữ số)</label>
+                <input asp-for="Code"
+                       class="form-control form-control-lg otp-input"
+                       maxlength="6"
+                       placeholder="••••••"
+                       autocomplete="one-time-code"
+                       inputmode="numeric" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
             </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Xác nhận</button>
+            </div>
+        </form>
+
+        <div class="auth-footer-links">
+            Không nhận được mã?
+            <a asp-action="ForgotPassword" class="fw-semibold">Gửi lại</a>
         </div>
     </div>
 </div>

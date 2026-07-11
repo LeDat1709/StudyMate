@@ -1,82 +1,88 @@
 @model StudyMate.ViewModels.Account.RegisterViewModel
 @{
     ViewData["Title"] = "Đăng ký";
+    ViewData["FullBleed"] = true;
 }
 
-<div class="row justify-content-center mt-4">
-    <div class="col-12 col-sm-10 col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
+<div class="auth-shell">
+    <div class="auth-grid">
+        <aside class="auth-aside">
+            <div>
+                <span class="auth-aside-badge"><i class="bi bi-sparkles"></i> Bắt đầu miễn phí</span>
+                <h2>Tạo tài khoản StudyMate</h2>
+                <p>Chỉ mất một phút để tham gia cộng đồng học tập. Xác thực email OTP ngay sau khi đăng ký.</p>
+                <ul class="auth-feature-list">
+                    <li><i class="bi bi-check-circle-fill"></i> Chọn vai trò Học viên hoặc Gia sư</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Mật khẩu bảo mật chuẩn Identity</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Xác thực email trong 5 phút</li>
+                </ul>
+            </div>
+            <p class="small mb-0" style="opacity:.75">Đã có tài khoản? Đăng nhập để tiếp tục.</p>
+        </aside>
 
-                <h4 class="card-title text-center mb-4">Tạo tài khoản</h4>
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <div class="auth-icon"><i class="bi bi-person-plus"></i></div>
+                <h1 class="auth-title">Tạo tài khoản</h1>
+                <p>Điền thông tin để bắt đầu</p>
+            </div>
 
-                <form asp-action="Register" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
 
-                    @* FullName *@
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="form-label"></label>
-                        <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
-                        <span asp-validation-for="FullName" class="text-danger small"></span>
-                    </div>
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" autocomplete="name" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
 
-                    @* Email *@
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" placeholder="example@email.com" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="you@email.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
 
-                    @* Password *@
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" placeholder="Tối thiểu 8 ký tự, 1 chữ hoa, 1 số" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" placeholder="Tối thiểu 8 ký tự, 1 chữ hoa, 1 số" autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
 
-                    @* ConfirmPassword *@
-                    <div class="mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                    </div>
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
 
-                    @* Role *@
-                    <div class="mb-3">
-                        <label class="form-label">Vai trò</label>
-                        <div class="d-flex gap-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" asp-for="Role"
-                                       value="Student" id="roleStudent" checked="@(Model.Role == "Student")" />
-                                <label class="form-check-label" for="roleStudent">
-                                    Học viên
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" asp-for="Role"
-                                       value="Tutor" id="roleTutor" checked="@(Model.Role == "Tutor")" />
-                                <label class="form-check-label" for="roleTutor">
-                                    Gia sư
-                                </label>
-                            </div>
+                <div class="mb-3">
+                    <label class="form-label">Vai trò</label>
+                    <div class="role-picker">
+                        <div class="role-option">
+                            <input type="radio" asp-for="Role" value="Student" id="roleStudent" />
+                            <label for="roleStudent">
+                                <i class="bi bi-book"></i>
+                                Học viên
+                            </label>
                         </div>
-                        <span asp-validation-for="Role" class="text-danger small"></span>
+                        <div class="role-option">
+                            <input type="radio" asp-for="Role" value="Tutor" id="roleTutor" />
+                            <label for="roleTutor">
+                                <i class="bi bi-easel"></i>
+                                Gia sư
+                            </label>
+                        </div>
                     </div>
+                    <span asp-validation-for="Role" class="text-danger small"></span>
+                </div>
 
-                    @* Submit *@
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary">Đăng ký</button>
-                    </div>
+                <div class="d-grid mt-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Đăng ký</button>
+                </div>
+            </form>
 
-                </form>
-
-                <hr class="my-3" />
-
-                <p class="text-center mb-0 small">
-                    Đã có tài khoản?
-                    <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                </p>
-
+            <div class="auth-footer-links">
+                Đã có tài khoản?
+                <a asp-action="Login" class="fw-semibold">Đăng nhập</a>
             </div>
         </div>
     </div>

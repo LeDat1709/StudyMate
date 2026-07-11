@@ -5,16 +5,29 @@
     var certTypes = new[] { "Degree", "Certificate", "IELTS", "TOEIC" };
 }
 
-<div class="row mt-4">
-    <div class="col-12 col-lg-5 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h4 class="card-title mb-3">Upload chứng chỉ</h4>
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Chứng chỉ gia sư</h1>
+            <p>Upload bằng cấp, IELTS, chứng chỉ — chờ hệ thống / admin xác minh</p>
+        </div>
+        <a asp-action="Profile" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Hồ sơ
+        </a>
+    </div>
+
+    <div class="cert-layout">
+        <div class="surface-card">
+            <div class="card-body">
+                <div class="card-section-title">
+                    <i class="bi bi-cloud-upload text-primary"></i> Upload mới
+                </div>
 
                 @if (success)
                 {
                     <div class="alert alert-success py-2 small" role="alert">
-                        Upload chứng chỉ thành công. Trạng thái: chờ xác minh.
+                        <i class="bi bi-check-circle me-1"></i>
+                        Upload thành công. Trạng thái: <strong>Chờ xác minh</strong>.
                     </div>
                 }
 
@@ -53,36 +66,41 @@
 
                     <div class="mb-3">
                         <label asp-for="Upload.File" class="form-label"></label>
-                        <input asp-for="Upload.File" class="form-control" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" />
-                        <div class="form-text">JPG, PNG hoặc PDF — tối đa 10MB.</div>
+                        <input asp-for="Upload.File" class="form-control" type="file"
+                               accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" />
+                        <div class="form-text">JPG, PNG hoặc PDF — tối đa 10MB</div>
                         <span asp-validation-for="Upload.File" class="text-danger small"></span>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i> Upload chứng chỉ
+                        </button>
                     </div>
                 </form>
-
-                <div class="text-center mt-3">
-                    <a asp-action="Profile" class="small text-muted">Quay lại hồ sơ</a>
-                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-12 col-lg-7">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h4 class="card-title mb-3">Danh sách chứng chỉ</h4>
+        <div class="surface-card">
+            <div class="card-body p-0">
+                <div class="card-body pb-0">
+                    <div class="card-section-title mb-0">
+                        <i class="bi bi-collection text-primary"></i> Danh sách
+                        <span class="badge rounded-pill text-bg-light border ms-1">@Model.Certificates.Count</span>
+                    </div>
+                </div>
 
                 @if (Model.Certificates.Count == 0)
                 {
-                    <p class="text-muted small mb-0">Chưa có chứng chỉ nào. Hãy upload file bên trái.</p>
+                    <div class="empty-state">
+                        <i class="bi bi-folder2-open"></i>
+                        <p class="mb-0">Chưa có chứng chỉ nào.<br />Hãy upload file bên trái để bắt đầu.</p>
+                    </div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle">
+                        <table class="table cert-table align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>Tên</th>
@@ -100,25 +118,31 @@
                                             <div class="fw-semibold">@c.Title</div>
                                             @if (!string.IsNullOrEmpty(c.IssuedBy))
                                             {
-                                                <div class="small text-muted">@c.IssuedBy</div>
+                                                <div class="small text-muted-soft">@c.IssuedBy</div>
                                             }
                                         </td>
-                                        <td>@(c.CertType ?? "—")</td>
-                                        <td class="small">@c.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td><span class="text-muted-soft">@(c.CertType ?? "—")</span></td>
+                                        <td class="small text-muted-soft">@c.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>
                                             @if (c.IsVerified)
                                             {
-                                                <span class="badge text-bg-success">Đã xác minh</span>
+                                                <span class="badge badge-soft-success">
+                                                    <i class="bi bi-patch-check me-1"></i>Đã xác minh
+                                                </span>
                                             }
                                             else
                                             {
-                                                <span class="badge text-bg-warning">Chờ xác minh</span>
+                                                <span class="badge badge-soft-warning">
+                                                    <i class="bi bi-hourglass-split me-1"></i>Chờ xác minh
+                                                </span>
                                             }
                                         </td>
-                                        <td>
+                                        <td class="text-end">
                                             @if (!string.IsNullOrEmpty(c.FileUrl))
                                             {
-                                                <a href="@c.FileUrl" target="_blank" rel="noopener" class="small">Xem file</a>
+                                                <a href="@c.FileUrl" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                </a>
                                             }
                                         </td>
                                     </tr>

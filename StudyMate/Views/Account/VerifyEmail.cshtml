@@ -1,70 +1,60 @@
 @model StudyMate.ViewModels.Account.VerifyOtpViewModel
 @{
     ViewData["Title"] = "Xác thực email";
+    ViewData["FullBleed"] = true;
 }
 
-<div class="row justify-content-center mt-4">
-    <div class="col-12 col-sm-10 col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
+<div class="auth-shell">
+    <div class="auth-card auth-card-narrow">
+        <div class="auth-card-header">
+            <div class="auth-icon"><i class="bi bi-envelope-check"></i></div>
+            <h1 class="auth-title">Xác thực email</h1>
+            <p>
+                Nhập mã OTP 6 số đã gửi đến<br />
+                <strong class="text-dark">@Model.Email</strong>
+            </p>
+        </div>
 
-                <h4 class="card-title text-center mb-1">Xác thực email</h4>
-                <p class="text-center text-muted small mb-4">
-                    Nhập mã OTP đã được gửi đến<br />
-                    <strong>@Model.Email</strong>
-                </p>
-
-                @* Resend success alert *@
-                @if (TempData["ResendSuccess"] != null)
-                {
-                    <div class="alert alert-success py-2 small">
-                        ✅ OTP mới đã được gửi. Vui lòng kiểm tra hộp thư.
-                    </div>
-                }
-
-                @* OTP form *@
-                <form asp-action="VerifyEmail" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
-
-                    @* Hidden email *@
-                    <input type="hidden" asp-for="Email" />
-
-                    @* OTP code input *@
-                    <div class="mb-3">
-                        <label asp-for="Code" class="form-label">Mã OTP (6 chữ số)</label>
-                        <input asp-for="Code"
-                               class="form-control form-control-lg text-center"
-                               maxlength="6"
-                               placeholder="000000"
-                               autocomplete="one-time-code"
-                               inputmode="numeric"
-                               style="letter-spacing: 0.4rem; font-size: 1.5rem;" />
-                        <span asp-validation-for="Code" class="text-danger small"></span>
-                    </div>
-
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">Xác thực</button>
-                    </div>
-                </form>
-
-                @* Resend OTP form *@
-                <form asp-action="ResendOtp" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="email" value="@Model.Email" />
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">
-                            Gửi lại OTP
-                        </button>
-                    </div>
-                </form>
-
-                <hr class="my-3" />
-
-                <p class="text-center mb-0 small">
-                    <a asp-controller="Account" asp-action="Register">← Quay lại đăng ký</a>
-                </p>
-
+        @if (TempData["ResendSuccess"] != null)
+        {
+            <div class="alert alert-success py-2 small">
+                <i class="bi bi-check-circle me-1"></i>
+                OTP mới đã được gửi. Vui lòng kiểm tra hộp thư.
             </div>
+        }
+
+        <form asp-action="VerifyEmail" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <input type="hidden" asp-for="Email" />
+
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label">Mã OTP</label>
+                <input asp-for="Code"
+                       class="form-control form-control-lg otp-input"
+                       maxlength="6"
+                       placeholder="••••••"
+                       autocomplete="one-time-code"
+                       inputmode="numeric" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid mb-2">
+                <button type="submit" class="btn btn-primary btn-lg">Xác thực</button>
+            </div>
+        </form>
+
+        <form asp-action="ResendOtp" method="post" class="mt-2">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="email" value="@Model.Email" />
+            <div class="d-grid">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-repeat me-1"></i> Gửi lại OTP
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer-links">
+            <a asp-action="Register"><i class="bi bi-arrow-left me-1"></i>Quay lại đăng ký</a>
         </div>
     </div>
 </div>

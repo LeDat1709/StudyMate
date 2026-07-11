@@ -2,12 +2,19 @@
     ViewData["Title"] = "Không có quyền truy cập";
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-12 col-md-6 text-center">
-        <h3 class="mb-3">Không có quyền truy cập</h3>
-        <p class="text-muted">
-            Bạn không có quyền xem trang này. Chỉ tài khoản <strong>Tutor</strong> mới có thể quản lý chứng chỉ.
-        </p>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Về trang chủ</a>
+<div class="status-panel">
+    <div class="status-icon"><i class="bi bi-slash-circle"></i></div>
+    <h2 class="fw-800 mb-2">Không có quyền truy cập</h2>
+    <p class="text-muted-soft mb-4">
+        Bạn không được phép xem trang này.
+        Một số chức năng (như quản lý chứng chỉ) chỉ dành cho tài khoản <strong>Tutor</strong>.
+    </p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+            <i class="bi bi-house me-1"></i> Về trang chủ
+        </a>
+        <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-secondary">
+            Hồ sơ của tôi
+        </a>
     </div>
 </div>
