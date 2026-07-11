@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M2-T6</taskId>
+    <taskName>Tutor subjects multi-select</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T6</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-05</frsReference>
+  </meta>
+  <goal>
+    Tutor selects 1–10 subjects from seeded Subjects list; sync TutorSubjects on Create/Edit.
+  </goal>
+</prompt>
