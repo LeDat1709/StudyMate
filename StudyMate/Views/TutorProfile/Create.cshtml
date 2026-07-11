@@ -15,29 +15,33 @@
         <div class="card-body">
             @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
             {
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle" style="width:64px;height:64px;object-fit:cover" />
+                <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3" style="background: var(--sm-bg); border: 1px solid var(--sm-line)">
+                    <img src="@Model.AvatarUrl" alt="Avatar" class="entity-avatar" style="width:64px;height:64px" />
                     <div>
-                        <div class="fw-semibold">@Model.FullName</div>
+                        <div class="fw-800">@Model.FullName</div>
                         <div class="text-muted small">@Model.Email</div>
-                        <a asp-controller="Account" asp-action="Profile" class="small">Đổi ảnh đại diện</a>
+                        <a asp-controller="Account" asp-action="Profile" class="small fw-semibold">Đổi ảnh đại diện</a>
                     </div>
                 </div>
             }
             else
             {
                 <div class="alert alert-info py-2 small mb-4">
-                    Chưa có ảnh đại diện — <a asp-controller="Account" asp-action="Profile">cập nhật tại Hồ sơ cá nhân</a>
+                    <i class="bi bi-info-circle me-1"></i>
+                    Chưa có ảnh đại diện —
+                    <a asp-controller="Account" asp-action="Profile" class="fw-semibold">cập nhật tại Hồ sơ cá nhân</a>
                 </div>
             }
 
             <form asp-action="Create" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
-                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
                 <partial name="_FormFields" model="Model" />
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check2 me-1"></i> Tạo hồ sơ
-                </button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2 me-1"></i> Tạo hồ sơ
+                    </button>
+                </div>
             </form>
         </div>
     </div>
