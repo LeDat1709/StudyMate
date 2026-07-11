@@ -1,0 +1,14 @@
+﻿@model StudyMate.ViewModels.JobPosting.JobPostingFormViewModel
+@{ ViewData["Title"] = "Đăng yêu cầu"; }
+<div class="page-shell">
+  <div class="page-header"><h1>Đăng yêu cầu thuê gia sư</h1><p>Tối đa 5 job đang Open</p></div>
+  <div class="surface-card"><div class="card-body">
+    <form asp-action="Create" method="post">
+      @Html.AntiForgeryToken()
+      <partial name="_Form" model="Model" />
+      <button type="submit" class="btn btn-primary">Đăng job</button>
+      <a asp-action="Index" class="btn btn-outline-secondary">Danh sách</a>
+    </form>
+  </div></div>
+</div>
+@section Scripts { @await Html.PartialAsync("_ValidationScriptsPartial") }
