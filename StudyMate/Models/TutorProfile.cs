@@ -53,4 +53,10 @@ public class TutorProfile
     public ApplicationUser? User { get; set; }
 
     public ICollection<TutorSubject> TutorSubjects { get; set; } = new List<TutorSubject>();
+
+    public ICollection<TutorCertificate> Certificates { get; set; } = new List<TutorCertificate>();
+
+    public ICollection<TutorAvailability> Availabilities { get; set; } = new List<TutorAvailability>();
+
+    public ICollection<DemoLesson> DemoLessons { get; set; } = new List<DemoLesson>();
 }

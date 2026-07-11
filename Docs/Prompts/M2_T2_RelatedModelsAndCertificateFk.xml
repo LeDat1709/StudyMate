@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M2-T2</taskId>
+    <taskName>Availability + DemoLesson models + migrate Certificate to TutorProfileId</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <module>Module 2 — Tutor Profile</module>
+    <planReference>Docs/PlanSetup.md — Module 2 models</planReference>
+    <frsReference>Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-06, 07, 08</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T2</breakTaskReference>
+  </meta>
+
+  <goal>
+    Add TutorAvailability and DemoLesson entities. Migrate TutorCertificate from temporary
+    UserId FK to TutorProfileId (schema-aligned). Minimal AccountController fix so project still builds.
+  </goal>
+
+  <context>
+    <readFile>Docs/BreakTasks/BreakTask_M2_TutorProfile.md</readFile>
+    <readFile>StudyMate/Models/TutorCertificate.cs</readFile>
+    <readFile>StudyMate/Models/TutorProfile.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Controllers/AccountController.cs</readFile>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+  </context>
+
+  <hardRules>
+    - NO UI for Availability / DemoLesson (later tasks)
+    - NO Admin approve / AI verify
+    - NO redesign Certificates view beyond compile fix
+    - DayOfWeek convention: 0=Sunday … 6=Saturday (.NET DayOfWeek)
+    - Data migration: map UserId → TutorProfiles.Id; delete unmapped cert rows if any
+  </hardRules>
+
+  <scope>
+    - Models: TutorAvailability, DemoLesson
+    - TutorCertificate: TutorProfileId required; remove UserId
+    - DbContext Fluent API + navigation collections on TutorProfile
+    - Migration with SQL data step
+    - AccountController: query/upload by TutorProfileId; if no profile, block upload with clear message
+  </scope>
+
+  <acceptanceCriteria>
+    - [ ] Tables TutorAvailabilities, DemoLessons exist in migration
+    - [ ] TutorCertificates.TutorProfileId FK; no UserId
+    - [ ] dotnet build pass
+    - [ ] Account Certificates still compiles and uses profile when present
+  </acceptanceCriteria>
+
+  <outputRequired>
+    - Models/TutorAvailability.cs, DemoLesson.cs, TutorCertificate.cs (updated)
+    - ApplicationDbContext.cs, TutorProfile.cs (nav props)
+    - AccountController.cs (minimal)
+    - Migration
+    - Prompt + Report
+  </outputRequired>
+
+</prompt>
