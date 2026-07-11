@@ -105,8 +105,8 @@ public class JobDetailViewModel
     public string? StudentName { get; set; }
     public string? StudentAvatar { get; set; }
     public bool IsOwner { get; set; }
-    /// <summary>M5: show Apply for Tutor when Open.</summary>
-    public bool ShowApplyPlaceholder { get; set; }
+    public bool CanApply { get; set; }
+    public bool AlreadyApplied { get; set; }
 
     public List<MatchedTutorItem> MatchedTutors { get; set; } = new();
 }

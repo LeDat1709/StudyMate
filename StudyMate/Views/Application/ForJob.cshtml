@@ -1,0 +1,89 @@
+@model List<StudyMate.Models.JobApplication>
+@{
+    ViewData["Title"] = "Applications";
+    string StatusBadge(string s) => s switch
+    {
+        "Pending" => "badge-soft-warning",
+        "Accepted" => "badge-soft-success",
+        "Rejected" => "badge-soft-danger",
+        "Cancelled" => "badge-soft-secondary",
+        _ => "badge-soft-primary"
+    };
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Danh sách apply</h1>
+            <p>@ViewData["JobTitle"]</p>
+        </div>
+        <a asp-controller="JobPosting" asp-action="MyJobs" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Job của tôi
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-people"></i>
+                <p class="mb-0">Chưa có gia sư apply.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sm-stack">
+            @foreach (var a in Model)
+            {
+                <div class="sm-stack-item" style="align-items:flex-start">
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <strong class="item-title">@(a.Tutor?.FullName ?? "Tutor")</strong>
+                            <span class="badge @StatusBadge(a.Status)">@a.Status</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(a.CoverNote))
+                        {
+                            <p class="small text-muted mb-1">@a.CoverNote</p>
+                        }
+                        <div class="meta-row">
+                            <span><i class="bi bi-cash-coin"></i> @(a.ProposedRate?.ToString("N0") ?? "—") ₫/h</span>
+                        </div>
+                        @if (a.Status == "Pending")
+                        {
+                            <div class="d-flex gap-2 mt-2">
+                                <form asp-action="Accept" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@a.Id" />
+                                    <button class="btn btn-sm btn-primary" type="submit">
+                                        <i class="bi bi-check2 me-1"></i> Accept
+                                    </button>
+                                </form>
+                                <form asp-action="Reject" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@a.Id" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Reject</button>
+                                </form>
+                            </div>
+                        }
+                        @if (a.Status == "Accepted")
+                        {
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <form asp-controller="Chat" asp-action="StartWith" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@a.TutorId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-chat-dots me-1"></i> Chat với tutor
+                                    </button>
+                                </form>
+                                <a class="btn btn-sm btn-primary" asp-controller="Booking" asp-action="Create" asp-route-applicationId="@a.Id">
+                                    <i class="bi bi-calendar-plus me-1"></i> Tạo booking
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
