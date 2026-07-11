@@ -10,5 +10,11 @@
       <form asp-action="Accept" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-success">Accept</button></form>
       <form asp-action="Reject" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-outline-danger">Reject</button></form>
     </div>}
+    @if(a.Status=="Accepted"){
+      <form asp-controller="Chat" asp-action="StartWith" method="post" class="mt-2 d-inline">@Html.AntiForgeryToken()
+        <input type="hidden" name="userId" value="@a.TutorId"/>
+        <button type="submit" class="btn btn-sm btn-outline-primary">Chat với tutor</button>
+      </form>
+    }
   </div>
 }</div></div>

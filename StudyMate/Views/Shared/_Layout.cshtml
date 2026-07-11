@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -27,38 +27,38 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chá»§</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="TutorProfile" asp-action="Search">Tìm gia sư</a>
+                            <a class="nav-link" asp-controller="TutorProfile" asp-action="Search">TĂ¬m gia sÆ°</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="JobPosting" asp-action="Index">Việc làm</a>
+                            <a class="nav-link" asp-controller="JobPosting" asp-action="Index">Viá»‡c lĂ m</a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Profile">Hồ sơ</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Profile">Há»“ sÆ¡</a>
                             </li>
                             @if (User.IsInRole("Student"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="JobPosting" asp-action="MyJobs">Job của tôi</a>
+                                    <a class="nav-link" asp-controller="JobPosting" asp-action="MyJobs">Job cá»§a tĂ´i</a>
                                 </li>
                             }
                             @if (User.IsInRole("Tutor"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="MyProfile">Hồ sơ gia sư</a>
+                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="MyProfile">Há»“ sÆ¡ gia sÆ°</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="Certificates">Chứng chỉ</a>
+                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="Certificates">Chá»©ng chá»‰</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Matching" asp-action="RecommendedJobs">Job gợi ý</a>
+                                    <a class="nav-link" asp-controller="Matching" asp-action="RecommendedJobs">Job gá»£i Ă½</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Application" asp-action="MyApplications">Apply của tôi</a>
+                                    <a class="nav-link" asp-controller="Application" asp-action="MyApplications">Apply cá»§a tĂ´i</a>
                                 </li>
                             }
                         }
@@ -77,24 +77,24 @@
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
-                                            <i class="bi bi-person"></i> Hồ sơ cá nhân
+                                            <i class="bi bi-person"></i> Há»“ sÆ¡ cĂ¡ nhĂ¢n
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
-                                            <i class="bi bi-shield-lock"></i> Đổi mật khẩu
+                                            <i class="bi bi-shield-lock"></i> Äá»•i máº­t kháº©u
                                         </a>
                                     </li>
                                     @if (User.IsInRole("Tutor"))
                                     {
                                         <li>
                                             <a class="dropdown-item" asp-controller="TutorProfile" asp-action="MyProfile">
-                                                <i class="bi bi-mortarboard"></i> Hồ sơ gia sư
+                                                <i class="bi bi-mortarboard"></i> Há»“ sÆ¡ gia sÆ°
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="TutorProfile" asp-action="Certificates">
-                                                <i class="bi bi-award"></i> Chứng chỉ
+                                                <i class="bi bi-award"></i> Chá»©ng chá»‰
                                             </a>
                                         </li>
                                     }
@@ -103,7 +103,7 @@
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="px-1">
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                                <i class="bi bi-box-arrow-right"></i> ÄÄƒng xuáº¥t
                                             </button>
                                         </form>
                                     </li>
@@ -113,10 +113,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">ÄÄƒng nháº­p</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link btn-nav-primary" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                                <a class="nav-link btn-nav-primary" asp-controller="Account" asp-action="Register">ÄÄƒng kĂ½</a>
                             </li>
                         }
                     </ul>
@@ -147,8 +147,8 @@
 
     <footer class="sm-footer mt-auto">
         <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span>&copy; 2026 StudyMate — Kết nối học viên &amp; gia sư</span>
-            <a asp-controller="Home" asp-action="Privacy" class="text-muted-soft">Chính sách</a>
+            <span>&copy; 2026 StudyMate â€” Káº¿t ná»‘i há»c viĂªn &amp; gia sÆ°</span>
+            <a asp-controller="Home" asp-action="Privacy" class="text-muted-soft">ChĂ­nh sĂ¡ch</a>
         </div>
     </footer>
 
@@ -158,3 +158,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

@@ -1,0 +1,15 @@
+﻿@model List<StudyMate.Models.Conversation>
+@{
+    ViewData["Title"] = "Chat";
+    var me = ViewData["Me"] as string;
+}
+<div class="page-shell">
+  <h1 class="h4">Hội thoại</h1>
+  @if (!Model.Any()) { <p class="text-muted">Chưa có cuộc chat. Bắt đầu từ trang Apply (Accepted) sau khi có nút Chat.</p> }
+  <div class="list-group">
+    @foreach (var c in Model) {
+      var peer = c.User1Id == me ? c.User2?.FullName : c.User1?.FullName;
+      <a class="list-group-item list-group-item-action" asp-action="Room" asp-route-id="@c.Id">@peer</a>
+    }
+  </div>
+</div>
