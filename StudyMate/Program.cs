@@ -52,6 +52,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IContentModerationService, ContentModerationService>();
 
 // ── 5. MVC ────────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();
