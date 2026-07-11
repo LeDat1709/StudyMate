@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M6-T1</taskId>
+    <taskName>Conversation + Message models</taskName>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M6_Chat.md — M6-T1</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M6_Chat.md</frsReference>
+  </meta>
+  <goal>EF models Conversation, ChatMessage (table Messages), migration. No UI.</goal>
+</prompt>

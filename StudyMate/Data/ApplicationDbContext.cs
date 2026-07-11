@@ -35,6 +35,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // Module 5
     public DbSet<JobApplication> Applications { get; set; }
 
+    // Module 6
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<ChatMessage> Messages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -199,6 +203,28 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasOne(x => x.Tutor).WithMany().HasForeignKey(x => x.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.JobPostingId, x.TutorId }).IsUnique();
+        });
+
+        // ── Chat (M6) ────────────────────────────────────────────────────────
+        builder.Entity<Conversation>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasOne(x => x.User1).WithMany().HasForeignKey(x => x.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.User2).WithMany().HasForeignKey(x => x.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<ChatMessage>(e =>
+        {
+            e.ToTable("Messages");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.FileUrl).HasMaxLength(500);
+            e.Property(x => x.FileType).HasMaxLength(20);
+            e.HasOne(x => x.Conversation).WithMany(c => c.Messages)
+                .HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Sender).WithMany().HasForeignKey(x => x.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.ConversationId, x.SentAt });
         });
 
         // ── Index tối ưu query phổ biến ──────────────────────────────────────
