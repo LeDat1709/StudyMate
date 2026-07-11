@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StudyMate.Models;
 
 namespace StudyMate.Data;
 
 /// <summary>
-/// DbContext chính của StudyMate, kế thừa IdentityDbContext để tích hợp ASP.NET Identity.
+/// DbContext chĂ­nh cá»§a StudyMate, káº¿ thá»«a IdentityDbContext Ä‘á»ƒ tĂ­ch há»£p ASP.NET Identity.
 /// </summary>
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
@@ -14,7 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    // ── Các DbSet sẽ được thêm dần theo từng module ──────────────────────────
+    // â”€â”€ CĂ¡c DbSet sáº½ Ä‘Æ°á»£c thĂªm dáº§n theo tá»«ng module â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Module 1
     public DbSet<OtpCode> OtpCodes { get; set; }
 
@@ -46,11 +46,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<UserReport> Reports { get; set; }
     public DbSet<AiLog> AiLogs { get; set; }
 
+    // Module 9
+    public DbSet<Wallet> Wallets { get; set; }
+    public DbSet<WalletTransaction> Transactions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        // ── OtpCode ──────────────────────────────────────────────────────────
+        // â”€â”€ OtpCode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<OtpCode>(e =>
         {
             e.HasKey(x => x.Id);
@@ -62,7 +66,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // ── TutorCertificate (FK TutorProfile) ────────────────────────────────
+        // â”€â”€ TutorCertificate (FK TutorProfile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<TutorCertificate>(e =>
         {
             e.HasKey(x => x.Id);
@@ -78,7 +82,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => x.TutorProfileId).HasDatabaseName("IX_TutorCertificates_TutorProfileId");
         });
 
-        // ── TutorAvailability ────────────────────────────────────────────────
+        // â”€â”€ TutorAvailability â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<TutorAvailability>(e =>
         {
             e.HasKey(x => x.Id);
@@ -89,7 +93,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => x.TutorProfileId).HasDatabaseName("IX_TutorAvailabilities_TutorProfileId");
         });
 
-        // ── DemoLesson ───────────────────────────────────────────────────────
+        // â”€â”€ DemoLesson â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<DemoLesson>(e =>
         {
             e.HasKey(x => x.Id);
@@ -102,7 +106,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => x.TutorProfileId).HasDatabaseName("IX_DemoLessons_TutorProfileId");
         });
 
-        // ── Subject ──────────────────────────────────────────────────────────
+        // â”€â”€ Subject â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<Subject>(e =>
         {
             e.HasKey(x => x.Id);
@@ -111,7 +115,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => x.Name).IsUnique().HasDatabaseName("IX_Subjects_Name");
         });
 
-        // ── TutorProfile ─────────────────────────────────────────────────────
+        // â”€â”€ TutorProfile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<TutorProfile>(e =>
         {
             e.HasKey(x => x.Id);
@@ -140,7 +144,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .HasDatabaseName("IX_TutorProfiles_IsAvailable");
         });
 
-        // ── TutorSubject (composite key) ─────────────────────────────────────
+        // â”€â”€ TutorSubject (composite key) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<TutorSubject>(e =>
         {
             e.HasKey(x => new { x.TutorProfileId, x.SubjectId });
@@ -156,7 +160,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // ── JobPosting (M3) ──────────────────────────────────────────────────
+        // â”€â”€ JobPosting (M3) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<JobPosting>(e =>
         {
             e.HasKey(x => x.Id);
@@ -183,7 +187,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => new { x.Status, x.Deadline }).HasDatabaseName("IX_JobPostings_Status");
         });
 
-        // ── MatchingResult (M4) ──────────────────────────────────────────────
+        // â”€â”€ MatchingResult (M4) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<MatchingResult>(e =>
         {
             e.HasKey(x => x.Id);
@@ -198,7 +202,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => x.JobPostingId);
         });
 
-        // ── JobApplication (M5) ──────────────────────────────────────────────
+        // â”€â”€ JobApplication (M5) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<JobApplication>(e =>
         {
             e.ToTable("Applications");
@@ -212,7 +216,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => new { x.JobPostingId, x.TutorId }).IsUnique();
         });
 
-        // ── Chat (M6) ────────────────────────────────────────────────────────
+        // â”€â”€ Chat (M6) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<Conversation>(e =>
         {
             e.HasKey(x => x.Id);
@@ -234,7 +238,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasIndex(x => new { x.ConversationId, x.SentAt });
         });
 
-        // ── Booking (M7) ─────────────────────────────────────────────────────
+        // â”€â”€ Booking (M7) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<Booking>(e =>
         {
             e.HasKey(x => x.Id);
@@ -248,7 +252,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ── Report + AiLog (M8) ───────────────────────────────────────────────
+        // â”€â”€ Report + AiLog (M8) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<UserReport>(e =>
         {
             e.ToTable("Reports");
@@ -269,9 +273,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ── Index tối ưu query phổ biến ──────────────────────────────────────
+        // â”€â”€ Index tá»‘i Æ°u query phá»• biáº¿n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<ApplicationUser>()
             .HasIndex(u => u.NormalizedEmail)
             .HasDatabaseName("IX_AspNetUsers_Email");
     }
 }
+
