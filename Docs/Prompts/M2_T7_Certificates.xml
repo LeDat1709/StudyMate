@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M2-T7</taskId>
+    <taskName>Certificates on TutorProfile</taskName>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T7</breakTaskReference>
+  </meta>
+  <goal>Move certificate CRUD to TutorProfileController; redirect legacy Account routes.</goal>
+</prompt>

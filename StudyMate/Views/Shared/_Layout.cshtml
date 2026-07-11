@@ -29,6 +29,9 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="TutorProfile" asp-action="Search">Tìm gia sư</a>
+                        </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
@@ -40,7 +43,7 @@
                                     <a class="nav-link" asp-controller="TutorProfile" asp-action="MyProfile">Hồ sơ gia sư</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Account" asp-action="Certificates">Chứng chỉ</a>
+                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="Certificates">Chứng chỉ</a>
                                 </li>
                             }
                         }
@@ -75,7 +78,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" asp-controller="Account" asp-action="Certificates">
+                                            <a class="dropdown-item" asp-controller="TutorProfile" asp-action="Certificates">
                                                 <i class="bi bi-award"></i> Chứng chỉ
                                             </a>
                                         </li>
