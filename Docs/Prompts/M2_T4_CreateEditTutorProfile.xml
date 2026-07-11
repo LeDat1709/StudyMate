@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M2-T4</taskId>
+    <taskName>Create / Edit Tutor Profile form</taskName>
+    <timeEstimate>90 minutes</timeEstimate>
+    <module>Module 2 — Tutor Profile</module>
+    <frsReference>Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-01, UC-M2-02</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T4</breakTaskReference>
+  </meta>
+  <goal>
+    Tutor creates first profile and edits basic fields. IsVerified=false on create.
+    MyProfile dashboard; navbar link for Tutor role.
+  </goal>
+  <hardRules>
+    - NO subjects multi-select (T6), video (T5), certs (T7), availability (T8), demo (T9)
+    - [Authorize(Roles="Tutor")] on tutor actions
+    - One profile per user (UserId unique)
+    - Offline/Both requires Address
+  </hardRules>
+  <scope>
+    - TutorProfileController: Create, Edit, MyProfile
+    - TutorProfileFormViewModel
+    - Views Create, Edit, MyProfile (+ partial form optional)
+    - Layout link Hồ sơ gia sư
+  </scope>
+</prompt>

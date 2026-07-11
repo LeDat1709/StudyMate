@@ -1,0 +1,48 @@
+@model StudyMate.ViewModels.TutorProfile.TutorProfileFormViewModel
+@{
+    ViewData["Title"] = "Tạo hồ sơ gia sư";
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Tạo hồ sơ gia sư</h1>
+            <p>Điền thông tin để học viên tìm thấy bạn. Hồ sơ sẽ chờ Admin duyệt lần đầu.</p>
+        </div>
+    </div>
+
+    <div class="surface-card">
+        <div class="card-body">
+            @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+            {
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle" style="width:64px;height:64px;object-fit:cover" />
+                    <div>
+                        <div class="fw-semibold">@Model.FullName</div>
+                        <div class="text-muted small">@Model.Email</div>
+                        <a asp-controller="Account" asp-action="Profile" class="small">Đổi ảnh đại diện</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info py-2 small mb-4">
+                    Chưa có ảnh đại diện — <a asp-controller="Account" asp-action="Profile">cập nhật tại Hồ sơ cá nhân</a>
+                </div>
+            }
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                <partial name="_FormFields" model="Model" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2 me-1"></i> Tạo hồ sơ
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

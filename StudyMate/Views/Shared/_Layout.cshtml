@@ -37,6 +37,9 @@
                             @if (User.IsInRole("Tutor"))
                             {
                                 <li class="nav-item">
+                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="MyProfile">Hồ sơ gia sư</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" asp-controller="Account" asp-action="Certificates">Chứng chỉ</a>
                                 </li>
                             }
@@ -66,6 +69,11 @@
                                     </li>
                                     @if (User.IsInRole("Tutor"))
                                     {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="TutorProfile" asp-action="MyProfile">
+                                                <i class="bi bi-mortarboard"></i> Hồ sơ gia sư
+                                            </a>
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="Account" asp-action="Certificates">
                                                 <i class="bi bi-award"></i> Chứng chỉ
