@@ -1,0 +1,36 @@
+# CI: auto-check on PRs targeting main (and pushes to main).
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore StudyMate/StudyMate.csproj
+
+      - name: Build
+        run: dotnet build StudyMate/StudyMate.csproj -c Release --no-restore
+
+      # When StudyMate.Tests exists later, uncomment:
+      # - name: Test
+      #   run: dotnet test StudyMate.Tests/StudyMate.Tests.csproj -c Release --no-build --verbosity normal
