@@ -1,17 +1,50 @@
-﻿@model List<(StudyMate.Models.JobPosting? Job, decimal Score)>
+@model List<(StudyMate.Models.JobPosting? Job, decimal Score)>
 @{ ViewData["Title"] = "Job gợi ý"; }
+
 <div class="page-shell">
-  <h1 class="h4">Job AI gợi ý cho bạn</h1>
-  @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
-  @if (!Model.Any()) { <p class="text-muted">Chưa có gợi ý.</p> }
-  <div class="list-group">
-    @foreach (var x in Model) {
-      if (x.Job == null) { continue; }
-      <a class="list-group-item list-group-item-action d-flex justify-content-between"
-         asp-controller="JobPosting" asp-action="Details" asp-route-id="@x.Job.Id">
-        <span>@x.Job.Title · @x.Job.Subject?.Name</span>
-        <span class="badge text-bg-primary">@x.Score.ToString("0.00")</span>
-      </a>
+    <div class="page-header">
+        <div>
+            <h1>Job AI gợi ý</h1>
+            <p>Việc làm phù hợp với hồ sơ và môn dạy của bạn (stub matching)</p>
+        </div>
+        <a asp-controller="JobPosting" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-briefcase me-1"></i> Tất cả job
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i>@TempData["Error"]</div>
     }
-  </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-stars"></i>
+                <p class="mb-0">Chưa có gợi ý. Cập nhật hồ sơ gia sư hoặc đợi job mới được match.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sm-stack">
+            @foreach (var x in Model)
+            {
+                if (x.Job == null) { continue; }
+                <div class="sm-stack-item">
+                    <div class="min-w-0">
+                        <a class="item-title" asp-controller="JobPosting" asp-action="Details" asp-route-id="@x.Job.Id">
+                            @x.Job.Title
+                        </a>
+                        <div class="meta-row mt-1">
+                            <span><i class="bi bi-book"></i> @(x.Job.Subject?.Name ?? "—")</span>
+                            <span><i class="bi bi-laptop"></i> @x.Job.TeachingMode</span>
+                        </div>
+                    </div>
+                    <span class="score-pill"><i class="bi bi-graph-up-arrow"></i> @x.Score.ToString("0.00")</span>
+                </div>
+            }
+        </div>
+    }
 </div>

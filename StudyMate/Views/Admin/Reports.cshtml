@@ -1,13 +1,62 @@
-﻿@model List<StudyMate.Models.UserReport>
-@{ ViewData["Title"]="Reports"; }
-<div class="page-shell"><h1 class="h4">Reports</h1>
-@foreach(var r in Model){<div class="surface-card mb-2"><div class="card-body">
-  <div>@r.Reason · <strong>@r.Status</strong> · by @r.Reporter?.FullName</div>
-  <form asp-action="ResolveReport" method="post" class="row g-2 mt-2">@Html.AntiForgeryToken()
-    <input type="hidden" name="id" value="@r.Id"/>
-    <div class="col-auto"><select name="status" class="form-select form-select-sm"><option>Resolved</option><option>Dismissed</option><option>Pending</option></select></div>
-    <div class="col"><input name="adminNote" class="form-control form-control-sm" placeholder="Note"/></div>
-    <div class="col-auto"><button class="btn btn-sm btn-primary">Save</button></div>
-  </form>
-</div></div>}
+@model List<StudyMate.Models.UserReport>
+@{ ViewData["Title"] = "Reports"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Reports</h1>
+            <p>Xử lý báo cáo người dùng</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-flag"></i>
+                <p class="mb-0">Không có report.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sm-stack">
+            @foreach (var r in Model)
+            {
+                <div class="surface-card">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                            <div>
+                                <strong>@r.Reason</strong>
+                                <div class="small text-muted">by @(r.Reporter?.FullName ?? "—")</div>
+                            </div>
+                            <span class="badge badge-soft-warning">@r.Status</span>
+                        </div>
+                        <form asp-action="ResolveReport" method="post" class="row g-2 align-items-end">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@r.Id" />
+                            <div class="col-md-3">
+                                <label class="form-label small">Status</label>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option>Resolved</option>
+                                    <option>Dismissed</option>
+                                    <option>Pending</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Admin note</label>
+                                <input name="adminNote" class="form-control form-control-sm" placeholder="Ghi chú" />
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-primary w-100" type="submit">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

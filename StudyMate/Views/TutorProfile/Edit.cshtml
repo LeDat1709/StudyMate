@@ -9,7 +9,9 @@
             <h1>Sửa hồ sơ gia sư</h1>
             <p>Cập nhật thông tin hiển thị trên hồ sơ của bạn.</p>
         </div>
-        <a asp-action="MyProfile" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+        <a asp-action="MyProfile" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại
+        </a>
     </div>
 
     <div class="surface-card">
@@ -17,11 +19,14 @@
             <form asp-action="Edit" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
-                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
                 <partial name="_FormFields" model="Model" />
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check2 me-1"></i> Lưu thay đổi
-                </button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2 me-1"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="MyProfile" class="btn btn-outline-secondary">Hủy</a>
+                </div>
             </form>
         </div>
     </div>

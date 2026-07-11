@@ -1,7 +1,53 @@
-﻿@model List<StudyMate.Models.ApplicationUser>
-@{ ViewData["Title"]="Users"; }
-<div class="page-shell"><h1 class="h4">Users</h1>
-<table class="table"><thead><tr><th>Name</th><th>Email</th><th>Active</th><th></th></tr></thead><tbody>
-@foreach(var u in Model){<tr><td>@u.FullName</td><td>@u.Email</td><td>@u.IsActive</td>
-<td><form asp-action="ToggleUserActive" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.Id"/><button class="btn btn-sm btn-outline-warning">Toggle</button></form></td></tr>}
-</tbody></table></div>
+@model List<StudyMate.Models.ApplicationUser>
+@{ ViewData["Title"] = "Users"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Users</h1>
+            <p>Kích hoạt / vô hiệu hóa tài khoản</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="sm-table-wrap">
+        <table class="table sm-table mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Active</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@u.FullName</td>
+                        <td class="text-muted">@u.Email</td>
+                        <td>
+                            @if (u.IsActive)
+                            {
+                                <span class="badge badge-soft-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-soft-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <form asp-action="ToggleUserActive" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">Toggle</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

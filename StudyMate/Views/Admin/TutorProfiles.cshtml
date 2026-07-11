@@ -1,10 +1,62 @@
-﻿@model List<StudyMate.Models.TutorProfile>
-@{ ViewData["Title"]="Tutor profiles"; }
-<div class="page-shell"><h1 class="h4">Tutor profiles</h1>
-<table class="table"><thead><tr><th>User</th><th>Headline</th><th>Verified</th><th></th></tr></thead><tbody>
-@foreach(var p in Model){<tr><td>@p.User?.FullName</td><td>@p.Headline</td><td>@p.IsVerified</td>
-<td class="d-flex gap-1">
-<form asp-action="VerifyTutor" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.Id"/><input type="hidden" name="verify" value="true"/><button class="btn btn-sm btn-success">Verify</button></form>
-<form asp-action="VerifyTutor" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.Id"/><input type="hidden" name="verify" value="false"/><button class="btn btn-sm btn-outline-secondary">Unverify</button></form>
-</td></tr>}
-</tbody></table></div>
+@model List<StudyMate.Models.TutorProfile>
+@{ ViewData["Title"] = "Tutor profiles"; }
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Tutor profiles</h1>
+            <p>Duyệt / gỡ xác minh hồ sơ gia sư</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="sm-table-wrap">
+        <table class="table sm-table mb-0">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Headline</th>
+                    <th>Verified</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@p.User?.FullName</td>
+                        <td class="text-muted">@p.Headline</td>
+                        <td>
+                            @if (p.IsVerified)
+                            {
+                                <span class="badge badge-soft-success">Verified</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-soft-warning">Pending</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <form asp-action="VerifyTutor" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <input type="hidden" name="verify" value="true" />
+                                    <button class="btn btn-sm btn-primary" type="submit">Verify</button>
+                                </form>
+                                <form asp-action="VerifyTutor" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <input type="hidden" name="verify" value="false" />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">Unverify</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
