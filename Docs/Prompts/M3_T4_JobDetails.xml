@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M3_T4_JobDetails</taskId>
+    <taskName>Job details</taskName>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T4_JobDetails</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+  </meta>
+  <goal>Job details for StudyMate M3 Job Posting.</goal>
+  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+</prompt>
