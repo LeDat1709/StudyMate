@@ -2,8 +2,45 @@
 <prompt>
   <meta>
     <taskId>M6-T3</taskId>
-    <taskName>Chat room and Send</taskName>
+    <taskName>Chat room + Send message</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 6 — Chat</module>
+    <frsReference>Docs/FRS/FRS_M6_Chat.md</frsReference>
     <breakTaskReference>Docs/BreakTasks/BreakTask_M6_Chat.md — M6-T3</breakTaskReference>
+    <dependsOn>M6-T2</dependsOn>
   </meta>
-  <goal>Room shows messages; Send POST adds message; mark peer messages read.</goal>
+  <goal>
+    Room hiển thị messages; Send POST thêm text; mark IsRead tin của peer.
+    MVC (không SignalR realtime).
+  </goal>
+  <context>
+    <readFile>StudyMate/Controllers/ChatController.cs</readFile>
+    <readFile>StudyMate/Models/Conversation.cs</readFile>
+  </context>
+  <scope>
+    - Room GET — max 200 messages, only participant
+    - Send POST content required
+    - Mark unread from peer as read
+    - Views/Chat/Room.cshtml
+  </scope>
+  <hardRules>
+    - KHÔNG SignalR trong task
+    - Non-participant → 404
+    - Empty content không insert
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Gửi tin OK
+    - [ ] Chỉ 2 user vào room
+    - [ ] IsRead cập nhật
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Vào Room → gửi tin
+    2. User khác reload thấy tin
+    3. User lạ URL room → 404
+  </testPlan>
+  <outputRequired>
+    <modify>ChatController.cs (Room, Send)</modify>
+    <create>Views/Chat/Room.cshtml</create>
+  </outputRequired>
 </prompt>

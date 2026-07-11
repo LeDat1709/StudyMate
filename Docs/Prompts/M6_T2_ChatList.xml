@@ -2,8 +2,45 @@
 <prompt>
   <meta>
     <taskId>M6-T2</taskId>
-    <taskName>Chat list and StartWith</taskName>
+    <taskName>Chat list + StartWith</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 6 — Chat</module>
+    <frsReference>Docs/FRS/FRS_M6_Chat.md</frsReference>
     <breakTaskReference>Docs/BreakTasks/BreakTask_M6_Chat.md — M6-T2</breakTaskReference>
+    <dependsOn>M6-T1</dependsOn>
   </meta>
-  <goal>List conversations for current user; StartWith(userId) creates or reuses 1-1 chat.</goal>
+  <goal>
+    User xem danh sách hội thoại; StartWith(userId) tạo hoặc tái sử dụng conversation 1-1.
+    Entry từ Application Accepted (nút Chat).
+  </goal>
+  <context>
+    <readFile>StudyMate/Models/Conversation.cs</readFile>
+    <readFile>StudyMate/Views/Application/ForJob.cshtml</readFile>
+  </context>
+  <scope>
+    - ChatController.Index [Authorize]
+    - StartWith POST — tìm (U1,U2) hoặc (U2,U1)
+    - Views/Chat/Index.cshtml
+    - Navbar Chat; nút Chat trên ForJob khi Accepted
+  </scope>
+  <hardRules>
+    - KHÔNG chat với chính mình
+    - CHỈ participant thấy conversation
+    - AntiForgery StartWith
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] List đúng user
+    - [ ] StartWith không duplicate pair
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Accept apply → Chat với tutor
+    2. StartWith lần 2 → cùng room id
+    3. /Chat list peer name
+  </testPlan>
+  <outputRequired>
+    <create>ChatController.cs (Index, StartWith)</create>
+    <create>Views/Chat/Index.cshtml</create>
+    <modify>ForJob.cshtml, _Layout.cshtml</modify>
+  </outputRequired>
 </prompt>

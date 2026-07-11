@@ -1,3 +1,45 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M5-T2</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T2</breakTaskReference></meta>
-<goal>M5-T2 Application.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M5-T2</taskId>
+    <taskName>Tutor Apply Job</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 5 — Application</module>
+    <frsReference>Docs/FRS/FRS_M5_Application.md — UC-M5-01</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T2</breakTaskReference>
+    <dependsOn>M5-T1, TutorProfile verified</dependsOn>
+  </meta>
+  <goal>
+    Tutor apply job Open: CoverNote ≤500, ProposedRate optional; Status Pending;
+    1 lần/job; cần TutorProfile IsVerified.
+  </goal>
+  <context>
+    <readFile>StudyMate/Models/JobApplication.cs</readFile>
+    <readFile>StudyMate/Controllers/JobPostingController.cs</readFile>
+  </context>
+  <scope>
+    - ApplicationController Apply GET/POST [Authorize Tutor]
+    - Validate job Open, chưa apply, profile verified
+    - View Apply.cshtml
+  </scope>
+  <hardRules>
+    - KHÔNG Accept/Reject (T3)
+    - KHÔNG apply job Closed
+    - AntiForgery POST
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Apply OK → DB Pending
+    - [ ] Apply 2 lần → lỗi
+    - [ ] Chưa verified → chặn
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Tutor verified → Apply job Open
+    2. Apply lại → reject
+    3. Student không vào Apply
+  </testPlan>
+  <outputRequired>
+    <create>ApplicationController.cs (Apply)</create>
+    <create>Views/Application/Apply.cshtml</create>
+  </outputRequired>
+</prompt>

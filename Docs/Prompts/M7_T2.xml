@@ -1,3 +1,66 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M7-T2</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M7_Booking.md — M7-T2</breakTaskReference></meta>
-<goal>M7-T2 Booking.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M7-T2</taskId>
+    <taskName>Create booking from Accepted app</taskName>
+    <timeEstimate>30-60 minutes</timeEstimate>
+    <module>StudyMate module task</module>
+    <planReference>Docs/PlanSetup.md</planReference>
+    <frsReference>Docs/FRS/FRS_M7_Booking.md</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M7_Booking.md — M7-T2</breakTaskReference>
+  </meta>
+  <goal>
+    Student tao booking tu Application Accepted; validate End>Start; Status Pending.
+  </goal>
+  <context>
+    <readFile>Docs/BreakTasks/BreakTask_M7_Booking.md</readFile>
+    <readFile>Docs/FRS/FRS_M7_Booking.md</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+  </context>
+  <currentState>
+    - Code da ship tren branch tuong ung; prompt nay chuan hoa theo AI Agent Code Process (MeU).
+    - Engineer dung de review/replay agent neu can re-implement.
+  </currentState>
+  <taskUnit>
+    - Implement dung goal va output: BookingController Create, Views/Booking/Create
+  </taskUnit>
+  <scope>
+    - Student tao booking tu Application Accepted; validate End>Start; Status Pending.
+    - Output: BookingController Create, Views/Booking/Create
+  </scope>
+  <hardRules>
+    - Chi Student owner job`n    - Chi Status Accepted
+    - KHONG mo rong sang module khac
+    - KHONG sua appsettings secrets
+    - AntiForgery tren moi POST form
+    - Self-review chi file trong outputRequired
+  </hardRules>
+  <tasks>
+    1. Doc FRS + BreakTask + context
+    2. Tom tat hien trang cho engineer
+    3. Implement dung scope
+    4. dotnet build
+    5. Viet Report theo format M1 (Da lam gi / Ket qua / AC / Test / Rui ro / Buoc tiep)
+  </tasks>
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC / EF Core
+    - Bootstrap 5
+    - Commit message 1 dong: feat(mx): ... - M7-T2
+  </constraints>
+  <acceptanceCriteria>
+    - [ ] Dung FRS/BreakTask cho M7-T2
+    - [ ] Output files ton tai
+    - [ ] dotnet build pass
+    - [ ] Report day du section M1
+  </acceptanceCriteria>
+  <testPlan>
+    1. dotnet build → pass
+    2. Smoke test UI/API theo goal task
+    3. Kiem tra khong regress module truoc
+  </testPlan>
+  <outputRequired>
+    <item>BookingController Create, Views/Booking/Create</item>
+    <item>Docs/Reports/Report_M7_T2_YYYY-MM-DD.md (hoac Report_M7-T2_...)</item>
+  </outputRequired>
+</prompt>

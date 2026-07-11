@@ -1,3 +1,37 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M5-T4</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T4</breakTaskReference></meta>
-<goal>M5-T4 Application.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M5-T4</taskId>
+    <taskName>Tutor MyApplications + Cancel</taskName>
+    <timeEstimate>30 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M5_Application.md — Cancel Pending</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T4</breakTaskReference>
+    <dependsOn>M5-T2</dependsOn>
+  </meta>
+  <goal>
+    Tutor xem mọi application của mình; Cancel khi Pending.
+  </goal>
+  <scope>
+    - MyApplications GET
+    - Cancel POST
+    - View + navbar link
+  </scope>
+  <hardRules>
+    - Chỉ Cancel Pending
+    - Chỉ app của current tutor
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] List đúng tutor
+    - [ ] Cancel → Cancelled
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Apply → MyApplications
+    2. Cancel Pending
+  </testPlan>
+  <outputRequired>
+    <modify>ApplicationController.cs</modify>
+    <create>Views/Application/MyApplications.cshtml</create>
+    <modify>_Layout.cshtml</modify>
+  </outputRequired>
+</prompt>

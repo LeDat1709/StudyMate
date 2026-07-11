@@ -1,3 +1,48 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M4-T2</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T2</breakTaskReference></meta>
-<goal>M4-T2 AI Matching task.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M4-T2</taskId>
+    <taskName>IMatchingService + stub scoring</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 4 — AI Matching</module>
+    <frsReference>Docs/FRS/FRS_M4_AIMatching.md — UC-M4-01 fallback</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T2</breakTaskReference>
+    <dependsOn>M4-T1</dependsOn>
+  </meta>
+  <goal>
+    Service gợi ý stub: điểm theo môn dạy + keyword overlap + budget; top 10;
+    lưu MatchingResults; DI Scoped. (Thay Python FastAPI sau.)
+  </goal>
+  <context>
+    <readFile>StudyMate/Models/MatchingResult.cs</readFile>
+    <readFile>StudyMate/Models/TutorProfile.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+  </context>
+  <scope>
+    - IMatchingService: MatchJobToTutorsAsync(jobId); RecommendJobsForTutorAsync(profileId, top)
+    - Chỉ tutor IsVerified &amp;&amp; IsAvailable
+    - Xóa kết quả cũ cùng JobPostingId trước khi insert
+    - ModelVersion = "stub-v1"
+    - DI: AddScoped&lt;IMatchingService, MatchingService&gt;()
+  </scope>
+  <hardRules>
+    - KHÔNG bắt buộc gọi Python (stub pure C#)
+    - KHÔNG crash khi 0 tutor
+    - KHÔNG Controller UI phức tạp (có thể unit-call sau)
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Inject service OK
+    - [ ] Match tạo ≤10 rows
+    - [ ] Rank 1..n theo score giảm
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. dotnet build
+    2. (Manual/dev) gọi MatchJobToTutorsAsync → SELECT MatchingResults
+  </testPlan>
+  <outputRequired>
+    <create>Services/Interfaces/IMatchingService.cs</create>
+    <create>Services/Implementations/MatchingService.cs</create>
+    <modify>Program.cs</modify>
+  </outputRequired>
+</prompt>

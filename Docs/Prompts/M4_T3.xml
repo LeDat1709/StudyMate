@@ -1,3 +1,48 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M4-T3</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T3</breakTaskReference></meta>
-<goal>M4-T3 AI Matching task.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M4-T3</taskId>
+    <taskName>Match sau Create job + hiển thị Details</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 4 — AI Matching</module>
+    <frsReference>Docs/FRS/FRS_M4_AIMatching.md — UC-M4-01</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T3</breakTaskReference>
+    <dependsOn>M4-T2, M3 Create/Details</dependsOn>
+  </meta>
+  <goal>
+    Sau khi Student create job thành công → MatchJobToTutorsAsync.
+    Details hiển thị top tutor (rank, score, link profile).
+    Owner có nút Rematch.
+  </goal>
+  <context>
+    <readFile>StudyMate/Controllers/JobPostingController.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/IMatchingService.cs</readFile>
+    <readFile>StudyMate/Views/JobPosting/Details.cshtml</readFile>
+  </context>
+  <scope>
+    - Inject IMatchingService vào JobPostingController
+    - Create POST sau SaveChanges → await MatchJobToTutorsAsync
+    - Details load MatchingResults include TutorProfile.User
+    - MatchingController.Rematch [Authorize Student] owner only
+  </scope>
+  <hardRules>
+    - KHÔNG chặn Create nếu match lỗi (log + continue nếu try/catch)
+    - Rematch chỉ owner
+    - KHÔNG sửa scoring logic (T2)
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Create job → có rows MatchingResults
+    - [ ] Details hiện list score
+    - [ ] Rematch chạy lại
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Tutor verified dạy IELTS + job IELTS → Create → Details thấy tutor
+    2. Rematch → rank cập nhật
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController.cs</modify>
+    <modify>Views/JobPosting/Details.cshtml</modify>
+    <create>MatchingController.cs (Rematch)</create>
+  </outputRequired>
+</prompt>

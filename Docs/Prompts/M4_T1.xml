@@ -1,3 +1,64 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M4-T1</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T1</breakTaskReference></meta>
-<goal>M4-T1 AI Matching task.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M4-T1</taskId>
+    <taskName>MatchingResult model + migration</taskName>
+    <timeEstimate>30 minutes</timeEstimate>
+    <module>Module 4 — AI Matching</module>
+    <planReference>Docs/PlanSetup.md</planReference>
+    <frsReference>Docs/FRS/FRS_M4_AIMatching.md — MatchingResults</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M4_AIMatching.md — M4-T1</breakTaskReference>
+    <dependsOn>M3 JobPosting, M2 TutorProfile</dependsOn>
+  </meta>
+  <goal>
+    Tạo entity MatchingResult lưu điểm gợi ý job↔tutor, DbSet + Fluent API, migration.
+    Không UI, không gọi Python.
+  </goal>
+  <context>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+    <readFile>StudyMate/Models/JobPosting.cs</readFile>
+    <readFile>StudyMate/Models/TutorProfile.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+  </context>
+  <currentState>
+    - JobPosting + TutorProfile đã có trên stack M3/M2
+    - MatchingResult CHƯA có
+  </currentState>
+  <taskUnit>
+    1. Models/MatchingResult.cs
+    2. ApplicationDbContext config
+    3. Migration AddMatchingResults
+  </taskUnit>
+  <scope>
+    - Fields: JobPostingId (nullable), StudentId, TutorProfileId, SimilarityScore (0–1), Rank, ModelVersion, CreatedAt
+    - FK JobPosting SetNull; Student Cascade; TutorProfile Cascade
+    - Index JobPostingId
+    - Score HasPrecision(5,4)
+  </scope>
+  <hardRules>
+    - KHÔNG Controller/View/Service scoring
+    - KHÔNG gọi HTTP Python
+    - KHÔNG sửa JobPosting fields
+  </hardRules>
+  <tasks>
+    1. Đọc schema MatchingResults
+    2. Tạo model + Fluent
+    3. ef migrations add AddMatchingResults
+    4. dotnet build
+  </tasks>
+  <constraints>.NET 10 / EF Core SQL Server; XML doc public types</constraints>
+  <acceptanceCriteria>
+    - [ ] Entity đủ field theo schema
+    - [ ] Migration tạo MatchingResults
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. dotnet build
+    2. Kiểm tra migration CreateTable MatchingResults
+  </testPlan>
+  <outputRequired>
+    <create>StudyMate/Models/MatchingResult.cs</create>
+    <modify>StudyMate/Data/ApplicationDbContext.cs</modify>
+    <create>StudyMate/Migrations/*AddMatchingResults*</create>
+  </outputRequired>
+</prompt>

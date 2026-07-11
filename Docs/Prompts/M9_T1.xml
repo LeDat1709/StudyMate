@@ -1,3 +1,66 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M9-T1</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M9_Payment.md — M9-T1</breakTaskReference></meta>
-<goal>M9-T1 Wallet.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M9-T1</taskId>
+    <taskName>Wallet models</taskName>
+    <timeEstimate>30-60 minutes</timeEstimate>
+    <module>StudyMate module task</module>
+    <planReference>Docs/PlanSetup.md</planReference>
+    <frsReference>Docs/FRS/FRS_M9_Payment.md</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M9_Payment.md — M9-T1</breakTaskReference>
+  </meta>
+  <goal>
+    Wallet + WalletTransaction tables, migration.
+  </goal>
+  <context>
+    <readFile>Docs/BreakTasks/BreakTask_M9_Payment.md</readFile>
+    <readFile>Docs/FRS/FRS_M9_Payment.md</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+  </context>
+  <currentState>
+    - Code da ship tren branch tuong ung; prompt nay chuan hoa theo AI Agent Code Process (MeU).
+    - Engineer dung de review/replay agent neu can re-implement.
+  </currentState>
+  <taskUnit>
+    - Implement dung goal va output: Wallet.cs, DbContext, Migration
+  </taskUnit>
+  <scope>
+    - Wallet + WalletTransaction tables, migration.
+    - Output: Wallet.cs, DbContext, Migration
+  </scope>
+  <hardRules>
+    - KHONG VNPay that
+    - KHONG mo rong sang module khac
+    - KHONG sua appsettings secrets
+    - AntiForgery tren moi POST form
+    - Self-review chi file trong outputRequired
+  </hardRules>
+  <tasks>
+    1. Doc FRS + BreakTask + context
+    2. Tom tat hien trang cho engineer
+    3. Implement dung scope
+    4. dotnet build
+    5. Viet Report theo format M1 (Da lam gi / Ket qua / AC / Test / Rui ro / Buoc tiep)
+  </tasks>
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC / EF Core
+    - Bootstrap 5
+    - Commit message 1 dong: feat(mx): ... - M9-T1
+  </constraints>
+  <acceptanceCriteria>
+    - [ ] Dung FRS/BreakTask cho M9-T1
+    - [ ] Output files ton tai
+    - [ ] dotnet build pass
+    - [ ] Report day du section M1
+  </acceptanceCriteria>
+  <testPlan>
+    1. dotnet build → pass
+    2. Smoke test UI/API theo goal task
+    3. Kiem tra khong regress module truoc
+  </testPlan>
+  <outputRequired>
+    <item>Wallet.cs, DbContext, Migration</item>
+    <item>Docs/Reports/Report_M9_T1_YYYY-MM-DD.md (hoac Report_M9-T1_...)</item>
+  </outputRequired>
+</prompt>

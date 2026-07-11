@@ -1,22 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompt>
+
   <meta>
     <taskId>M3-T1</taskId>
-    <taskName>JobPosting model + migration</taskName>
+    <taskName>JobPosting Model + Migration</taskName>
     <timeEstimate>30 minutes</timeEstimate>
+    <module>Module 3 — Job Posting</module>
+    <planReference>Docs/PlanSetup.md — Module 3 models, Controllers/JobPosting</planReference>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — bảng JobPostings, UC-M3-01</frsReference>
     <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T1</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <dependsOn>M1 Identity, M2 Subjects seed</dependsOn>
   </meta>
-  <goal>Create JobPosting entity, DbSet, Fluent API, EF migration. No controllers/views.</goal>
+
+  <goal>
+    Tạo entity JobPosting map đúng schema SQL, đăng ký DbSet + Fluent API,
+    thêm EF migration. Không Controller/View. Sau task này DB có bảng JobPostings.
+  </goal>
+
+  <context>
+    <readFile>Docs/BreakTasks/BreakTask_M3_JobPosting.md</readFile>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Models/Subject.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+  </context>
+
+  <currentState>
+    - ApplicationUser + Subjects + TutorProfile (M1/M2) đã có
+    - JobPosting model CHƯA có
+    - Không có Applications/Matching (M4/M5) — không tạo ở task này
+  </currentState>
+
+  <taskUnit>
+    1. Models/JobPosting.cs
+    2. ApplicationDbContext DbSet + Fluent
+    3. Migration AddJobPosting
+  </taskUnit>
+
+  <scope>
+    - Fields: StudentId, Title, Description, SubjectId, DesiredLevel, TeachingMode,
+      Address, BudgetMin/Max, SessionsPerWeek, SessionDuration, Deadline,
+      Status (default Open), CreatedAt, UpdatedAt
+    - FK Student → AspNetUsers (Restrict), Subject → Subjects (Restrict)
+    - Index StudentId; Index (Status, Deadline)
+    - Precision Budget decimal(10,2)
+  </scope>
+
   <hardRules>
-    - Only JobPosting model this task (no Application/Matching)
-    - Map fields to Database/StudyMate_Schema.sql JobPostings
-    - Status default Open; Budget decimal(10,2)
+    - KHÔNG tạo Controller, View, ViewModel
+    - KHÔNG tạo Application, MatchingResult, Chat, Booking
+    - KHÔNG sửa AccountController / TutorProfileController
+    - KHÔNG sửa appsettings
+    - Status values: Open / Closed / Expired (string, không enum bắt buộc)
   </hardRules>
+
+  <tasks>
+    1. Đọc context files; tóm tắt schema JobPostings vs code hiện tại
+    2. Tạo JobPosting.cs
+    3. Cập nhật ApplicationDbContext
+    4. dotnet ef migrations add AddJobPosting
+    5. dotnet build → báo cáo
+  </tasks>
+
+  <constraints>
+    - .NET 10 / EF Core SQL Server
+    - Namespace StudyMate.Models / StudyMate.Data
+    - XML doc trên public type
+  </constraints>
+
+  <acceptanceCriteria>
+    - [ ] File JobPosting.cs tồn tại đủ field
+    - [ ] Migration tạo bảng JobPostings + FK
+    - [ ] UserId unique? Không — Student có nhiều job
+    - [ ] dotnet build 0 error
+  </acceptanceCriteria>
+
+  <testPlan>
+    1. dotnet build → pass
+    2. Kiểm tra migration Up() có CreateTable JobPostings
+    3. (Optional) database update → SELECT top 0 FROM JobPostings
+  </testPlan>
+
   <outputRequired>
-    - Models/JobPosting.cs
-    - ApplicationDbContext update
-    - Migration AddJobPosting
-    - Prompt + Report
+    <create>StudyMate/Models/JobPosting.cs</create>
+    <modify>StudyMate/Data/ApplicationDbContext.cs</modify>
+    <create>StudyMate/Migrations/*AddJobPosting*</create>
   </outputRequired>
+
 </prompt>

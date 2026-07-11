@@ -1,11 +1,61 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
+
   <meta>
-    <taskId>M3_T3_PublicList</taskId>
-    <taskName>Public list paging</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T3_PublicList</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T3</taskId>
+    <taskName>Danh sách Job công khai + phân trang</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 3 — Job Posting</module>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — UC-M3-02</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T3</breakTaskReference>
+    <dependsOn>M3-T1, M3-T2</dependsOn>
   </meta>
-  <goal>Public list paging for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+
+  <goal>
+    Trang public list job Status=Open, card Title/Subject/Budget/Mode/Deadline,
+    phân trang 10/job, AllowAnonymous.
+  </goal>
+
+  <context>
+    <readFile>StudyMate/Controllers/JobPostingController.cs</readFile>
+    <readFile>StudyMate/ViewModels/JobPosting/JobPostingFormViewModel.cs</readFile>
+    <readFile>StudyMate/Views/TutorProfile/Search.cshtml</readFile>
+  </context>
+
+  <scope>
+    - Index GET AllowAnonymous
+    - Filter mặc định Status == "Open"
+    - Page size 10; JobListViewModel + JobCardViewModel
+    - Views/JobPosting/Index.cshtml
+    - Navbar link "Việc làm"
+  </scope>
+
+  <hardRules>
+    - KHÔNG hiển thị Closed/Expired trên list public
+    - KHÔNG bắt buộc filter search đầy đủ (search là M3-T6) — list cơ bản + paging OK;
+      nếu search đã gộp trong Index thì hardRule: không phá Create
+    - KHÔNG Apply button logic M5
+  </hardRules>
+
+  <acceptanceCriteria>
+    - [ ] /JobPosting chỉ thấy Open
+    - [ ] Phân trang 10
+    - [ ] Guest xem được
+    - [ ] Card đủ info cơ bản
+    - [ ] build pass
+  </acceptanceCriteria>
+
+  <testPlan>
+    1. Tạo &gt;10 job Open → page 2 hoạt động
+    2. Close 1 job → biến mất khỏi list public
+    3. Guest mở /JobPosting → OK
+  </testPlan>
+
+  <outputRequired>
+    <modify>StudyMate/Controllers/JobPostingController.cs (Index)</modify>
+    <modify>StudyMate/ViewModels/JobPosting/* (list VMs)</modify>
+    <create>StudyMate/Views/JobPosting/Index.cshtml</create>
+    <modify>StudyMate/Views/Shared/_Layout.cshtml</modify>
+  </outputRequired>
+
 </prompt>

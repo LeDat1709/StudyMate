@@ -1,11 +1,40 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <prompt>
   <meta>
-    <taskId>M3_T7_MyJobs</taskId>
-    <taskName>My Jobs</taskName>
-    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3_T7_MyJobs</breakTaskReference>
-    <frsReference>Docs/FRS/FRS_M3_JobPosting.md</frsReference>
+    <taskId>M3-T7</taskId>
+    <taskName>Job của tôi (Student)</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M3_JobPosting.md — UC-M3-07</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M3_JobPosting.md — M3-T7</breakTaskReference>
+    <dependsOn>M3-T5</dependsOn>
   </meta>
-  <goal>My Jobs for StudyMate M3 Job Posting.</goal>
-  <hardRules>- Stay in M3 scope; no Apply/Matching/Admin</hardRules>
+  <goal>
+    Student xem toàn bộ job mình đăng; tab All/Open/Closed/Expired;
+    mỗi dòng có Sửa/Đóng/Xóa theo status.
+  </goal>
+  <scope>
+    - MyJobs GET [Authorize Student]
+    - status query filter
+    - Views/JobPosting/MyJobs.cshtml
+    - Navbar "Job của tôi"
+  </scope>
+  <hardRules>
+    - CHỈ job của current user
+    - KHÔNG lộ job student khác
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Đúng owner
+    - [ ] Tab filter status
+    - [ ] Actions theo Open
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Tạo 2 job → close 1 → tab Closed thấy 1
+    2. Login student khác → MyJobs rỗng
+  </testPlan>
+  <outputRequired>
+    <modify>JobPostingController.MyJobs</modify>
+    <create>Views/JobPosting/MyJobs.cshtml</create>
+    <modify>_Layout.cshtml</modify>
+  </outputRequired>
 </prompt>

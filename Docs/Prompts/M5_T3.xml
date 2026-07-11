@@ -1,3 +1,37 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M5-T3</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T3</breakTaskReference></meta>
-<goal>M5-T3 Application.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M5-T3</taskId>
+    <taskName>Student list apps + Accept/Reject</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <frsReference>Docs/FRS/FRS_M5_Application.md — Accept/Reject flow</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T3</breakTaskReference>
+    <dependsOn>M5-T2</dependsOn>
+  </meta>
+  <goal>
+    Student owner xem danh sách apply theo job; Accept/Reject chỉ Pending.
+  </goal>
+  <scope>
+    - ForJob GET owner only
+    - Accept/Reject POST
+    - Views/Application/ForJob.cshtml
+  </scope>
+  <hardRules>
+    - Chỉ owner job
+    - Chỉ Pending mới Accept/Reject
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] List đúng job
+    - [ ] Accept → Status Accepted
+    - [ ] Reject → Rejected
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. Student mở ForJob → thấy Pending
+    2. Accept → badge Accepted
+  </testPlan>
+  <outputRequired>
+    <modify>ApplicationController.cs</modify>
+    <create>Views/Application/ForJob.cshtml</create>
+  </outputRequired>
+</prompt>

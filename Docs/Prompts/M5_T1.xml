@@ -1,3 +1,44 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<prompt><meta><taskId>M5-T1</taskId><breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T1</breakTaskReference></meta>
-<goal>M5-T1 Application.</goal></prompt>
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M5-T1</taskId>
+    <taskName>JobApplication model + migration</taskName>
+    <timeEstimate>30 minutes</timeEstimate>
+    <module>Module 5 — Application</module>
+    <frsReference>Docs/FRS/FRS_M5_Application.md — Applications table</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M5_Application.md — M5-T1</breakTaskReference>
+    <dependsOn>M3 JobPosting</dependsOn>
+  </meta>
+  <goal>
+    Entity JobApplication map table Applications; unique (JobPostingId, TutorId);
+    Status Pending default; migration.
+  </goal>
+  <context>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+    <readFile>StudyMate/Models/JobPosting.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+  </context>
+  <scope>
+    - Fields: JobPostingId, TutorId, CoverNote, ProposedRate, Status, AppliedAt, UpdatedAt
+    - ToTable("Applications")
+    - Unique index JobPostingId+TutorId
+    - FK Job Cascade, Tutor Restrict
+  </scope>
+  <hardRules>
+    - KHÔNG Controller Apply UI
+    - KHÔNG Notification (M11) bắt buộc ở T1
+  </hardRules>
+  <acceptanceCriteria>
+    - [ ] Migration Applications + unique
+    - [ ] build pass
+  </acceptanceCriteria>
+  <testPlan>
+    1. dotnet build
+    2. Migration có unique index
+  </testPlan>
+  <outputRequired>
+    <create>Models/JobApplication.cs</create>
+    <modify>ApplicationDbContext.cs</modify>
+    <create>Migrations/*AddApplications*</create>
+  </outputRequired>
+</prompt>
