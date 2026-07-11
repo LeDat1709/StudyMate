@@ -1,0 +1,9 @@
+﻿@model List<StudyMate.Models.JobApplication>
+@{ ViewData["Title"]="My applications"; }
+<div class="page-shell"><h1 class="h4">Apply của tôi</h1>
+<div class="list-group">@foreach(var a in Model){
+  <div class="list-group-item d-flex justify-content-between">
+    <div><a asp-controller="JobPosting" asp-action="Details" asp-route-id="@a.JobPostingId">@a.JobPosting?.Title</a> <span class="badge">@a.Status</span></div>
+    @if(a.Status=="Pending"){<form asp-action="Cancel" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-outline-danger">Cancel</button></form>}
+  </div>
+}</div></div>
