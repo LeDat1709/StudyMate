@@ -1,0 +1,17 @@
+﻿@model List<(StudyMate.Models.JobPosting? Job, decimal Score)>
+@{ ViewData["Title"] = "Job gợi ý"; }
+<div class="page-shell">
+  <h1 class="h4">Job AI gợi ý cho bạn</h1>
+  @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+  @if (!Model.Any()) { <p class="text-muted">Chưa có gợi ý.</p> }
+  <div class="list-group">
+    @foreach (var x in Model) {
+      if (x.Job == null) { continue; }
+      <a class="list-group-item list-group-item-action d-flex justify-content-between"
+         asp-controller="JobPosting" asp-action="Details" asp-route-id="@x.Job.Id">
+        <span>@x.Job.Title · @x.Job.Subject?.Name</span>
+        <span class="badge text-bg-primary">@x.Score.ToString("0.00")</span>
+      </a>
+    }
+  </div>
+</div>
