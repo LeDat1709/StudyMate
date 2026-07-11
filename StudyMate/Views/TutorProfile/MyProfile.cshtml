@@ -1,9 +1,11 @@
 @model StudyMate.ViewModels.TutorProfile.TutorProfileFormViewModel
 @{
     ViewData["Title"] = "Hồ sơ gia sư";
-    var statusBadge = Model.IsVerified
-        ? ("Đã duyệt", "success")
-        : ("Chờ duyệt", "warning");
+    var statusBadgeClass = Model.IsVerified ? "badge-soft-success" : "badge-soft-warning";
+    var statusText = Model.IsVerified ? "Đã duyệt" : "Chờ duyệt";
+    var initial = string.IsNullOrWhiteSpace(Model.FullName)
+        ? "?"
+        : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
 
 <div class="page-shell">
@@ -31,103 +33,113 @@
         </div>
     }
 
-    <div class="row g-3">
-        <div class="col-lg-4">
-            <div class="surface-card h-100">
-                <div class="card-body text-center">
+    <div class="profile-layout">
+        <div class="surface-card">
+            <div class="card-body avatar-panel">
+                <div class="avatar-wrap">
                     @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
                     {
-                        <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle mb-3"
-                             style="width:96px;height:96px;object-fit:cover" />
+                        <img src="@Model.AvatarUrl" alt="Avatar" />
                     }
                     else
                     {
-                        <div class="avatar-fallback mx-auto mb-3" style="width:96px;height:96px;font-size:2rem">
-                            @(string.IsNullOrWhiteSpace(Model.FullName) ? "?" : Model.FullName.Trim()[0])
-                        </div>
+                        <div class="avatar-fallback">@initial</div>
                     }
-                    <h2 class="h5 fw-bold mb-1">@Model.FullName</h2>
-                    <p class="text-muted small mb-2">@Model.Email</p>
-                    <span class="badge text-bg-@statusBadge.Item2">@statusBadge.Item1</span>
+                </div>
+                <h2 class="h5 fw-800 mb-1">@Model.FullName</h2>
+                <p class="text-muted-soft small mb-3">@Model.Email</p>
+                <div class="d-flex flex-wrap justify-content-center gap-1 mb-1">
+                    <span class="badge @statusBadgeClass">@statusText</span>
                     @if (Model.IsAvailable)
                     {
-                        <span class="badge text-bg-primary">Đang nhận HV</span>
+                        <span class="badge badge-soft-primary">Đang nhận HV</span>
                     }
                     else
                     {
-                        <span class="badge text-bg-secondary">Tạm dừng</span>
+                        <span class="badge badge-soft-secondary">Tạm dừng</span>
                     }
-                    <div class="profile-quick-links mt-3">
-                        <a asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> Hồ sơ tài khoản</a>
-                        <a asp-action="Certificates"><i class="bi bi-award"></i> Chứng chỉ</a>
-                        <a asp-action="Availability"><i class="bi bi-calendar-week"></i> Lịch rảnh</a>
-                        <a asp-action="DemoLessons"><i class="bi bi-play-btn"></i> Demo lessons</a>
-                    </div>
+                </div>
+                <div class="profile-quick-links">
+                    <a asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> Hồ sơ tài khoản</a>
+                    <a asp-action="Certificates"><i class="bi bi-award"></i> Chứng chỉ</a>
+                    <a asp-action="Availability"><i class="bi bi-calendar-week"></i> Lịch rảnh</a>
+                    <a asp-action="DemoLessons"><i class="bi bi-play-btn"></i> Demo lessons</a>
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
-            <div class="surface-card">
-                <div class="card-body">
-                    <div class="card-section-title">
-                        <i class="bi bi-mortarboard text-primary"></i> Thông tin dạy học
+
+        <div class="surface-card">
+            <div class="card-body">
+                <div class="card-section-title">
+                    <i class="bi bi-mortarboard text-primary"></i> Thông tin dạy học
+                </div>
+                <h3 class="h5 fw-800 mb-2">@Model.Headline</h3>
+                <p class="text-muted" style="white-space:pre-wrap">@Model.Bio</p>
+                <div class="detail-grid mt-3">
+                    <div>
+                        <div class="detail-label">Kinh nghiệm</div>
+                        <div class="detail-value">@Model.YearsOfExperience năm</div>
                     </div>
-                    <h3 class="h5 fw-semibold">@Model.Headline</h3>
-                    <p class="text-muted" style="white-space:pre-wrap">@Model.Bio</p>
-                    <dl class="row mb-0 small">
-                        <dt class="col-sm-4">Kinh nghiệm</dt>
-                        <dd class="col-sm-8">@Model.YearsOfExperience năm</dd>
-                        <dt class="col-sm-4">Trình độ</dt>
-                        <dd class="col-sm-8">@Model.EducationLevel</dd>
-                        <dt class="col-sm-4">Học phí / giờ</dt>
-                        <dd class="col-sm-8">@Model.HourlyRate.ToString("N0") ₫</dd>
-                        <dt class="col-sm-4">Hình thức</dt>
-                        <dd class="col-sm-8">@Model.TeachingMode</dd>
-                        @if (!string.IsNullOrWhiteSpace(Model.Address))
-                        {
-                            <dt class="col-sm-4">Địa chỉ</dt>
-                            <dd class="col-sm-8">@Model.Address</dd>
-                        }
-                        @{
-                            var subjects = ViewData["SubjectNames"] as IEnumerable<string>;
-                        }
-                        @if (subjects != null && subjects.Any())
-                        {
-                            <dt class="col-sm-4">Môn dạy</dt>
-                            <dd class="col-sm-8">
+                    <div>
+                        <div class="detail-label">Trình độ</div>
+                        <div class="detail-value">@Model.EducationLevel</div>
+                    </div>
+                    <div>
+                        <div class="detail-label">Học phí / giờ</div>
+                        <div class="detail-value">@Model.HourlyRate.ToString("N0") ₫</div>
+                    </div>
+                    <div>
+                        <div class="detail-label">Hình thức</div>
+                        <div class="detail-value">@Model.TeachingMode</div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Address))
+                    {
+                        <div class="grid-span-2">
+                            <div class="detail-label">Địa chỉ</div>
+                            <div class="detail-value">@Model.Address</div>
+                        </div>
+                    }
+                    @{
+                        var subjects = ViewData["SubjectNames"] as IEnumerable<string>;
+                    }
+                    @if (subjects != null && subjects.Any())
+                    {
+                        <div style="grid-column: 1 / -1">
+                            <div class="detail-label">Môn dạy</div>
+                            <div class="mt-1">
                                 @foreach (var n in subjects)
                                 {
-                                    <span class="badge text-bg-light border me-1">@n</span>
+                                    <span class="badge badge-soft-primary me-1 mb-1">@n</span>
                                 }
-                            </dd>
-                        }
-                    </dl>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.VideoIntroUrl))
-                    {
-                        var embed = StudyMate.Controllers.TutorProfileController.ToEmbedUrl(Model.VideoIntroUrl);
-                        <hr />
-                        <div class="card-section-title">
-                            <i class="bi bi-play-circle text-primary"></i> Video giới thiệu
-                        </div>
-                        if (embed != null)
-                        {
-                            <div class="ratio ratio-16x9">
-                                <iframe src="@embed" title="Video intro" allowfullscreen loading="lazy"></iframe>
                             </div>
-                        }
-                        else if (Model.VideoIntroUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
-                        {
-                            <video controls class="w-100 rounded" style="max-height:360px">
-                                <source src="@Model.VideoIntroUrl" type="video/mp4" />
-                            </video>
-                        }
-                        else
-                        {
-                            <a href="@Model.VideoIntroUrl" target="_blank" rel="noopener">@Model.VideoIntroUrl</a>
-                        }
+                        </div>
                     }
                 </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.VideoIntroUrl))
+                {
+                    var embed = StudyMate.Controllers.TutorProfileController.ToEmbedUrl(Model.VideoIntroUrl);
+                    <hr class="my-4" style="border-color: var(--sm-line)" />
+                    <div class="card-section-title">
+                        <i class="bi bi-play-circle text-primary"></i> Video giới thiệu
+                    </div>
+                    if (embed != null)
+                    {
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <iframe src="@embed" title="Video intro" allowfullscreen loading="lazy"></iframe>
+                        </div>
+                    }
+                    else if (Model.VideoIntroUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <video controls class="w-100 rounded" style="max-height:360px">
+                            <source src="@Model.VideoIntroUrl" type="video/mp4" />
+                        </video>
+                    }
+                    else
+                    {
+                        <a href="@Model.VideoIntroUrl" target="_blank" rel="noopener">@Model.VideoIntroUrl</a>
+                    }
+                }
             </div>
         </div>
     </div>

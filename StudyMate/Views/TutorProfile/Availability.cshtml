@@ -10,14 +10,18 @@
             <h1>Lịch rảnh</h1>
             <p>Khung giờ có thể dạy trong tuần (0=CN … 6=T7).</p>
         </div>
-        <a asp-action="MyProfile" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+        <a asp-action="MyProfile" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại
+        </a>
     </div>
 
     <div class="row g-3">
         <div class="col-lg-5">
             <div class="surface-card">
                 <div class="card-body">
-                    <div class="card-section-title"><i class="bi bi-plus-circle text-primary"></i> Thêm khung giờ</div>
+                    <div class="card-section-title">
+                        <i class="bi bi-plus-circle text-primary"></i> Thêm khung giờ
+                    </div>
                     <form asp-action="AddAvailability" method="post">
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
@@ -41,7 +45,9 @@
                                 <span asp-validation-for="Form.EndTime" class="text-danger small"></span>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-lg me-1"></i> Thêm
+                        </button>
                     </form>
                 </div>
             </div>
@@ -49,29 +55,36 @@
         <div class="col-lg-7">
             <div class="surface-card">
                 <div class="card-body">
-                    <div class="card-section-title"><i class="bi bi-calendar-week text-primary"></i> Khung đã lưu</div>
+                    <div class="card-section-title">
+                        <i class="bi bi-calendar-week text-primary"></i> Khung đã lưu
+                    </div>
                     @if (Model.Items.Count == 0)
                     {
-                        <p class="text-muted small mb-0">Chưa có lịch rảnh.</p>
+                        <div class="empty-state py-4">
+                            <i class="bi bi-calendar-x"></i>
+                            <p class="mb-0">Chưa có lịch rảnh.</p>
+                        </div>
                     }
                     else
                     {
-                        <ul class="list-group list-group-flush">
+                        <div class="sm-stack">
                             @foreach (var s in Model.Items)
                             {
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <span>
-                                        <strong>@s.DayName</strong>
-                                        @s.StartTime.ToString("HH:mm") – @s.EndTime.ToString("HH:mm")
-                                    </span>
+                                <div class="sm-stack-item">
+                                    <div>
+                                        <span class="badge badge-soft-primary me-2">@s.DayName</span>
+                                        <strong>@s.StartTime.ToString("HH:mm") – @s.EndTime.ToString("HH:mm")</strong>
+                                    </div>
                                     <form asp-action="DeleteAvailability" method="post" class="m-0">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@s.Id" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </form>
-                                </li>
+                                </div>
                             }
-                        </ul>
+                        </div>
                     }
                 </div>
             </div>

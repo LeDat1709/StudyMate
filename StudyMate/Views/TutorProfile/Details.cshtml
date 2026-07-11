@@ -1,63 +1,88 @@
 @model StudyMate.ViewModels.TutorProfile.PublicTutorProfileViewModel
 @{
     ViewData["Title"] = Model.Headline ?? Model.FullName;
+    var initial = string.IsNullOrWhiteSpace(Model.FullName)
+        ? "?"
+        : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
 }
 
 <div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>@Model.FullName</h1>
+            <p>@(Model.Headline ?? "Hồ sơ gia sư công khai")</p>
+        </div>
+        <a asp-action="Search" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Tìm gia sư
+        </a>
+    </div>
+
     <div class="surface-card mb-3">
         <div class="card-body">
             <div class="d-flex flex-wrap gap-3 align-items-start">
                 @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
                 {
-                    <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle" style="width:88px;height:88px;object-fit:cover" />
+                    <div class="avatar-wrap" style="width:108px;height:108px">
+                        <img src="@Model.AvatarUrl" alt="Avatar" />
+                    </div>
+                }
+                else
+                {
+                    <div class="avatar-wrap" style="width:108px;height:108px">
+                        <div class="avatar-fallback" style="font-size:2rem">@initial</div>
+                    </div>
                 }
                 <div class="flex-grow-1">
-                    <h1 class="h3 mb-1">@Model.FullName</h1>
-                    <p class="text-muted mb-2">@Model.Headline</p>
-                    <div class="small text-muted mb-2">
-                        ⭐ @Model.AverageRating.ToString("0.0") (@Model.TotalReviews đánh giá)
-                        · @Model.YearsOfExperience năm KN
-                        · @Model.EducationLevel
-                        · @(Model.HourlyRate?.ToString("N0") ?? "—") ₫/giờ
-                        · @Model.TeachingMode
+                    <div class="meta-row mb-2">
+                        <span><i class="bi bi-star-fill"></i> @Model.AverageRating.ToString("0.0") (@Model.TotalReviews đánh giá)</span>
+                        <span><i class="bi bi-briefcase"></i> @Model.YearsOfExperience năm KN</span>
+                        <span><i class="bi bi-mortarboard"></i> @Model.EducationLevel</span>
+                        <span><i class="bi bi-cash-coin"></i> @(Model.HourlyRate?.ToString("N0") ?? "—") ₫/giờ</span>
+                        <span><i class="bi bi-laptop"></i> @Model.TeachingMode</span>
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-3">
                         @foreach (var s in Model.Subjects)
                         {
-                            <span class="badge text-bg-light border me-1">@s</span>
+                            <span class="badge badge-soft-primary me-1 mb-1">@s</span>
                         }
                     </div>
                     @if (Model.ShowContactButton)
                     {
-                        <a href="#" class="btn btn-primary btn-sm">Liên hệ / Thuê gia sư</a>
+                        <a href="#" class="btn btn-primary btn-sm"><i class="bi bi-chat-dots me-1"></i> Liên hệ / Thuê gia sư</a>
                     }
                     else if (User.Identity?.IsAuthenticated != true)
                     {
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-sm">Đăng nhập để liên hệ</a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập để liên hệ
+                        </a>
                     }
                 </div>
             </div>
-            <hr />
-            <p style="white-space:pre-wrap">@Model.Bio</p>
+            <hr class="my-3" style="border-color: var(--sm-line)" />
+            <div class="card-section-title mb-2">
+                <i class="bi bi-person-lines-fill text-primary"></i> Giới thiệu
+            </div>
+            <p class="mb-0 text-muted" style="white-space:pre-wrap">@Model.Bio</p>
 
             @if (!string.IsNullOrWhiteSpace(Model.VideoIntroUrl))
             {
                 var embed = StudyMate.Controllers.TutorProfileController.ToEmbedUrl(Model.VideoIntroUrl);
-                <div class="mb-3">
-                    <h2 class="h6">Video giới thiệu</h2>
-                    @if (embed != null)
-                    {
-                        <div class="ratio ratio-16x9">
-                            <iframe src="@embed" allowfullscreen loading="lazy"></iframe>
-                        </div>
-                    }
-                    else if (Model.VideoIntroUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
-                    {
-                        <video controls class="w-100 rounded" style="max-height:360px">
-                            <source src="@Model.VideoIntroUrl" type="video/mp4" />
-                        </video>
-                    }
+                <hr class="my-3" style="border-color: var(--sm-line)" />
+                <div class="card-section-title">
+                    <i class="bi bi-play-circle text-primary"></i> Video giới thiệu
                 </div>
+                @if (embed != null)
+                {
+                    <div class="ratio ratio-16x9 rounded overflow-hidden">
+                        <iframe src="@embed" allowfullscreen loading="lazy"></iframe>
+                    </div>
+                }
+                else if (Model.VideoIntroUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+                {
+                    <video controls class="w-100 rounded" style="max-height:360px">
+                        <source src="@Model.VideoIntroUrl" type="video/mp4" />
+                    </video>
+                }
             }
         </div>
     </div>
@@ -66,17 +91,28 @@
         <div class="col-md-6">
             <div class="surface-card h-100">
                 <div class="card-body">
-                    <h2 class="h6">Chứng chỉ đã xác minh</h2>
+                    <div class="card-section-title">
+                        <i class="bi bi-award text-primary"></i> Chứng chỉ đã xác minh
+                    </div>
                     @if (Model.Certificates.Count == 0)
                     {
                         <p class="small text-muted mb-0">Chưa có chứng chỉ công khai.</p>
                     }
                     else
                     {
-                        <ul class="mb-0">
+                        <ul class="list-unstyled mb-0">
                             @foreach (var c in Model.Certificates)
                             {
-                                <li>@c.Title @if (!string.IsNullOrEmpty(c.IssuedBy)) { <span class="text-muted">— @c.IssuedBy</span> }</li>
+                                <li class="d-flex align-items-start gap-2 mb-2">
+                                    <i class="bi bi-patch-check-fill text-success mt-1"></i>
+                                    <span>
+                                        <strong>@c.Title</strong>
+                                        @if (!string.IsNullOrEmpty(c.IssuedBy))
+                                        {
+                                            <span class="text-muted"> — @c.IssuedBy</span>
+                                        }
+                                    </span>
+                                </li>
                             }
                         </ul>
                     }
@@ -86,17 +122,22 @@
         <div class="col-md-6">
             <div class="surface-card h-100">
                 <div class="card-body">
-                    <h2 class="h6">Lịch rảnh</h2>
+                    <div class="card-section-title">
+                        <i class="bi bi-calendar-week text-primary"></i> Lịch rảnh
+                    </div>
                     @if (Model.Availabilities.Count == 0)
                     {
                         <p class="small text-muted mb-0">Chưa cập nhật.</p>
                     }
                     else
                     {
-                        <ul class="mb-0 small">
+                        <ul class="list-unstyled mb-0 small">
                             @foreach (var a in Model.Availabilities)
                             {
-                                <li>@a.DayName @a.StartTime.ToString("HH:mm")–@a.EndTime.ToString("HH:mm")</li>
+                                <li class="d-flex justify-content-between py-1 border-bottom" style="border-color: var(--sm-line) !important">
+                                    <strong>@a.DayName</strong>
+                                    <span class="text-muted">@a.StartTime.ToString("HH:mm")–@a.EndTime.ToString("HH:mm")</span>
+                                </li>
                             }
                         </ul>
                     }
@@ -106,24 +147,35 @@
         <div class="col-12">
             <div class="surface-card">
                 <div class="card-body">
-                    <h2 class="h6">Demo lessons</h2>
+                    <div class="card-section-title">
+                        <i class="bi bi-play-btn text-primary"></i> Demo lessons
+                    </div>
                     @if (Model.DemoLessons.Count == 0)
                     {
                         <p class="small text-muted mb-0">Chưa có demo.</p>
                     }
                     else
                     {
-                        @foreach (var d in Model.DemoLessons)
-                        {
-                            <div class="mb-2">
-                                <strong>@d.Title</strong>
-                                @if (!string.IsNullOrWhiteSpace(d.VideoUrl))
-                                {
-                                    <a href="@d.VideoUrl" class="small ms-2" target="_blank" rel="noopener">Video</a>
-                                }
-                                <div class="small text-muted">@d.Description</div>
-                            </div>
-                        }
+                        <div class="sm-stack">
+                            @foreach (var d in Model.DemoLessons)
+                            {
+                                <div class="sm-stack-item">
+                                    <div>
+                                        <div class="item-title">@d.Title</div>
+                                        @if (!string.IsNullOrWhiteSpace(d.Description))
+                                        {
+                                            <div class="small text-muted">@d.Description</div>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(d.VideoUrl))
+                                    {
+                                        <a href="@d.VideoUrl" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                            <i class="bi bi-play-circle me-1"></i> Video
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
             </div>
