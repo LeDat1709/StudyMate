@@ -32,6 +32,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // Module 4
     public DbSet<MatchingResult> MatchingResults { get; set; }
 
+    // Module 5
+    public DbSet<JobApplication> Applications { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -182,6 +185,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.HasOne(x => x.TutorProfile).WithMany().HasForeignKey(x => x.TutorProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.JobPostingId);
+        });
+
+        // ── JobApplication (M5) ──────────────────────────────────────────────
+        builder.Entity<JobApplication>(e =>
+        {
+            e.ToTable("Applications");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            e.Property(x => x.ProposedRate).HasPrecision(10, 2);
+            e.HasOne(x => x.JobPosting).WithMany().HasForeignKey(x => x.JobPostingId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Tutor).WithMany().HasForeignKey(x => x.TutorId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.JobPostingId, x.TutorId }).IsUnique();
         });
 
         // ── Index tối ưu query phổ biến ──────────────────────────────────────
