@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M6-T2</taskId>
+    <taskName>Chat list and StartWith</taskName>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M6_Chat.md — M6-T2</breakTaskReference>
+  </meta>
+  <goal>List conversations for current user; StartWith(userId) creates or reuses 1-1 chat.</goal>
+</prompt>

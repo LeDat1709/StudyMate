@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M6-T3</taskId>
+    <taskName>Chat room and Send</taskName>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M6_Chat.md — M6-T3</breakTaskReference>
+  </meta>
+  <goal>Room shows messages; Send POST adds message; mark peer messages read.</goal>
+</prompt>

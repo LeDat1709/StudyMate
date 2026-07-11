@@ -1,0 +1,44 @@
+@model List<StudyMate.Models.Conversation>
+@{
+    ViewData["Title"] = "Chat";
+    var me = ViewData["Me"] as string;
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Hội thoại</h1>
+            <p>Chat với đối tác sau khi apply được chấp nhận</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-chat-square-text"></i>
+                <p class="mb-0">Chưa có cuộc chat. Bắt đầu từ trang Apply (Accepted).</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sm-stack">
+            @foreach (var c in Model)
+            {
+                var peer = c.User1Id == me ? c.User2?.FullName : c.User1?.FullName;
+                var initial = string.IsNullOrWhiteSpace(peer) ? "?" : peer.Trim()[0].ToString().ToUpperInvariant();
+                <a class="sm-stack-item text-decoration-none" asp-action="Room" asp-route-id="@c.Id" style="cursor:pointer">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="entity-avatar-fallback">@initial</span>
+                        <div>
+                            <div class="item-title">@(peer ?? "Người dùng")</div>
+                            <div class="small text-muted">Mở phòng chat</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+            }
+        </div>
+    }
+</div>

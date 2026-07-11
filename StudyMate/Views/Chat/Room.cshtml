@@ -1,0 +1,54 @@
+@model List<StudyMate.Models.ChatMessage>
+@{
+    ViewData["Title"] = "Chat room";
+    var me = ViewData["Me"] as string;
+    var convId = ViewData["ConversationId"];
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Chat với @ViewData["Peer"]</h1>
+            <p>Tin nhắn trong nền tảng (MVC stub, chưa SignalR)</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Danh sách
+        </a>
+    </div>
+
+    <div class="chat-shell">
+        <div class="chat-messages">
+            @if (!Model.Any())
+            {
+                <div class="empty-state py-5">
+                    <i class="bi bi-chat-dots"></i>
+                    <p class="mb-0">Chưa có tin nhắn. Hãy gửi lời chào!</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var m in Model)
+                {
+                    var isMe = m.SenderId == me;
+                    <div class="chat-bubble @(isMe ? "me" : "them")">
+                        @if (!isMe)
+                        {
+                            <div class="small fw-semibold mb-1">@m.Sender?.FullName</div>
+                        }
+                        <div>@m.Content</div>
+                        <div class="chat-meta">@m.SentAt.ToLocalTime().ToString("dd/MM HH:mm")</div>
+                    </div>
+                }
+            }
+        </div>
+
+        <form asp-action="Send" method="post" class="chat-compose">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="conversationId" value="@convId" />
+            <input name="content" class="form-control" placeholder="Nhắn tin..." required autocomplete="off" />
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send me-1"></i> Gửi
+            </button>
+        </form>
+    </div>
+</div>
