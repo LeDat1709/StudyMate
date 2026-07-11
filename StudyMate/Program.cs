@@ -53,6 +53,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IContentModerationService, ContentModerationService>();
+builder.Services.AddScoped<IMatchingService, MatchingService>();
 
 // ── 5. MVC ────────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();

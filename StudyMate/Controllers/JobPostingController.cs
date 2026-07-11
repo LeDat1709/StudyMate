@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyMate.Data;
 using StudyMate.Models;
+using StudyMate.Services.Interfaces;
 using StudyMate.ViewModels.JobPosting;
 
 namespace StudyMate.Controllers;
@@ -16,6 +17,7 @@ public class JobPostingController : Controller
 
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
+    private readonly IMatchingService _matching;
     private readonly ILogger<JobPostingController> _logger;
 
     public static readonly string[] TeachingModes = ["Online", "Offline", "Both"];
@@ -23,10 +25,12 @@ public class JobPostingController : Controller
     public JobPostingController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users,
+        IMatchingService matching,
         ILogger<JobPostingController> logger)
     {
         _db = db;
         _users = users;
+        _matching = matching;
         _logger = logger;
     }
 
@@ -94,6 +98,9 @@ public class JobPostingController : Controller
         _db.JobPostings.Add(entity);
         await _db.SaveChangesAsync();
         _logger.LogInformation("JobPosting created Id={Id} by {User}", entity.Id, user.Email);
+
+        // M4: AI match tutors for this job (stub)
+        await _matching.MatchJobToTutorsAsync(entity.Id);
 
         TempData["Success"] = "Đăng yêu cầu thành công.";
         return RedirectToAction(nameof(Details), new { id = entity.Id });
@@ -199,6 +206,22 @@ public class JobPostingController : Controller
         if (j == null) return NotFound();
 
         var userId = _users.GetUserId(User);
+        var matched = await _db.MatchingResults.AsNoTracking()
+            .Include(m => m.TutorProfile)!.ThenInclude(t => t!.User)
+            .Where(m => m.JobPostingId == id)
+            .OrderBy(m => m.Rank)
+            .Take(10)
+            .Select(m => new MatchedTutorItem
+            {
+                TutorProfileId = m.TutorProfileId,
+                FullName = m.TutorProfile != null && m.TutorProfile.User != null
+                    ? m.TutorProfile.User.FullName : null,
+                Headline = m.TutorProfile != null ? m.TutorProfile.Headline : null,
+                Score = m.SimilarityScore,
+                Rank = m.Rank
+            })
+            .ToListAsync();
+
         return View(new JobDetailViewModel
         {
             Id = j.Id,
@@ -219,7 +242,8 @@ public class JobPostingController : Controller
             StudentName = j.Student?.FullName,
             StudentAvatar = j.Student?.AvatarUrl,
             IsOwner = userId == j.StudentId,
-            ShowApplyPlaceholder = User.IsInRole("Tutor") && j.Status == "Open"
+            ShowApplyPlaceholder = User.IsInRole("Tutor") && j.Status == "Open",
+            MatchedTutors = matched
         });
     }
 

@@ -107,4 +107,15 @@ public class JobDetailViewModel
     public bool IsOwner { get; set; }
     /// <summary>M5: show Apply for Tutor when Open.</summary>
     public bool ShowApplyPlaceholder { get; set; }
+
+    public List<MatchedTutorItem> MatchedTutors { get; set; } = new();
+}
+
+public class MatchedTutorItem
+{
+    public int TutorProfileId { get; set; }
+    public string? FullName { get; set; }
+    public string? Headline { get; set; }
+    public decimal Score { get; set; }
+    public int Rank { get; set; }
 }

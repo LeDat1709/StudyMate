@@ -32,78 +32,46 @@
             <i class="bi bi-arrow-left me-1"></i> Danh sách
         </a>
     </div>
-
-    <div class="surface-card">
-        <div class="card-body">
-            <div class="card-section-title">
-                <i class="bi bi-file-text text-primary"></i> Mô tả
-            </div>
-            <p class="text-muted" style="white-space:pre-wrap">@Model.Description</p>
-
-            <div class="card-section-title mt-4">
-                <i class="bi bi-info-circle text-primary"></i> Thông tin
-            </div>
-            <div class="detail-grid">
-                <div>
-                    <div class="detail-label">Môn</div>
-                    <div class="detail-value">@Model.SubjectName</div>
-                </div>
-                <div>
-                    <div class="detail-label">Trình độ mong muốn</div>
-                    <div class="detail-value">@(Model.DesiredLevel ?? "—")</div>
-                </div>
-                <div>
-                    <div class="detail-label">Hình thức</div>
-                    <div class="detail-value">@Model.TeachingMode</div>
-                </div>
-                <div>
-                    <div class="detail-label">Địa điểm</div>
-                    <div class="detail-value">@(Model.Address ?? "—")</div>
-                </div>
-                <div>
-                    <div class="detail-label">Ngân sách</div>
-                    <div class="detail-value text-primary">
-                        @(Model.BudgetMin?.ToString("N0") ?? "?") – @(Model.BudgetMax?.ToString("N0") ?? "?") ₫
-                    </div>
-                </div>
-                <div>
-                    <div class="detail-label">Buổi/tuần · phút</div>
-                    <div class="detail-value">@(Model.SessionsPerWeek?.ToString() ?? "—") · @(Model.SessionDuration?.ToString() ?? "—")</div>
-                </div>
-                <div>
-                    <div class="detail-label">Deadline</div>
-                    <div class="detail-value">@(Model.Deadline?.ToString("dd/MM/yyyy") ?? "—")</div>
-                </div>
-                <div>
-                    <div class="detail-label">Học viên</div>
-                    <div class="detail-value">@Model.StudentName</div>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                @if (Model.IsOwner && Model.Status == "Open")
-                {
-                    <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
-                        <i class="bi bi-pencil me-1"></i> Sửa
-                    </a>
-                    <form asp-action="Close" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">Đóng job</button>
-                    </form>
-                    <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Xóa job?');">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button>
-                    </form>
-                }
-                @if (Model.ShowApplyPlaceholder)
-                {
-                    <button type="button" class="btn btn-outline-primary btn-sm" disabled title="Module 5">
-                        <i class="bi bi-send me-1"></i> Apply (sắp có M5)
-                    </button>
-                }
-            </div>
-        </div>
+    <p class="mt-3" style="white-space:pre-wrap">@Model.Description</p>
+    <dl class="row small mb-3">
+      <dt class="col-sm-3">Môn</dt><dd class="col-sm-9">@Model.SubjectName</dd>
+      <dt class="col-sm-3">Trình độ mong muốn</dt><dd class="col-sm-9">@(Model.DesiredLevel ?? "—")</dd>
+      <dt class="col-sm-3">Hình thức</dt><dd class="col-sm-9">@Model.TeachingMode</dd>
+      <dt class="col-sm-3">Địa điểm</dt><dd class="col-sm-9">@(Model.Address ?? "—")</dd>
+      <dt class="col-sm-3">Ngân sách</dt><dd class="col-sm-9">@(Model.BudgetMin?.ToString("N0") ?? "?") – @(Model.BudgetMax?.ToString("N0") ?? "?") ₫</dd>
+      <dt class="col-sm-3">Buổi/tuần · phút</dt><dd class="col-sm-9">@(Model.SessionsPerWeek?.ToString() ?? "—") · @(Model.SessionDuration?.ToString() ?? "—")</dd>
+      <dt class="col-sm-3">Deadline</dt><dd class="col-sm-9">@(Model.Deadline?.ToString("dd/MM/yyyy") ?? "—")</dd>
+      <dt class="col-sm-3">Học viên</dt><dd class="col-sm-9">@Model.StudentName</dd>
+    </dl>
+    <div class="d-flex flex-wrap gap-2">
+      @if (Model.IsOwner && Model.Status == "Open") {
+        <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+        <form asp-action="Close" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-warning btn-sm">Đóng job</button></form>
+        <form asp-action="Delete" method="post" onsubmit="return confirm('Xóa job?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button></form>
+      }
+      @if (Model.IsOwner) {
+        <form asp-controller="Matching" asp-action="Rematch" method="post" class="d-inline">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="jobId" value="@Model.Id" />
+          <button type="submit" class="btn btn-outline-info btn-sm">Chạy lại AI match</button>
+        </form>
+      }
+      @if (Model.ShowApplyPlaceholder) {
+        <button type="button" class="btn btn-outline-primary btn-sm" disabled title="Module 5">Apply (sắp có M5)</button>
+      }
     </div>
+  </div></div>
+  @if (Model.MatchedTutors.Any()) {
+    <div class="surface-card mt-3"><div class="card-body">
+      <h2 class="h6">AI gợi ý gia sư (stub)</h2>
+      <ul class="list-group list-group-flush">
+        @foreach (var t in Model.MatchedTutors) {
+          <li class="list-group-item d-flex justify-content-between">
+            <span>#@t.Rank <a asp-controller="TutorProfile" asp-action="Details" asp-route-id="@t.TutorProfileId">@t.FullName</a> — @t.Headline</span>
+            <span class="badge text-bg-primary">@t.Score.ToString("0.00")</span>
+          </li>
+        }
+      </ul>
+    </div></div>
+  }
 </div>
