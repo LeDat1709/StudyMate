@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta><taskId>M2-T9</taskId><taskName>Demo Lesson CRUD</taskName>
+  <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T9</breakTaskReference></meta>
+  <goal>Tutor demo lesson create/list/delete.</goal>
+</prompt>
