@@ -1,0 +1,63 @@
+﻿@model StudyMate.ViewModels.JobPosting.JobListViewModel
+@{ ViewData["Title"] = "Việc làm"; }
+<div class="page-shell">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div><h1>Yêu cầu thuê gia sư</h1><p>@Model.TotalCount job đang mở</p></div>
+    @if (User.IsInRole("Student")) {
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" asp-action="MyJobs">Job của tôi</a>
+        <a class="btn btn-primary btn-sm" asp-action="Create">Đăng yêu cầu</a>
+      </div>
+    }
+  </div>
+  <form method="get" class="surface-card mb-3"><div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3"><label class="form-label small">Từ khóa</label><input name="q" value="@Model.Keyword" class="form-control" placeholder="Tiêu đề, mô tả" /></div>
+      <div class="col-md-2"><label class="form-label small">Môn</label>
+        <select name="subjectId" class="form-select"><option value="">Tất cả</option>
+        @foreach (var s in Model.Subjects) { <option value="@s.Id" selected="@(Model.SubjectId==s.Id)">@s.Name</option> }
+        </select>
+      </div>
+      <div class="col-md-2"><label class="form-label small">Hình thức</label>
+        <select name="teachingMode" class="form-select">
+          <option value="">Tất cả</option>
+          <option value="Online" selected="@(Model.TeachingMode=="Online")">Online</option>
+          <option value="Offline" selected="@(Model.TeachingMode=="Offline")">Offline</option>
+          <option value="Both" selected="@(Model.TeachingMode=="Both")">Both</option>
+        </select>
+      </div>
+      <div class="col-md-1"><label class="form-label small">Min</label><input name="budgetMin" value="@Model.BudgetMin" type="number" class="form-control" /></div>
+      <div class="col-md-1"><label class="form-label small">Max</label><input name="budgetMax" value="@Model.BudgetMax" type="number" class="form-control" /></div>
+      <div class="col-md-2"><label class="form-label small">Sort</label>
+        <select name="sort" class="form-select">
+          <option value="Newest" selected="@(Model.Sort=="Newest")">Mới nhất</option>
+          <option value="BudgetDesc" selected="@(Model.Sort=="BudgetDesc")">Budget cao</option>
+          <option value="Deadline" selected="@(Model.Sort=="Deadline")">Sắp hết hạn</option>
+        </select>
+      </div>
+      <div class="col-md-1"><button type="submit" class="btn btn-primary w-100">Lọc</button></div>
+    </div>
+  </div></form>
+  <div class="row g-3">
+    @if (!Model.Items.Any()) { <div class="col-12 text-muted">Không có job phù hợp.</div> }
+    @foreach (var j in Model.Items) {
+      <div class="col-md-6"><div class="surface-card h-100"><div class="card-body">
+        <a asp-action="Details" asp-route-id="@j.Id" class="fw-semibold text-decoration-none">@j.Title</a>
+        <div class="small text-muted mt-1">@j.SubjectName · @j.TeachingMode</div>
+        <div class="small">@(j.BudgetMin?.ToString("N0") ?? "?") – @(j.BudgetMax?.ToString("N0") ?? "?") ₫/giờ</div>
+        <div class="small text-muted">@j.StudentName · deadline @(j.Deadline?.ToString("dd/MM/yyyy") ?? "—")</div>
+      </div></div></div>
+    }
+  </div>
+  @if (Model.TotalPages > 1) {
+    <ul class="pagination mt-3">
+      @for (var p = 1; p <= Model.TotalPages; p++) {
+        <li class="page-item @(p==Model.Page?"active":"")">
+          <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-q="@Model.Keyword"
+             asp-route-subjectId="@Model.SubjectId" asp-route-teachingMode="@Model.TeachingMode"
+             asp-route-budgetMin="@Model.BudgetMin" asp-route-budgetMax="@Model.BudgetMax" asp-route-sort="@Model.Sort">@p</a>
+        </li>
+      }
+    </ul>
+  }
+</div>

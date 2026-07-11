@@ -32,11 +32,20 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="TutorProfile" asp-action="Search">Tìm gia sư</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="JobPosting" asp-action="Index">Việc làm</a>
+                        </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Account" asp-action="Profile">Hồ sơ</a>
                             </li>
+                            @if (User.IsInRole("Student"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="JobPosting" asp-action="MyJobs">Job của tôi</a>
+                                </li>
+                            }
                             @if (User.IsInRole("Tutor"))
                             {
                                 <li class="nav-item">
