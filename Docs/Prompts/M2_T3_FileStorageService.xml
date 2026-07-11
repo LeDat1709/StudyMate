@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M2-T3</taskId>
+    <taskName>FileStorageService</taskName>
+    <timeEstimate>45 minutes</timeEstimate>
+    <module>Module 2 — Tutor Profile</module>
+    <planReference>Docs/PlanSetup.md — IFileStorageService</planReference>
+    <frsReference>Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-03, 04, 06</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T3</breakTaskReference>
+  </meta>
+  <goal>
+    Shared local file storage under wwwroot/uploads with validation, optional ImageSharp resize, and delete helper.
+  </goal>
+  <hardRules>
+    - NO Azure/S3; local wwwroot only
+    - NO Controller/View changes required (optional later)
+    - Register DI Scoped in Program.cs
+    - Package SixLabors.ImageSharp only extra package
+  </hardRules>
+  <scope>
+    - IFileStorageService + FileStorageService
+    - SaveAsync(file, subFolder, allowedExt, maxBytes) → relative URL
+    - SaveImageResizedAsync(..., width, height)
+    - DeleteIfExistsAsync(relativeUrl)
+  </scope>
+  <outputRequired>
+    - Services/Interfaces/IFileStorageService.cs
+    - Services/Implementations/FileStorageService.cs
+    - Program.cs DI
+    - Prompt + Report
+  </outputRequired>
+</prompt>
