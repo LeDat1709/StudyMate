@@ -8,7 +8,7 @@
     <module>Module 1 — Auth &amp; Account</module>
     <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
     <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-09; Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-06 (fields tham chiếu)</frsReference>
-    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T9</breakTaskReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M1_Auth.md — M1-T9</breakTaskReference>
     <dependsOn>M1-T7 (Profile, login), Role Tutor đã seed</dependsOn>
   </meta>
 
