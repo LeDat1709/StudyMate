@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta><taskId>M2-T8</taskId><taskName>Availability schedule</taskName>
+  <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T8</breakTaskReference></meta>
+  <goal>Weekly availability CRUD for tutors.</goal>
+</prompt>

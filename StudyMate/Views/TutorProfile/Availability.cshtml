@@ -1,0 +1,84 @@
+@model StudyMate.ViewModels.TutorProfile.AvailabilityPageViewModel
+@{
+    ViewData["Title"] = "Lịch rảnh";
+    var days = new[] { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Lịch rảnh</h1>
+            <p>Khung giờ có thể dạy trong tuần (0=CN … 6=T7).</p>
+        </div>
+        <a asp-action="MyProfile" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="surface-card">
+                <div class="card-body">
+                    <div class="card-section-title"><i class="bi bi-plus-circle text-primary"></i> Thêm khung giờ</div>
+                    <form asp-action="AddAvailability" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="Form.DayOfWeek" class="form-label"></label>
+                            <select asp-for="Form.DayOfWeek" class="form-select">
+                                @for (var i = 0; i < 7; i++)
+                                {
+                                    <option value="@i">@days[i]</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Form.DayOfWeek" class="text-danger small"></span>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col">
+                                <label asp-for="Form.StartTime" class="form-label"></label>
+                                <input asp-for="Form.StartTime" class="form-control" type="time" />
+                            </div>
+                            <div class="col">
+                                <label asp-for="Form.EndTime" class="form-label"></label>
+                                <input asp-for="Form.EndTime" class="form-control" type="time" />
+                                <span asp-validation-for="Form.EndTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="surface-card">
+                <div class="card-body">
+                    <div class="card-section-title"><i class="bi bi-calendar-week text-primary"></i> Khung đã lưu</div>
+                    @if (Model.Items.Count == 0)
+                    {
+                        <p class="text-muted small mb-0">Chưa có lịch rảnh.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var s in Model.Items)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span>
+                                        <strong>@s.DayName</strong>
+                                        @s.StartTime.ToString("HH:mm") – @s.EndTime.ToString("HH:mm")
+                                    </span>
+                                    <form asp-action="DeleteAvailability" method="post" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@s.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
