@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyMate.Data;
 
@@ -13,6 +14,7 @@ namespace StudyMate.Migrations
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
+        /// <inheritdoc />
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -282,6 +284,51 @@ namespace StudyMate.Migrations
                     b.ToTable("DemoLessons");
                 });
 
+            modelBuilder.Entity("StudyMate.Models.JobApplication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CoverNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("JobPostingId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("ProposedRate")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<string>("TutorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TutorId");
+
+                    b.HasIndex("JobPostingId", "TutorId")
+                        .IsUnique();
+
+                    b.ToTable("Applications", (string)null);
+                });
+
             modelBuilder.Entity("StudyMate.Models.JobPosting", b =>
                 {
                     b.Property<int>("Id")
@@ -359,6 +406,49 @@ namespace StudyMate.Migrations
                         .HasDatabaseName("IX_JobPostings_Status");
 
                     b.ToTable("JobPostings");
+                });
+
+            modelBuilder.Entity("StudyMate.Models.MatchingResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("JobPostingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModelVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("SimilarityScore")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TutorProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobPostingId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TutorProfileId");
+
+                    b.ToTable("MatchingResults");
                 });
 
             modelBuilder.Entity("StudyMate.Models.OtpCode", b =>
@@ -665,6 +755,25 @@ namespace StudyMate.Migrations
                     b.Navigation("TutorProfile");
                 });
 
+            modelBuilder.Entity("StudyMate.Models.JobApplication", b =>
+                {
+                    b.HasOne("StudyMate.Models.JobPosting", "JobPosting")
+                        .WithMany()
+                        .HasForeignKey("JobPostingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StudyMate.Models.ApplicationUser", "Tutor")
+                        .WithMany()
+                        .HasForeignKey("TutorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("JobPosting");
+
+                    b.Navigation("Tutor");
+                });
+
             modelBuilder.Entity("StudyMate.Models.JobPosting", b =>
                 {
                     b.HasOne("StudyMate.Models.ApplicationUser", "Student")
@@ -682,6 +791,32 @@ namespace StudyMate.Migrations
                     b.Navigation("Student");
 
                     b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("StudyMate.Models.MatchingResult", b =>
+                {
+                    b.HasOne("StudyMate.Models.JobPosting", "JobPosting")
+                        .WithMany()
+                        .HasForeignKey("JobPostingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("StudyMate.Models.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StudyMate.Models.TutorProfile", "TutorProfile")
+                        .WithMany()
+                        .HasForeignKey("TutorProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobPosting");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("TutorProfile");
                 });
 
             modelBuilder.Entity("StudyMate.Models.OtpCode", b =>
@@ -764,3 +899,4 @@ namespace StudyMate.Migrations
         }
     }
 }
+
