@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M2-T1</taskId>
+    <taskName>Models Subject + TutorProfile + TutorSubject, Seed, Migration</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <module>Module 2 — Tutor Profile</module>
+    <planReference>Docs/PlanSetup.md — Sections 2, 3, Module 2 models</planReference>
+    <frsReference>Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-01, UC-M2-05</frsReference>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T1</breakTaskReference>
+  </meta>
+
+  <goal>
+    Create core EF entities for tutor profiles: Subject, TutorProfile, TutorSubject.
+    Register DbSets + Fluent API, seed sample Subjects, add EF migration AddTutorProfileCore.
+    After this task, DB has Subjects / TutorProfiles / TutorSubjects tables ready for later UI tasks.
+  </goal>
+
+  <context>
+    <readFile>Docs/BreakTasks/BreakTask_M2_TutorProfile.md</readFile>
+    <readFile>Database/StudyMate_Schema.sql</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+    <readFile>StudyMate/Models/TutorCertificate.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+  </context>
+
+  <currentState>
+    - M1 Auth is complete (Identity, OtpCodes, TutorCertificate with temporary UserId FK).
+    - TutorCertificate MUST NOT be changed in this task (FK migrate is M2-T2).
+    - No Subject / TutorProfile / TutorSubject models yet.
+    - SeedRolesAsync already runs at startup in Program.cs.
+    - Schema reference: Database/StudyMate_Schema.sql MODULE 2 section.
+  </currentState>
+
+  <taskUnit>
+    1. Create Models/Subject.cs
+    2. Create Models/TutorProfile.cs
+    3. Create Models/TutorSubject.cs (composite key)
+    4. Update ApplicationDbContext DbSets + Fluent API
+    5. Seed Subjects at startup (idempotent)
+    6. Add EF migration AddTutorProfileCore
+    7. dotnet build
+  </taskUnit>
+
+  <scope>
+    - Models only + DbContext + seed Subjects + migration
+    - Field map TutorProfile per BreakTask M2-T1 and StudyMate_Schema.sql
+    - TutorSubject: composite PK (TutorProfileId, SubjectId)
+    - Unique index on TutorProfiles.UserId
+    - Indexes: IsAvailable + IsVerified (optional, matches schema)
+    - Seed ≥ 8 subjects (Toán, Vật lý, Hóa, Tiếng Anh, IELTS, TOEIC, C#, Python, …)
+  </scope>
+
+  <hardRules>
+    - NO Controller, View, ViewModel
+    - NO change TutorCertificate model or AccountController
+    - NO TutorAvailability / DemoLesson (M2-T2)
+    - NO FileStorage
+    - DO NOT drop or rewrite existing Identity / OtpCodes config
+    - DO NOT hardcode secrets
+    - Keep namespaces StudyMate.Models / StudyMate.Data
+  </hardRules>
+
+  <tasks>
+    1. Read all context files; summarize current DbContext and schema
+    2. Implement Subject, TutorProfile, TutorSubject models
+    3. Wire ApplicationDbContext
+    4. Add idempotent SeedSubjectsAsync in Program.cs (or Data/SeedData.cs)
+    5. dotnet ef migrations add AddTutorProfileCore
+    6. dotnet build — must pass
+    7. Report changes and risks
+  </tasks>
+
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC / EF Core SQL Server
+    - Navigation properties optional but preferred for TutorProfile ↔ User / Subjects
+    - Decimal HourlyRate: precision 10,2; AverageRating 3,2
+    - XML doc comments on public types/properties where useful
+  </constraints>
+
+  <acceptanceCriteria>
+    - [ ] Migration generates Subjects, TutorProfiles, TutorSubjects
+    - [ ] UserId unique on TutorProfiles
+    - [ ] Seed ≥ 8 subjects when empty
+    - [ ] dotnet build 0 errors
+    - [ ] AccountController untouched
+  </acceptanceCriteria>
+
+  <testPlan>
+    1. dotnet build → pass
+    2. Migration files exist under StudyMate/Migrations/
+    3. (Optional) database update and SELECT Subjects
+  </testPlan>
+
+  <outputRequired>
+    - StudyMate/Models/Subject.cs
+    - StudyMate/Models/TutorProfile.cs
+    - StudyMate/Models/TutorSubject.cs
+    - StudyMate/Data/ApplicationDbContext.cs (updated)
+    - StudyMate/Program.cs or Data/SeedData.cs (seed subjects)
+    - StudyMate/Migrations/*AddTutorProfileCore*
+    - Docs/Prompts/M2_T1_TutorProfileCoreModels.xml
+    - Docs/Reports/Report_M2_T1_YYYY-MM-DD.md
+  </outputRequired>
+
+</prompt>

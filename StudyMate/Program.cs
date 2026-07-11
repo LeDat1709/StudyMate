@@ -57,8 +57,9 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ── 6. Seed Roles khi khởi động ───────────────────────────────────────────────
+// ── 6. Seed Roles + Subjects khi khởi động ────────────────────────────────────
 await SeedRolesAsync(app);
+await SeedSubjectsAsync(app);
 
 // ── 7. Middleware pipeline ────────────────────────────────────────────────────
 if (!app.Environment.IsDevelopment())
@@ -94,4 +95,12 @@ static async Task SeedRolesAsync(WebApplication app)
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
     }
+}
+
+// ── Seed Subjects (M2-T1) ─────────────────────────────────────────────────────
+static async Task SeedSubjectsAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await SeedData.SeedSubjectsAsync(db);
 }
