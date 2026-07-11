@@ -1,0 +1,11 @@
+﻿@model StudyMate.Controllers.ApplyFormVm
+@{ ViewData["Title"]="Apply"; }
+<div class="page-shell"><div class="surface-card"><div class="card-body">
+  <h1 class="h4">Apply: @ViewData["JobTitle"]</h1>
+  <form asp-action="Apply" method="post">@Html.AntiForgeryToken()
+    <input type="hidden" asp-for="JobPostingId"/>
+    <div class="mb-3"><label asp-for="CoverNote" class="form-label"></label><textarea asp-for="CoverNote" class="form-control" rows="4" maxlength="500"></textarea></div>
+    <div class="mb-3"><label asp-for="ProposedRate" class="form-label"></label><input asp-for="ProposedRate" class="form-control" type="number"/></div>
+    <button class="btn btn-primary">Gửi apply</button>
+  </form>
+</div></div></div>
