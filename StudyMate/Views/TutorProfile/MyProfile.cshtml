@@ -86,7 +86,45 @@
                             <dt class="col-sm-4">Địa chỉ</dt>
                             <dd class="col-sm-8">@Model.Address</dd>
                         }
+                        @{
+                            var subjects = ViewData["SubjectNames"] as IEnumerable<string>;
+                        }
+                        @if (subjects != null && subjects.Any())
+                        {
+                            <dt class="col-sm-4">Môn dạy</dt>
+                            <dd class="col-sm-8">
+                                @foreach (var n in subjects)
+                                {
+                                    <span class="badge text-bg-light border me-1">@n</span>
+                                }
+                            </dd>
+                        }
                     </dl>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.VideoIntroUrl))
+                    {
+                        var embed = StudyMate.Controllers.TutorProfileController.ToEmbedUrl(Model.VideoIntroUrl);
+                        <hr />
+                        <div class="card-section-title">
+                            <i class="bi bi-play-circle text-primary"></i> Video giới thiệu
+                        </div>
+                        if (embed != null)
+                        {
+                            <div class="ratio ratio-16x9">
+                                <iframe src="@embed" title="Video intro" allowfullscreen loading="lazy"></iframe>
+                            </div>
+                        }
+                        else if (Model.VideoIntroUrl.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <video controls class="w-100 rounded" style="max-height:360px">
+                                <source src="@Model.VideoIntroUrl" type="video/mp4" />
+                            </video>
+                        }
+                        else
+                        {
+                            <a href="@Model.VideoIntroUrl" target="_blank" rel="noopener">@Model.VideoIntroUrl</a>
+                        }
+                    }
                 </div>
             </div>
         </div>

@@ -67,3 +67,41 @@
     <input asp-for="IsAvailable" class="form-check-input" />
     <label asp-for="IsAvailable" class="form-check-label"></label>
 </div>
+
+<div class="mb-4">
+    <label class="form-label fw-semibold">Môn dạy <span class="text-danger">*</span></label>
+    <p class="form-text mt-0">Chọn từ 1 đến 10 môn.</p>
+    <span asp-validation-for="SelectedSubjectIds" class="text-danger small d-block mb-2"></span>
+    <div class="row g-2">
+        @foreach (var s in Model.AvailableSubjects)
+        {
+            <div class="col-md-4 col-sm-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedSubjectIds"
+                           value="@s.Id" id="sub_@s.Id" @(s.Selected ? "checked" : null) />
+                    <label class="form-check-label" for="sub_@s.Id">
+                        @s.Name
+                        @if (!string.IsNullOrEmpty(s.Category))
+                        {
+                            <span class="text-muted small">(@s.Category)</span>
+                        }
+                    </label>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="VideoIntroUrl" class="form-label fw-semibold"></label>
+    <input asp-for="VideoIntroUrl" class="form-control" placeholder="https://youtube.com/watch?v=... hoặc Vimeo" />
+    <span asp-validation-for="VideoIntroUrl" class="text-danger small"></span>
+</div>
+
+<div class="mb-4">
+    <label asp-for="VideoFile" class="form-label"></label>
+    <input asp-for="VideoFile" type="file" class="form-control" accept="video/mp4,.mp4" />
+    <div class="form-text">MP4 tối đa 50MB — nếu chọn file sẽ thay URL hiện tại.</div>
+    <span asp-validation-for="VideoFile" class="text-danger small"></span>
+</div>
+

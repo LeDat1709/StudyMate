@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace StudyMate.ViewModels.TutorProfile;
 
@@ -46,4 +47,29 @@ public class TutorProfileFormViewModel
     public string? AvatarUrl { get; set; }
     public string? FullName { get; set; }
     public string? Email { get; set; }
+
+    /// <summary>Video intro URL (YouTube/Vimeo or local /uploads/).</summary>
+    [Display(Name = "Video giới thiệu (URL)")]
+    [StringLength(500)]
+    public string? VideoIntroUrl { get; set; }
+
+    /// <summary>Optional MP4 upload (≤ 50MB) — replaces URL when provided.</summary>
+    [Display(Name = "Hoặc upload MP4")]
+    public IFormFile? VideoFile { get; set; }
+
+    /// <summary>Selected subject IDs (1–10). M2-T6.</summary>
+    [Display(Name = "Môn dạy")]
+    public List<int> SelectedSubjectIds { get; set; } = new();
+
+    /// <summary>All subjects for checkbox UI.</summary>
+    public List<SubjectOptionViewModel> AvailableSubjects { get; set; } = new();
 }
+
+public class SubjectOptionViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Category { get; set; }
+    public bool Selected { get; set; }
+}
+

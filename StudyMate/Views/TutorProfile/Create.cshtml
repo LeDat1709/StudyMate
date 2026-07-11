@@ -31,7 +31,7 @@
                 </div>
             }
 
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
                 <partial name="_FormFields" model="Model" />

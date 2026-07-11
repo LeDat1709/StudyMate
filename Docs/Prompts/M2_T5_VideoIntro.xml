@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M2-T5</taskId>
+    <taskName>Video intro URL + MP4</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M2_TutorProfile.md — M2-T5</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M2_TutorProfile.md — UC-M2-04</frsReference>
+  </meta>
+  <goal>
+    Tutor sets one intro video via YouTube/Vimeo URL or MP4 ≤50MB using IFileStorageService.
+  </goal>
+  <hardRules>
+    - Only one video; new replaces old (delete local file if under /uploads/)
+    - NO subjects/certs/availability in this task scope if possible; may touch Edit/MyProfile views
+  </hardRules>
+</prompt>
