@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <meta>
+    <taskId>M12-T1</taskId>
+    <breakTaskReference>Docs/BreakTasks/BreakTask_M12_AIAssistant.md — M12-T1</breakTaskReference>
+    <frsReference>Docs/FRS/FRS_M12_AIAssistant.md</frsReference>
+  </meta>
+  <goal>Stub AI chat page; log to AiLogs. No real LLM required.</goal>
+</prompt>

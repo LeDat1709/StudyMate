@@ -1,0 +1,11 @@
+﻿@model StudyMate.Controllers.AiChatVm
+@{ ViewData["Title"]="AI Assistant"; }
+<div class="page-shell"><div class="surface-card"><div class="card-body">
+  <h1 class="h4">AI Learning Assistant (stub)</h1>
+  <form asp-action="Ask" method="post">@Html.AntiForgeryToken()
+    <div class="mb-3"><textarea asp-for="Question" class="form-control" rows="3" placeholder="Hỏi về học tập, tìm gia sư..."></textarea>
+      <span asp-validation-for="Question" class="text-danger small"></span></div>
+    <button class="btn btn-primary">Hỏi</button>
+  </form>
+  @if(!string.IsNullOrEmpty(Model.Answer)){<div class="alert alert-info mt-3">@Model.Answer</div>}
+</div></div></div>
