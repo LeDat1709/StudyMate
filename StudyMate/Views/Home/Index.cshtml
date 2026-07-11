@@ -1,8 +1,55 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero">
+    <span class="auth-aside-badge mb-3">
+        <i class="bi bi-stars"></i> Nền tảng gia sư thông minh
+    </span>
+    <h1>Học đúng người. Dạy đúng nhu cầu.</h1>
+    <p>
+        StudyMate giúp học viên tìm gia sư phù hợp, và giúp gia sư xây dựng hồ sơ chuyên nghiệp
+        với xác thực chứng chỉ minh bạch.
+    </p>
+    <div class="hero-actions">
+        @if (User.Identity?.IsAuthenticated != true)
+        {
+            <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Register">
+                Bắt đầu miễn phí
+            </a>
+            <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Login">
+                Đăng nhập
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Profile">
+                <i class="bi bi-person-circle me-1"></i> Hồ sơ của tôi
+            </a>
+            @if (User.IsInRole("Tutor"))
+            {
+                <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Certificates">
+                    <i class="bi bi-award me-1"></i> Chứng chỉ
+                </a>
+            }
+        }
+    </div>
+</section>
+
+<section class="feature-grid">
+    <article class="feature-card">
+        <div class="icon-box"><i class="bi bi-shield-check"></i></div>
+        <h3>Tài khoản an toàn</h3>
+        <p>Xác thực email OTP, khóa tài khoản khi cần, và bảo mật mật khẩu theo chuẩn Identity.</p>
+    </article>
+    <article class="feature-card">
+        <div class="icon-box"><i class="bi bi-people"></i></div>
+        <h3>Học viên &amp; Gia sư</h3>
+        <p>Đăng ký đúng vai trò, quản lý hồ sơ cá nhân và xây dựng lòng tin qua chứng chỉ.</p>
+    </article>
+    <article class="feature-card">
+        <div class="icon-box"><i class="bi bi-lightning-charge"></i></div>
+        <h3>Trải nghiệm mượt</h3>
+        <p>Giao diện gọn, rõ ràng trên desktop và mobile — tập trung vào việc hoàn thành mục tiêu học tập.</p>
+    </article>
+</section>

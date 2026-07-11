@@ -1,0 +1,64 @@
+@model StudyMate.ViewModels.Account.VerifyOtpViewModel
+@{
+    ViewData["Title"] = "Xác thực email";
+    ViewData["FullBleed"] = true;
+}
+
+<div class="auth-shell">
+    <div class="auth-card auth-card-narrow">
+        <div class="auth-card-header">
+            <div class="auth-icon"><i class="bi bi-envelope-check"></i></div>
+            <h1 class="auth-title">Xác thực email</h1>
+            <p>
+                Nhập mã OTP 6 số đã gửi đến<br />
+                <strong class="text-dark">@Model.Email</strong>
+            </p>
+        </div>
+
+        @if (TempData["ResendSuccess"] != null)
+        {
+            <div class="alert alert-success py-2 small">
+                <i class="bi bi-check-circle me-1"></i>
+                OTP mới đã được gửi. Vui lòng kiểm tra hộp thư.
+            </div>
+        }
+
+        <form asp-action="VerifyEmail" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <input type="hidden" asp-for="Email" />
+
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label">Mã OTP</label>
+                <input asp-for="Code"
+                       class="form-control form-control-lg otp-input"
+                       maxlength="6"
+                       placeholder="••••••"
+                       autocomplete="one-time-code"
+                       inputmode="numeric" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid mb-2">
+                <button type="submit" class="btn btn-primary btn-lg">Xác thực</button>
+            </div>
+        </form>
+
+        <form asp-action="ResendOtp" method="post" class="mt-2">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="email" value="@Model.Email" />
+            <div class="d-grid">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-repeat me-1"></i> Gửi lại OTP
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer-links">
+            <a asp-action="Register"><i class="bi bi-arrow-left me-1"></i>Quay lại đăng ký</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

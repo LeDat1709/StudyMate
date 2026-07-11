@@ -1,7 +1,5 @@
 # ── Credentials / Secrets ─────────────────────────────────────────────────────
 appsettings.Development.json
-appsettings.*.json
-!appsettings.json
 
 # ── .NET Build Output ─────────────────────────────────────────────────────────
 bin/

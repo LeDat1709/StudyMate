@@ -1,0 +1,157 @@
+@model StudyMate.ViewModels.Account.ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    var hasAvatar = !string.IsNullOrWhiteSpace(Model.AvatarUrl);
+    var initial = string.IsNullOrWhiteSpace(Model.FullName)
+        ? "?"
+        : Model.FullName.Trim()[0].ToString().ToUpperInvariant();
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Hồ sơ cá nhân</h1>
+            <p>Cập nhật thông tin và ảnh đại diện của bạn</p>
+        </div>
+    </div>
+
+    <div class="profile-layout">
+        <div class="surface-card">
+            <div class="card-body avatar-panel">
+                <div class="avatar-wrap">
+                    @if (hasAvatar)
+                    {
+                        <img id="avatarImg" src="@Model.AvatarUrl" alt="Avatar" />
+                    }
+                    else
+                    {
+                        <div id="avatarFallback" class="avatar-fallback">@initial</div>
+                        <img id="avatarImg" src="" alt="Avatar" class="d-none" />
+                    }
+                </div>
+                <h2 class="h5 fw-800 mb-1">@(string.IsNullOrWhiteSpace(Model.FullName) ? "Người dùng" : Model.FullName)</h2>
+                <p class="text-muted-soft small mb-3">@Model.Email</p>
+
+                <label class="btn btn-outline-secondary w-100 mb-2">
+                    <i class="bi bi-camera me-1"></i> Đổi ảnh đại diện
+                    <input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp" class="d-none" />
+                </label>
+                <div id="avatarMsg" class="small mt-1"></div>
+                <p class="form-text mb-0">JPG, PNG, WEBP — tối đa 2MB</p>
+
+                <div class="profile-quick-links">
+                    <a asp-action="ChangePassword"><i class="bi bi-shield-lock"></i> Đổi mật khẩu</a>
+                    @if (User.IsInRole("Tutor"))
+                    {
+                        <a asp-action="Certificates"><i class="bi bi-award"></i> Chứng chỉ gia sư</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="card-body">
+                <div class="card-section-title">
+                    <i class="bi bi-person-vcard text-primary"></i> Thông tin cơ bản
+                </div>
+
+                @if (ViewData["ProfileUpdateSuccess"] != null)
+                {
+                    <div class="alert alert-success py-2 small">
+                        <i class="bi bi-check-circle me-1"></i> Cập nhật thành công
+                    </div>
+                }
+
+                <form asp-action="Profile" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" disabled />
+                        <div class="form-text">Email không thể thay đổi tại đây.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Họ và tên" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Số điện thoại" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2 me-1"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        document.getElementById('avatarFile').addEventListener('change', async function (e) {
+            var file = e.target.files[0];
+            var msg = document.getElementById('avatarMsg');
+            msg.className = 'small mt-1';
+            msg.textContent = '';
+            if (!file) return;
+
+            var allowed = ['image/jpeg', 'image/png', 'image/webp'];
+            if (allowed.indexOf(file.type) === -1) {
+                msg.classList.add('text-danger');
+                msg.textContent = 'Định dạng không được hỗ trợ. Chỉ JPG, PNG, WEBP.';
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                msg.classList.add('text-danger');
+                msg.textContent = 'Kích thước file vượt quá 2MB.';
+                return;
+            }
+
+            var fd = new FormData();
+            fd.append('file', file);
+            var tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenEl) fd.append('__RequestVerificationToken', tokenEl.value);
+
+            var input = document.getElementById('avatarFile');
+            input.disabled = true;
+            msg.classList.add('text-muted');
+            msg.textContent = 'Đang tải lên...';
+            try {
+                var resp = await fetch('/Account/UploadAvatar', { method: 'POST', body: fd });
+                if (!resp.ok) {
+                    var err = await resp.json().catch(function () { return {}; });
+                    msg.classList.remove('text-muted');
+                    msg.classList.add('text-danger');
+                    msg.textContent = err.error || 'Upload thất bại';
+                    return;
+                }
+                var data = await resp.json();
+                if (data.success) {
+                    var img = document.getElementById('avatarImg');
+                    img.src = data.url + '?t=' + Date.now();
+                    img.classList.remove('d-none');
+                    var fb = document.getElementById('avatarFallback');
+                    if (fb) fb.classList.add('d-none');
+                    msg.classList.remove('text-muted', 'text-danger');
+                    msg.classList.add('text-success');
+                    msg.textContent = 'Cập nhật ảnh thành công';
+                } else {
+                    msg.classList.remove('text-muted');
+                    msg.classList.add('text-danger');
+                    msg.textContent = data.error || 'Upload thất bại';
+                }
+            } finally {
+                input.disabled = false;
+            }
+        });
+    </script>
+}

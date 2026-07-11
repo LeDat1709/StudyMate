@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T3</taskId>
+    <taskName>Trang Register + ViewModels + Validation</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-01</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T3</breakTaskReference>
+    <dependsOn>M1-T1 (IEmailService), M1-T2 (IOtpService) — đều đã có sẵn</dependsOn>
+  </meta>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <goal>
+    Tạo trang đăng ký tài khoản gồm form với client-side validation (jQuery Unobtrusive),
+    xử lý logic tạo user qua ASP.NET Identity, gán role, gửi OTP email, redirect sang VerifyEmail.
+    Đây là chức năng đầu tiên user nhìn thấy — UI phải gọn, rõ ràng, Bootstrap 5.
+  </goal>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <context>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+    <readFile>StudyMate/Data/ApplicationDbContext.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/IEmailService.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/IOtpService.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/OtpValidationResult.cs</readFile>
+    <readFile>StudyMate/Program.cs</readFile>
+    <readFile>StudyMate/appsettings.json</readFile>
+    <readFile>StudyMate/Views/Shared/_Layout.cshtml</readFile>
+    <readFile>StudyMate/Views/Shared/_ValidationScriptsPartial.cshtml</readFile>
+  </context>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <currentState>
+    - ApplicationUser.cs đã có: FullName, AvatarUrl, DateOfBirth, Gender, Address, IsActive, IsEmailVerified, CreatedAt, UpdatedAt
+    - IEmailService, IOtpService đã có và được đăng ký DI
+    - Program.cs đã có Identity config: RequireConfirmedEmail=true, Password policy, Cookie config
+    - Bootstrap 5 + jQuery + jQuery Validation Unobtrusive đã có trong wwwroot/lib/
+    - Controllers/ folder đã có HomeController.cs
+    - Views/Account/ folder CHƯA tồn tại — agent cần tạo mới
+    - ViewModels/ folder CHƯA tồn tại — agent cần tạo mới
+    - AccountController.cs CHƯA tồn tại — agent cần tạo mới
+    - Seed roles (Admin/Tutor/Student/Guest) đã có trong DB
+  </currentState>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <taskUnit>
+    1. Tạo ViewModels/Account/RegisterViewModel.cs
+    2. Tạo Controllers/AccountController.cs với action Register GET + POST
+    3. Tạo Views/Account/Register.cshtml
+  </taskUnit>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <scope>
+    - Tạo RegisterViewModel với các field:
+      + FullName: Required, MaxLength(100)
+      + Email: Required, EmailAddress
+      + Password: Required, MinLength(8), Regex chứa ít nhất 1 chữ hoa + 1 số
+      + ConfirmPassword: Compare("Password")
+      + Role: Required, chỉ chấp nhận "Student" hoặc "Tutor"
+
+    - Tạo AccountController:
+      + Constructor inject: UserManager, SignInManager, IEmailService, IOtpService, RoleManager
+      + GET Register: trả về View với RegisterViewModel rỗng
+      + POST Register:
+        1. Validate ModelState → nếu fail, return View(model)
+        2. Kiểm tra email đã tồn tại → ModelState.AddModelError, return View(model)
+        3. Tạo ApplicationUser: FullName, Email, UserName=Email, IsEmailVerified=false, IsActive=true
+        4. UserManager.CreateAsync(user, password) → nếu fail, add errors vào ModelState
+        5. UserManager.AddToRoleAsync(user, model.Role)
+        6. Gọi IOtpService.GenerateAndSaveOtpAsync(user.Id, "EmailVerify")
+        7. Gọi IEmailService.SendEmailAsync với nội dung OTP đơn giản (HTML)
+        8. TempData["RegisteredEmail"] = model.Email (để VerifyEmail biết email nào)
+        9. Redirect sang action VerifyEmail (chưa cần implement action này — chỉ redirect)
+
+    - Tạo Views/Account/Register.cshtml:
+      + Layout: dùng _Layout.cshtml
+      + Form Bootstrap 5: card căn giữa, max-width 480px
+      + Fields: FullName, Email, Password, ConfirmPassword
+      + Role: 2 radio button (Student / Tutor), Student là mặc định
+      + Nút Submit: "Đăng ký"
+      + Link: "Đã có tài khoản? Đăng nhập" → /Account/Login
+      + Validation: asp-validation-for trên từng field
+      + Include _ValidationScriptsPartial ở cuối
+  </scope>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <hardRules>
+    - KHÔNG làm trang VerifyEmail hay Login trong task này (chỉ redirect đến đó)
+    - KHÔNG sửa ApplicationUser.cs, ApplicationDbContext.cs, OtpCode.cs
+    - KHÔNG sửa IEmailService, IOtpService, EmailService, OtpService
+    - KHÔNG sửa Program.cs (Identity đã config đủ, không cần thêm)
+    - KHÔNG dùng scaffold — viết tay toàn bộ Controller và View
+    - KHÔNG thêm package mới
+    - KHÔNG hardcode chuỗi thông báo tiếng Việt trong Controller — đặt trực tiếp trong ModelState message
+    - KHÔNG lưu OTP vào TempData hay Session — OTP chỉ gửi qua email
+    - Email template OTP phải là HTML đơn giản, KHÔNG dùng Razor partial hay external template file
+  </hardRules>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <tasks>
+    1. Đọc tất cả file trong &lt;context&gt;
+    2. Tóm tắt lại cho engineer:
+       - Layout hiện tại có gì (navbar, scripts section...)
+       - _ValidationScriptsPartial có những script nào
+       - Identity config: Password policy hiện tại
+       → Chờ engineer xác nhận trước khi code
+    3. Tạo ViewModels/Account/RegisterViewModel.cs
+    4. Tạo Controllers/AccountController.cs (Register GET + POST)
+    5. Tạo Views/Account/Register.cshtml
+    6. Self-review: đảm bảo không file nào ngoài outputRequired bị sửa
+    7. Chạy dotnet build → báo cáo kết quả
+    8. Báo cáo thay đổi và rủi ro
+  </tasks>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC
+    - Namespace Controller: StudyMate.Controllers
+    - Namespace ViewModel: StudyMate.ViewModels.Account
+    - Bootstrap 5 cho UI — KHÔNG thêm CSS framework khác
+    - jQuery Validation Unobtrusive cho client-side validation
+    - Tất cả DB call phải dùng async/await
+    - Private field dùng prefix _
+    - Public method phải có XML doc comment
+    - Tên action và route: PascalCase
+  </constraints>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <acceptanceCriteria>
+    - [ ] GET /Account/Register → hiển thị form đúng layout
+    - [ ] Submit form thiếu field → lỗi inline hiện ra, không reload trang
+    - [ ] Submit email đã tồn tại → lỗi "Email này đã được sử dụng"
+    - [ ] Submit hợp lệ → user được tạo trong DB, EmailConfirmed=false, IsEmailVerified=false
+    - [ ] Submit hợp lệ → role được gán đúng (Student hoặc Tutor)
+    - [ ] Submit hợp lệ → OTP email được gửi đi
+    - [ ] Submit hợp lệ → redirect đến /Account/VerifyEmail
+    - [ ] dotnet build pass, không có error
+  </acceptanceCriteria>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <testPlan>
+    1. dotnet build → pass
+    2. Chạy app, truy cập /Account/Register → form hiển thị đúng
+    3. Submit form bỏ trống → lỗi inline hiện ra từng field, không redirect
+    4. Submit với password không đủ mạnh → lỗi validation
+    5. Submit với email đã tồn tại (dùng admin@studymate.dev từ SeedUsers) → lỗi "Email đã được sử dụng"
+    6. Submit form hợp lệ (email mới, password đủ mạnh) → kiểm tra:
+       - DB: user mới trong AspNetUsers, EmailConfirmed=0
+       - DB: role đúng trong AspNetUserRoles
+       - DB: OTP record trong OtpCodes
+       - Email: OTP nhận được trong hộp thư
+       - Browser: redirect đến /Account/VerifyEmail (có thể 404 vì chưa có action, nhưng redirect đúng URL)
+  </testPlan>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <outputRequired>
+    <create>StudyMate/ViewModels/Account/RegisterViewModel.cs</create>
+    <create>StudyMate/Controllers/AccountController.cs</create>
+    <create>StudyMate/Views/Account/Register.cshtml</create>
+  </outputRequired>
+
+</prompt>

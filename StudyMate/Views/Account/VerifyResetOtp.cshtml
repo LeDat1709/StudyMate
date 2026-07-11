@@ -1,0 +1,47 @@
+@model StudyMate.ViewModels.Account.VerifyOtpViewModel
+@{
+    ViewData["Title"] = "Nhập mã OTP";
+    ViewData["FullBleed"] = true;
+}
+
+<div class="auth-shell">
+    <div class="auth-card auth-card-narrow">
+        <div class="auth-card-header">
+            <div class="auth-icon"><i class="bi bi-shield-lock"></i></div>
+            <h1 class="auth-title">Nhập mã xác nhận</h1>
+            <p>
+                Mã OTP đã gửi đến <strong class="text-dark">@Model.Email</strong>.<br />
+                Hiệu lực trong 10 phút.
+            </p>
+        </div>
+
+        <form asp-action="VerifyResetOtp" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+            <input type="hidden" asp-for="Email" />
+
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label">Mã OTP (6 chữ số)</label>
+                <input asp-for="Code"
+                       class="form-control form-control-lg otp-input"
+                       maxlength="6"
+                       placeholder="••••••"
+                       autocomplete="one-time-code"
+                       inputmode="numeric" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Xác nhận</button>
+            </div>
+        </form>
+
+        <div class="auth-footer-links">
+            Không nhận được mã?
+            <a asp-action="ForgotPassword" class="fw-semibold">Gửi lại</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

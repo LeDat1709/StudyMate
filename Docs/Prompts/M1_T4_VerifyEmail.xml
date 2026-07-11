@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+
+  <meta>
+    <taskId>M1-T4</taskId>
+    <taskName>Trang VerifyEmail + Logic xác thực OTP</taskName>
+    <timeEstimate>60 minutes</timeEstimate>
+    <module>Module 1 — Auth &amp; Account</module>
+    <planReference>Docs/PlanSetup.md — Mục 2, 3, 7</planReference>
+    <frsReference>Docs/FRS/FRS_M1_Auth.md — UC-M1-02</frsReference>
+    <breakTaskReference>Docs/BreakTask_M1_Auth.md — M1-T4</breakTaskReference>
+    <dependsOn>M1-T3 (Register đã redirect sang VerifyEmail, TempData["RegisteredEmail"] đã có)</dependsOn>
+  </meta>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <goal>
+    Thay thế VerifyEmail placeholder bằng trang nhập OTP hoàn chỉnh.
+    Người dùng nhập 6 chữ số OTP nhận qua email, hệ thống validate, set EmailConfirmed=true,
+    tự động sign in và redirect về trang chủ.
+    Nút "Gửi lại OTP" phải hoạt động và invalidate OTP cũ.
+  </goal>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <context>
+    <readFile>StudyMate/Controllers/AccountController.cs</readFile>
+    <readFile>StudyMate/ViewModels/Account/RegisterViewModel.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/IOtpService.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/OtpValidationResult.cs</readFile>
+    <readFile>StudyMate/Services/Interfaces/IEmailService.cs</readFile>
+    <readFile>StudyMate/Models/ApplicationUser.cs</readFile>
+    <readFile>StudyMate/Views/Account/VerifyEmail.cshtml</readFile>
+    <readFile>StudyMate/Views/Shared/_Layout.cshtml</readFile>
+  </context>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <currentState>
+    - AccountController đã có: Register GET/POST, VerifyEmail GET (placeholder)
+    - Register POST lưu TempData["RegisteredEmail"] = user.Email trước khi redirect
+    - VerifyEmail GET placeholder chỉ hiển thị email từ TempData["RegisteredEmail"] qua ViewBag.Email
+    - VerifyEmail.cshtml hiện là placeholder đơn giản — cần thay thế hoàn toàn
+    - IOtpService đã có: GenerateAndSaveOtpAsync, ValidateOtpAsync, InvalidateAllOtpAsync
+    - OtpValidationResult: Valid | Invalid | Expired | AlreadyUsed | TooManyAttempts
+    - IEmailService đã có: SendEmailAsync
+    - Bootstrap 5 + jQuery Validation Unobtrusive đã có sẵn
+  </currentState>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <taskUnit>
+    1. Tạo ViewModels/Account/VerifyOtpViewModel.cs
+    2. Thay thế VerifyEmail GET trong AccountController — đọc email từ TempData, chuyển vào ViewModel
+    3. Thêm VerifyEmail POST vào AccountController — validate OTP, sign in, redirect
+    4. Thêm ResendOtp POST vào AccountController — invalidate + generate mới + gửi email
+    5. Thay thế Views/Account/VerifyEmail.cshtml với form nhập OTP hoàn chỉnh
+  </taskUnit>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <scope>
+    - Tạo VerifyOtpViewModel:
+      + Email: string (hidden field, không validate — chỉ dùng để biết verify cho ai)
+      + Code: Required, StringLength(6,6), Digits only
+
+    - VerifyEmail GET (thay thế placeholder):
+      + Đọc email từ TempData["RegisteredEmail"]
+      + Nếu email null → redirect Register (user truy cập trực tiếp URL)
+      + Lưu email vào TempData["RegisteredEmail"] lại (TempData chỉ tồn tại 1 request)
+      + Trả về View(new VerifyOtpViewModel { Email = email })
+
+    - VerifyEmail POST:
+      + Validate ModelState → fail → return View(model)
+      + FindByEmailAsync(model.Email) → null → ModelState error, return View
+      + Gọi ValidateOtpAsync(user.Id, model.Code, "EmailVerify")
+      + Xử lý từng OtpValidationResult:
+        - Valid → set user.EmailConfirmed=true, user.IsEmailVerified=true, UpdateAsync
+                 → SignInAsync(user, isPersistent: false)
+                 → redirect Home/Index
+        - Invalid → ModelState.AddModelError("Code", "Mã OTP không chính xác")
+        - Expired → ModelState.AddModelError("Code", "Mã OTP đã hết hạn. Vui lòng gửi lại.")
+        - AlreadyUsed → ModelState.AddModelError("Code", "Mã OTP đã được sử dụng")
+        - TooManyAttempts → ModelState.AddModelError("Code", "Bạn đã nhập sai quá nhiều lần. Vui lòng gửi lại OTP mới.")
+      + Trước khi return View sau lỗi: lưu lại TempData["RegisteredEmail"] = model.Email
+      + return View(model) với lỗi tương ứng
+
+    - ResendOtp POST:
+      + Nhận email từ form (hidden field)
+      + FindByEmailAsync → null → redirect Register
+      + Nếu user.EmailConfirmed = true → redirect Home (đã xác thực rồi)
+      + InvalidateAllOtpAsync + GenerateAndSaveOtpAsync + SendEmailAsync (cùng template như Register)
+      + TempData["RegisteredEmail"] = email
+      + TempData["ResendSuccess"] = true
+      + redirect VerifyEmail GET
+
+    - Views/Account/VerifyEmail.cshtml (thay thế hoàn toàn):
+      + Layout: _Layout.cshtml
+      + Card căn giữa, max-width 480px, Bootstrap 5
+      + Hiển thị email đang verify (từ model.Email)
+      + Input OTP: 1 field text, maxlength=6, placeholder="000000", autocomplete="one-time-code"
+      + Nút Submit: "Xác thực"
+      + Nút "Gửi lại OTP": form POST tới ResendOtp, truyền email qua hidden field
+      + Hiển thị TempData["ResendSuccess"] nếu có → alert-success "OTP mới đã được gửi"
+      + Validation cho Code field
+      + Include _ValidationScriptsPartial
+  </scope>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <hardRules>
+    - KHÔNG sửa Register GET/POST — chỉ sửa VerifyEmail GET và thêm VerifyEmail POST, ResendOtp POST
+    - KHÔNG sửa IOtpService, OtpService, IEmailService, EmailService
+    - KHÔNG sửa ApplicationUser.cs, ApplicationDbContext.cs
+    - KHÔNG sửa Program.cs
+    - KHÔNG thêm package mới
+    - KHÔNG dùng Session — chỉ dùng TempData để truyền email giữa các request
+    - KHÔNG để OTP code xuất hiện trong URL (không dùng query string cho OTP)
+    - ResendOtp phải là POST, không phải GET (tránh CSRF và refresh gửi lại)
+  </hardRules>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <tasks>
+    1. Đọc tất cả file trong &lt;context&gt;
+    2. Tóm tắt lại cho engineer:
+       - VerifyEmail GET placeholder hiện đang làm gì
+       - TempData["RegisteredEmail"] được set ở đâu và tồn tại bao lâu
+       - OtpValidationResult có những giá trị nào
+       → Chờ engineer xác nhận trước khi code
+    3. Tạo ViewModels/Account/VerifyOtpViewModel.cs
+    4. Sửa AccountController: thay VerifyEmail GET, thêm VerifyEmail POST, thêm ResendOtp POST
+    5. Thay thế Views/Account/VerifyEmail.cshtml
+    6. Self-review: chỉ các file trong outputRequired bị thay đổi
+    7. Chạy dotnet build → báo cáo
+    8. Báo cáo thay đổi và rủi ro
+  </tasks>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <constraints>
+    - .NET 10 / ASP.NET Core MVC
+    - Namespace ViewModel: StudyMate.ViewModels.Account
+    - Bootstrap 5, không thêm CSS framework khác
+    - Tất cả DB call phải dùng async/await
+    - Private field dùng prefix _
+    - Public method phải có XML doc comment
+  </constraints>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <acceptanceCriteria>
+    - [ ] Đăng ký xong → redirect đúng trang VerifyEmail, hiển thị email đang verify
+    - [ ] Nhập OTP đúng → EmailConfirmed=true trong DB, tự động login, redirect trang chủ
+    - [ ] Nhập OTP sai → lỗi inline, form không bị clear, email vẫn hiển thị
+    - [ ] Nhập sai 3 lần → lỗi TooManyAttempts với hướng dẫn gửi lại
+    - [ ] OTP hết hạn → lỗi Expired với hướng dẫn gửi lại
+    - [ ] Nút "Gửi lại OTP" → OTP mới trong email, thông báo success hiển thị
+    - [ ] Truy cập /Account/VerifyEmail trực tiếp (không qua Register) → redirect Register
+    - [ ] dotnet build pass, không error
+  </acceptanceCriteria>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <testPlan>
+    1. dotnet build → pass
+    2. Đăng ký tài khoản mới → redirect VerifyEmail, hiển thị email đúng
+    3. Nhập OTP sai → lỗi "Mã OTP không chính xác", form không clear
+    4. Nhập OTP đúng (xem trong email) → redirect trang chủ, kiểm tra DB EmailConfirmed=1
+    5. Click "Gửi lại OTP" → email mới đến, thông báo success hiển thị
+    6. Dùng OTP cũ sau khi gửi lại → lỗi Invalid hoặc AlreadyUsed
+    7. Truy cập /Account/VerifyEmail trực tiếp → redirect /Account/Register
+  </testPlan>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <outputRequired>
+    <create>StudyMate/ViewModels/Account/VerifyOtpViewModel.cs</create>
+    <modify>StudyMate/Controllers/AccountController.cs (thay VerifyEmail GET, thêm POST + ResendOtp)</modify>
+    <modify>StudyMate/Views/Account/VerifyEmail.cshtml (thay thế hoàn toàn)</modify>
+  </outputRequired>
+
+</prompt>
