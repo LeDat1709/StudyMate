@@ -1,0 +1,74 @@
+@model StudyMate.ViewModels.TutorProfile.DemoLessonListViewModel
+@{
+    ViewData["Title"] = "Demo lessons";
+}
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h1>Demo lessons</h1>
+            <p>Bài học mẫu cho học viên xem thử.</p>
+        </div>
+        <a asp-action="MyProfile" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="surface-card">
+                <div class="card-body">
+                    <div class="card-section-title"><i class="bi bi-plus-circle text-primary"></i> Thêm demo</div>
+                    <form asp-action="CreateDemoLesson" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="Form.Title" class="form-label"></label>
+                            <input asp-for="Form.Title" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Form.Description" class="form-label"></label>
+                            <textarea asp-for="Form.Description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Form.VideoUrl" class="form-label"></label>
+                            <input asp-for="Form.VideoUrl" class="form-control" placeholder="https://..." />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="surface-card">
+                <div class="card-body">
+                    @if (Model.Items.Count == 0)
+                    {
+                        <p class="text-muted small mb-0">Chưa có demo lesson.</p>
+                    }
+                    else
+                    {
+                        @foreach (var d in Model.Items)
+                        {
+                            <div class="border-bottom py-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@d.Title</strong>
+                                    <form asp-action="DeleteDemoLesson" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@d.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                    </form>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(d.Description))
+                                {
+                                    <p class="small text-muted mb-1">@d.Description</p>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(d.VideoUrl))
+                                {
+                                    <a href="@d.VideoUrl" target="_blank" rel="noopener" class="small">Xem video</a>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
