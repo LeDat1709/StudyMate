@@ -4,40 +4,42 @@
 }
 
 <div class="page-shell">
-    <div class="page-header">
-        <div>
-            <h1>Tìm gia sư</h1>
-            <p>Lọc theo môn, học phí, hình thức — <strong>@Model.TotalCount</strong> kết quả</p>
-        </div>
-    </div>
+    <div class="mp-layout">
+        @* ── Filters ── *@
+        <aside class="mp-sidebar">
+            <form method="get" class="mp-sidebar-card">
+                <div class="sidebar-title"><i class="bi bi-funnel me-1"></i> Bộ lọc</div>
 
-    <form method="get" class="surface-card filter-toolbar mb-3">
-        <div class="card-body">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label small">Từ khóa</label>
+                <div class="mb-3">
+                    <label class="form-label">Từ khóa</label>
                     <input name="q" value="@Model.Keyword" class="form-control" placeholder="Tên, headline..." />
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Môn</label>
+
+                <div class="mb-3">
+                    <label class="form-label">Môn học</label>
                     <select name="subjectId" class="form-select">
-                        <option value="">Tất cả</option>
+                        <option value="">Tất cả môn</option>
                         @foreach (var s in Model.Subjects)
                         {
                             <option value="@s.Id" selected="@(Model.SubjectId == s.Id)">@s.Name</option>
                         }
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Giá min</label>
-                    <input name="minRate" value="@Model.MinRate" type="number" class="form-control" placeholder="0" />
+
+                <div class="mb-3">
+                    <label class="form-label">Học phí (₫/giờ)</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input name="minRate" value="@Model.MinRate" type="number" class="form-control" placeholder="Min" />
+                        </div>
+                        <div class="col-6">
+                            <input name="maxRate" value="@Model.MaxRate" type="number" class="form-control" placeholder="Max" />
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Giá max</label>
-                    <input name="maxRate" value="@Model.MaxRate" type="number" class="form-control" placeholder="—" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Hình thức</label>
+
+                <div class="mb-3">
+                    <label class="form-label">Hình thức</label>
                     <select name="teachingMode" class="form-select">
                         <option value="">Tất cả</option>
                         <option value="Online" selected="@(Model.TeachingMode == "Online")">Online</option>
@@ -45,98 +47,125 @@
                         <option value="Both" selected="@(Model.TeachingMode == "Both")">Cả hai</option>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary w-100" title="Lọc">
-                        <i class="bi bi-funnel"></i>
-                    </button>
+
+                <input type="hidden" name="sort" value="@Model.Sort" />
+
+                <button type="submit" class="btn btn-primary w-100 mb-2">Áp dụng</button>
+                <a asp-action="Search" class="btn btn-outline-secondary w-100">Xóa lọc</a>
+            </form>
+        </aside>
+
+        @* ── Talent feed ── *@
+        <div class="mp-feed">
+            <div class="mp-feed-header">
+                <div>
+                    <h1>Tìm gia sư</h1>
+                    <p><strong>@Model.TotalCount</strong> gia sư phù hợp</p>
                 </div>
-            </div>
-            <div class="row g-2 mt-1">
-                <div class="col-md-3">
-                    <label class="form-label small">Sắp xếp</label>
-                    <select name="sort" class="form-select">
+                <form method="get" class="mp-sort-bar mb-0">
+                    @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+                    {
+                        <input type="hidden" name="q" value="@Model.Keyword" />
+                    }
+                    @if (Model.SubjectId.HasValue)
+                    {
+                        <input type="hidden" name="subjectId" value="@Model.SubjectId" />
+                    }
+                    @if (Model.MinRate.HasValue)
+                    {
+                        <input type="hidden" name="minRate" value="@Model.MinRate" />
+                    }
+                    @if (Model.MaxRate.HasValue)
+                    {
+                        <input type="hidden" name="maxRate" value="@Model.MaxRate" />
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.TeachingMode))
+                    {
+                        <input type="hidden" name="teachingMode" value="@Model.TeachingMode" />
+                    }
+                    <label for="sortSelect" class="mb-0">Sắp xếp</label>
+                    <select id="sortSelect" name="sort" class="form-select" onchange="this.form.submit()">
                         <option value="Newest" selected="@(Model.Sort == "Newest")">Mới nhất</option>
                         <option value="RatingDesc" selected="@(Model.Sort == "RatingDesc")">Rating cao</option>
                         <option value="PriceAsc" selected="@(Model.Sort == "PriceAsc")">Giá thấp</option>
                     </select>
-                </div>
+                </form>
             </div>
-        </div>
-    </form>
 
-    @if (Model.Results.Count == 0)
-    {
-        <div class="surface-card">
-            <div class="empty-state">
-                <i class="bi bi-search"></i>
-                <p class="mb-0">Không tìm thấy gia sư phù hợp. Thử nới lỏng bộ lọc.</p>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row g-3">
-            @foreach (var t in Model.Results)
+            @if (Model.Results.Count == 0)
             {
-                var initial = string.IsNullOrWhiteSpace(t.FullName)
-                    ? "?"
-                    : t.FullName.Trim()[0].ToString().ToUpperInvariant();
-                <div class="col-md-4 col-sm-6">
-                    <div class="entity-card">
-                        <div class="card-body">
-                            <div class="d-flex gap-3 mb-3">
-                                @if (!string.IsNullOrWhiteSpace(t.AvatarUrl))
-                                {
-                                    <img src="@t.AvatarUrl" class="entity-avatar" alt="" />
-                                }
-                                else
-                                {
-                                    <span class="entity-avatar-fallback">@initial</span>
-                                }
-                                <div class="min-w-0">
-                                    <a asp-action="Details" asp-route-id="@t.Id" class="stretched-link-title d-block text-truncate">@t.FullName</a>
-                                    <div class="small text-muted text-truncate">@t.Headline</div>
-                                </div>
-                            </div>
-                            <div class="meta-row mb-2">
-                                <span><i class="bi bi-star-fill"></i> @t.AverageRating.ToString("0.0")</span>
-                                <span><i class="bi bi-cash-coin"></i> @(t.HourlyRate?.ToString("N0") ?? "—") ₫/h</span>
-                                <span><i class="bi bi-laptop"></i> @t.TeachingMode</span>
-                            </div>
-                            <div>
-                                @foreach (var s in t.Subjects.Take(4))
-                                {
-                                    <span class="badge badge-soft-primary me-1 mb-1">@s</span>
-                                }
-                            </div>
-                        </div>
+                <div class="surface-card">
+                    <div class="empty-state">
+                        <i class="bi bi-search"></i>
+                        <p class="mb-0">Không tìm thấy gia sư phù hợp. Thử nới lỏng bộ lọc.</p>
                     </div>
                 </div>
             }
-        </div>
-    }
+            else
+            {
+                <div class="talent-feed">
+                    @foreach (var t in Model.Results)
+                    {
+                        var initial = string.IsNullOrWhiteSpace(t.FullName)
+                            ? "?"
+                            : t.FullName.Trim()[0].ToString().ToUpperInvariant();
+                        <a asp-action="Details" asp-route-id="@t.Id" class="talent-row">
+                            @if (!string.IsNullOrWhiteSpace(t.AvatarUrl))
+                            {
+                                <img src="@t.AvatarUrl" class="talent-avatar" alt="" />
+                            }
+                            else
+                            {
+                                <span class="talent-avatar-fallback">@initial</span>
+                            }
+                            <div class="talent-body">
+                                <h2 class="talent-name">@t.FullName</h2>
+                                <div class="talent-headline">@(t.Headline ?? "Gia sư StudyMate")</div>
+                                <div class="meta-row mb-2">
+                                    <span><i class="bi bi-star-fill"></i> @t.AverageRating.ToString("0.0")</span>
+                                    <span><i class="bi bi-laptop"></i> @t.TeachingMode</span>
+                                </div>
+                                <div>
+                                    @foreach (var s in t.Subjects.Take(5))
+                                    {
+                                        <span class="badge badge-soft-primary me-1 mb-1">@s</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="talent-side">
+                                <div class="talent-rate">
+                                    @(t.HourlyRate?.ToString("N0") ?? "—")
+                                    <span class="talent-rate-unit">₫/h</span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
 
-    @if (Model.TotalPages > 1)
-    {
-        <nav class="mt-4" aria-label="Phân trang">
-            <ul class="pagination justify-content-center">
-                @for (var p = 1; p <= Model.TotalPages; p++)
-                {
-                    <li class="page-item @(p == Model.Page ? "active" : "")">
-                        <a class="page-link"
-                           asp-action="Search"
-                           asp-route-page="@p"
-                           asp-route-subjectId="@Model.SubjectId"
-                           asp-route-minRate="@Model.MinRate"
-                           asp-route-maxRate="@Model.MaxRate"
-                           asp-route-teachingMode="@Model.TeachingMode"
-                           asp-route-educationLevel="@Model.EducationLevel"
-                           asp-route-minRating="@Model.MinRating"
-                           asp-route-q="@Model.Keyword"
-                           asp-route-sort="@Model.Sort">@p</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    }
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="mt-4" aria-label="Phân trang">
+                    <ul class="pagination justify-content-center">
+                        @for (var p = 1; p <= Model.TotalPages; p++)
+                        {
+                            <li class="page-item @(p == Model.Page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="Search"
+                                   asp-route-page="@p"
+                                   asp-route-subjectId="@Model.SubjectId"
+                                   asp-route-minRate="@Model.MinRate"
+                                   asp-route-maxRate="@Model.MaxRate"
+                                   asp-route-teachingMode="@Model.TeachingMode"
+                                   asp-route-educationLevel="@Model.EducationLevel"
+                                   asp-route-minRating="@Model.MinRating"
+                                   asp-route-q="@Model.Keyword"
+                                   asp-route-sort="@Model.Sort">@p</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
 </div>

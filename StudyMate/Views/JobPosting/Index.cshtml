@@ -1,131 +1,182 @@
 @model StudyMate.ViewModels.JobPosting.JobListViewModel
-@{ ViewData["Title"] = "Việc làm"; }
+@{ ViewData["Title"] = "Tìm việc"; }
 
 <div class="page-shell">
-    <div class="page-header">
-        <div>
-            <h1>Yêu cầu thuê gia sư</h1>
-            <p><strong>@Model.TotalCount</strong> job đang mở — tìm việc phù hợp với bạn</p>
-        </div>
-        @if (User.IsInRole("Student"))
-        {
-            <div class="d-flex gap-2">
-                <a class="btn btn-outline-secondary btn-sm" asp-action="MyJobs">
-                    <i class="bi bi-folder2-open me-1"></i> Job của tôi
-                </a>
-                <a class="btn btn-primary btn-sm" asp-action="Create">
-                    <i class="bi bi-plus-lg me-1"></i> Đăng yêu cầu
-                </a>
-            </div>
-        }
-    </div>
+    <div class="mp-layout">
+        @* ── Left filters (Upwork-style sidebar) ── *@
+        <aside class="mp-sidebar">
+            <form method="get" class="mp-sidebar-card">
+                <div class="sidebar-title"><i class="bi bi-funnel me-1"></i> Bộ lọc</div>
 
-    <form method="get" class="surface-card filter-toolbar mb-3">
-        <div class="card-body">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label small">Từ khóa</label>
-                    <input name="q" value="@Model.Keyword" class="form-control" placeholder="Tiêu đề, mô tả" />
+                <div class="mb-3">
+                    <label class="form-label">Từ khóa</label>
+                    <input name="q" value="@Model.Keyword" class="form-control" placeholder="Tiêu đề, mô tả..." />
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Môn</label>
+
+                <div class="mb-3">
+                    <label class="form-label">Môn học</label>
                     <select name="subjectId" class="form-select">
-                        <option value="">Tất cả</option>
+                        <option value="">Tất cả môn</option>
                         @foreach (var s in Model.Subjects)
                         {
                             <option value="@s.Id" selected="@(Model.SubjectId == s.Id)">@s.Name</option>
                         }
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Hình thức</label>
+
+                <div class="mb-3">
+                    <label class="form-label">Hình thức</label>
                     <select name="teachingMode" class="form-select">
                         <option value="">Tất cả</option>
                         <option value="Online" selected="@(Model.TeachingMode == "Online")">Online</option>
                         <option value="Offline" selected="@(Model.TeachingMode == "Offline")">Offline</option>
-                        <option value="Both" selected="@(Model.TeachingMode == "Both")">Both</option>
+                        <option value="Both" selected="@(Model.TeachingMode == "Both")">Cả hai</option>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label small">Min</label>
-                    <input name="budgetMin" value="@Model.BudgetMin" type="number" class="form-control" />
-                </div>
-                <div class="col-md-1">
-                    <label class="form-label small">Max</label>
-                    <input name="budgetMax" value="@Model.BudgetMax" type="number" class="form-control" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small">Sắp xếp</label>
-                    <select name="sort" class="form-select">
-                        <option value="Newest" selected="@(Model.Sort == "Newest")">Mới nhất</option>
-                        <option value="BudgetDesc" selected="@(Model.Sort == "BudgetDesc")">Budget cao</option>
-                        <option value="Deadline" selected="@(Model.Sort == "Deadline")">Sắp hết hạn</option>
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary w-100" title="Lọc">
-                        <i class="bi bi-funnel"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
 
-    @if (!Model.Items.Any())
-    {
-        <div class="surface-card">
-            <div class="empty-state">
-                <i class="bi bi-briefcase"></i>
-                <p class="mb-0">Không có job phù hợp. Thử đổi bộ lọc.</p>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row g-3">
-            @foreach (var j in Model.Items)
-            {
-                <div class="col-md-6">
-                    <div class="entity-card">
-                        <div class="card-body">
-                            <a asp-action="Details" asp-route-id="@j.Id" class="stretched-link-title h5 d-block mb-2">@j.Title</a>
-                            <div class="meta-row mb-2">
-                                <span><i class="bi bi-book"></i> @j.SubjectName</span>
-                                <span><i class="bi bi-laptop"></i> @j.TeachingMode</span>
-                            </div>
-                            <div class="d-flex flex-wrap justify-content-between gap-2 align-items-end">
-                                <div>
-                                    <div class="fw-800 text-primary">
-                                        @(j.BudgetMin?.ToString("N0") ?? "?") – @(j.BudgetMax?.ToString("N0") ?? "?") ₫/giờ
-                                    </div>
-                                    <div class="small text-muted mt-1">
-                                        <i class="bi bi-person me-1"></i>@j.StudentName
-                                        · deadline @(j.Deadline?.ToString("dd/MM/yyyy") ?? "—")
-                                    </div>
-                                </div>
-                                <span class="badge badge-soft-primary">Open</span>
-                            </div>
+                <div class="mb-3">
+                    <label class="form-label">Ngân sách (₫/giờ)</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input name="budgetMin" value="@Model.BudgetMin" type="number" class="form-control" placeholder="Min" />
+                        </div>
+                        <div class="col-6">
+                            <input name="budgetMax" value="@Model.BudgetMax" type="number" class="form-control" placeholder="Max" />
                         </div>
                     </div>
                 </div>
+
+                <input type="hidden" name="sort" value="@Model.Sort" />
+
+                <button type="submit" class="btn btn-primary w-100 mb-2">Áp dụng</button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Xóa lọc</a>
+            </form>
+        </aside>
+
+        @* ── Job feed ── *@
+        <div class="mp-feed">
+            <div class="mp-feed-header">
+                <div>
+                    <h1>Yêu cầu thuê gia sư</h1>
+                    <p>
+                        <strong>@Model.TotalCount</strong> job đang mở
+                        @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+                        {
+                            <span>· kết quả cho “@Model.Keyword”</span>
+                        }
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    @if (User.IsInRole("Student"))
+                    {
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="MyJobs">Job của tôi</a>
+                        <a class="btn btn-primary btn-sm" asp-action="Create">
+                            <i class="bi bi-plus-lg me-1"></i> Đăng job
+                        </a>
+                    }
+                    <form method="get" class="mp-sort-bar mb-0">
+                        @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+                        {
+                            <input type="hidden" name="q" value="@Model.Keyword" />
+                        }
+                        @if (Model.SubjectId.HasValue)
+                        {
+                            <input type="hidden" name="subjectId" value="@Model.SubjectId" />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.TeachingMode))
+                        {
+                            <input type="hidden" name="teachingMode" value="@Model.TeachingMode" />
+                        }
+                        @if (Model.BudgetMin.HasValue)
+                        {
+                            <input type="hidden" name="budgetMin" value="@Model.BudgetMin" />
+                        }
+                        @if (Model.BudgetMax.HasValue)
+                        {
+                            <input type="hidden" name="budgetMax" value="@Model.BudgetMax" />
+                        }
+                        <label for="sortSelect" class="mb-0">Sắp xếp</label>
+                        <select id="sortSelect" name="sort" class="form-select" onchange="this.form.submit()">
+                            <option value="Newest" selected="@(Model.Sort == "Newest")">Mới nhất</option>
+                            <option value="BudgetDesc" selected="@(Model.Sort == "BudgetDesc")">Budget cao</option>
+                            <option value="Deadline" selected="@(Model.Sort == "Deadline")">Sắp hết hạn</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.Items.Any())
+            {
+                <div class="surface-card">
+                    <div class="empty-state">
+                        <i class="bi bi-briefcase"></i>
+                        <p class="mb-2 fw-semibold">Không có job phù hợp</p>
+                        <p class="mb-0 small">Thử nới lỏng bộ lọc hoặc quay lại sau khi có yêu cầu mới.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="job-feed">
+                    @foreach (var j in Model.Items)
+                    {
+                        var posted = j.CreatedAt.ToLocalTime();
+                        var relative = (DateTime.Now - posted).TotalDays switch
+                        {
+                            < 1 => "Hôm nay",
+                            < 2 => "Hôm qua",
+                            < 7 => $"{(int)(DateTime.Now - posted).TotalDays} ngày trước",
+                            _ => posted.ToString("dd/MM/yyyy")
+                        };
+                        <a asp-action="Details" asp-route-id="@j.Id" class="job-row">
+                            <div class="job-row-top">
+                                <h2 class="job-row-title">@j.Title</h2>
+                                <div class="job-row-budget">
+                                    @(j.BudgetMin?.ToString("N0") ?? "?") – @(j.BudgetMax?.ToString("N0") ?? "?") ₫
+                                    <span class="text-muted fw-normal" style="font-size:0.8rem">/giờ</span>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(j.DescriptionSnippet))
+                            {
+                                <p class="job-row-snippet">@j.DescriptionSnippet</p>
+                            }
+                            <div class="job-row-meta">
+                                @if (!string.IsNullOrWhiteSpace(j.SubjectName))
+                                {
+                                    <span class="tag"><i class="bi bi-book"></i> @j.SubjectName</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(j.TeachingMode))
+                                {
+                                    <span class="tag"><i class="bi bi-laptop"></i> @j.TeachingMode</span>
+                                }
+                                <span><i class="bi bi-person me-1"></i>@(j.StudentName ?? "Học viên")</span>
+                                <span><i class="bi bi-clock me-1"></i>@relative</span>
+                                @if (j.Deadline.HasValue)
+                                {
+                                    <span><i class="bi bi-calendar-event me-1"></i>Hạn @j.Deadline.Value.ToString("dd/MM")</span>
+                                }
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="mt-4" aria-label="Phân trang">
+                    <ul class="pagination justify-content-center">
+                        @for (var p = 1; p <= Model.TotalPages; p++)
+                        {
+                            <li class="page-item @(p == Model.Page ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-q="@Model.Keyword"
+                                   asp-route-subjectId="@Model.SubjectId" asp-route-teachingMode="@Model.TeachingMode"
+                                   asp-route-budgetMin="@Model.BudgetMin" asp-route-budgetMax="@Model.BudgetMax"
+                                   asp-route-sort="@Model.Sort">@p</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
             }
         </div>
-    }
-
-    @if (Model.TotalPages > 1)
-    {
-        <nav class="mt-4" aria-label="Phân trang">
-            <ul class="pagination justify-content-center">
-                @for (var p = 1; p <= Model.TotalPages; p++)
-                {
-                    <li class="page-item @(p == Model.Page ? "active" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-q="@Model.Keyword"
-                           asp-route-subjectId="@Model.SubjectId" asp-route-teachingMode="@Model.TeachingMode"
-                           asp-route-budgetMin="@Model.BudgetMin" asp-route-budgetMax="@Model.BudgetMax"
-                           asp-route-sort="@Model.Sort">@p</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    }
+    </div>
 </div>

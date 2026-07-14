@@ -1,22 +1,108 @@
-﻿@model List<StudyMate.Models.JobApplication>
-@{ ViewData["Title"]="Applications"; }
-<div class="page-shell"><h1 class="h4">Apply — @ViewData["JobTitle"]</h1>
-<div class="list-group">@foreach(var a in Model){
-  <div class="list-group-item">
-    <div class="d-flex justify-content-between"><strong>@a.Tutor?.FullName</strong><span class="badge">@a.Status</span></div>
-    <div class="small">@a.CoverNote</div>
-    <div class="small text-muted">Rate: @(a.ProposedRate?.ToString("N0")??"—")</div>
-    @if(a.Status=="Pending"){<div class="mt-2 d-flex gap-1">
-      <form asp-action="Accept" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-success">Accept</button></form>
-      <form asp-action="Reject" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@a.Id"/><button class="btn btn-sm btn-outline-danger">Reject</button></form>
-    </div>}
-    @if(a.Status=="Accepted"){
-      <form asp-controller="Chat" asp-action="StartWith" method="post" class="mt-2 d-inline">@Html.AntiForgeryToken()
-        <input type="hidden" name="userId" value="@a.TutorId"/>
-        <button type="submit" class="btn btn-sm btn-outline-primary">Chat với tutor</button>
-      </form>
-      <a class="btn btn-sm btn-primary mt-2" asp-controller="Booking" asp-action="Create" asp-route-applicationId="@a.Id">Tạo booking</a>
-    }
-  </div>
-}</div></div>
+@model List<StudyMate.Models.JobApplication>
+@{
+    ViewData["Title"] = "Proposals";
+    string StatusBadge(string s) => s switch
+    {
+        "Pending" => "badge-soft-warning",
+        "Accepted" => "badge-soft-success",
+        "Rejected" => "badge-soft-danger",
+        "Cancelled" => "badge-soft-secondary",
+        _ => "badge-soft-primary"
+    };
+}
 
+<div class="page-shell">
+    <nav class="breadcrumb-sm" aria-label="breadcrumb">
+        <a asp-controller="JobPosting" asp-action="MyJobs">Job của tôi</a>
+        <span class="sep">/</span>
+        <span>Proposals</span>
+    </nav>
+
+    <div class="page-header">
+        <div>
+            <h1>Proposals nhận được</h1>
+            <p>
+                @(ViewData["JobTitle"] ?? "Job")
+                · <strong>@Model.Count</strong> apply
+            </p>
+        </div>
+        @if (ViewData["JobId"] != null)
+        {
+            <a class="btn btn-outline-secondary btn-sm"
+               asp-controller="JobPosting" asp-action="Details" asp-route-id="@ViewData["JobId"]">
+                <i class="bi bi-arrow-left me-1"></i> Chi tiết job
+            </a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface-card">
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p class="mb-0">Chưa có gia sư nào apply. Chia sẻ job hoặc chạy lại AI match.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var a in Model)
+        {
+            var name = a.Tutor?.FullName ?? "Gia sư";
+            <div class="proposal-item">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <span class="tutor-name">@name</span>
+                            <span class="badge @StatusBadge(a.Status)">@a.Status</span>
+                        </div>
+                        <div class="small text-muted">
+                            Apply lúc @a.AppliedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="proposed-rate">@(a.ProposedRate?.ToString("N0") ?? "—") ₫</div>
+                        <div class="small text-muted">/ giờ</div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(a.CoverNote))
+                {
+                    <div class="cover-note">@a.CoverNote</div>
+                }
+
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    @if (a.Status == "Pending")
+                    {
+                        <form asp-action="Accept" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button class="btn btn-sm btn-success" type="submit">
+                                <i class="bi bi-check-lg me-1"></i> Accept
+                            </button>
+                        </form>
+                        <form asp-action="Reject" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Reject</button>
+                        </form>
+                    }
+                    @if (a.Status == "Accepted")
+                    {
+                        <form asp-controller="Chat" asp-action="StartWith" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userId" value="@a.TutorId" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-chat-dots me-1"></i> Chat
+                            </button>
+                        </form>
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="Booking" asp-action="Create" asp-route-applicationId="@a.Id">
+                            <i class="bi bi-calendar-plus me-1"></i> Tạo booking
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>

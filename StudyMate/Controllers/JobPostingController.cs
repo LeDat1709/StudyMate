@@ -164,6 +164,7 @@ public class JobPostingController : Controller
             {
                 Id = j.Id,
                 Title = j.Title,
+                DescriptionSnippet = j.Description,
                 SubjectName = j.Subject != null ? j.Subject.Name : null,
                 TeachingMode = j.TeachingMode,
                 BudgetMin = j.BudgetMin,
@@ -174,6 +175,13 @@ public class JobPostingController : Controller
                 StudentName = j.Student != null ? j.Student.FullName : null
             })
             .ToListAsync();
+
+        foreach (var item in items)
+        {
+            if (string.IsNullOrWhiteSpace(item.DescriptionSnippet)) continue;
+            var text = item.DescriptionSnippet.Trim();
+            item.DescriptionSnippet = text.Length <= 180 ? text : text[..180].TrimEnd() + "…";
+        }
 
         return View(new JobListViewModel
         {

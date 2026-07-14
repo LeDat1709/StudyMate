@@ -58,6 +58,8 @@ public class JobCardViewModel
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
+    /// <summary>Short description snippet for marketplace list rows.</summary>
+    public string? DescriptionSnippet { get; set; }
     public string? SubjectName { get; set; }
     public string? TeachingMode { get; set; }
     public decimal? BudgetMin { get; set; }

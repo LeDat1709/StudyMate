@@ -14,12 +14,17 @@
 <div class="page-shell">
     <div class="page-header">
         <div>
-            <h1>Apply của tôi</h1>
-            <p>Theo dõi trạng thái đơn ứng tuyển job</p>
+            <h1>Proposals của tôi</h1>
+            <p>Theo dõi apply đã gửi — giống My Proposals trên marketplace</p>
         </div>
-        <a asp-controller="Matching" asp-action="RecommendedJobs" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-stars me-1"></i> Job gợi ý
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-controller="JobPosting" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-briefcase me-1"></i> Tìm việc
+            </a>
+            <a asp-controller="Matching" asp-action="RecommendedJobs" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-stars me-1"></i> Job gợi ý
+            </a>
+        </div>
     </div>
 
     @if (!Model.Any())
@@ -27,38 +32,55 @@
         <div class="surface-card">
             <div class="empty-state">
                 <i class="bi bi-send"></i>
-                <p class="mb-0">Bạn chưa apply job nào.</p>
+                <p class="mb-2">Bạn chưa gửi apply nào.</p>
+                <a asp-controller="JobPosting" asp-action="Index" class="btn btn-primary btn-sm">Duyệt job mở</a>
             </div>
         </div>
     }
     else
     {
-        <div class="sm-stack">
-            @foreach (var a in Model)
-            {
-                <div class="sm-stack-item">
+        @foreach (var a in Model)
+        {
+            <div class="proposal-item">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
                     <div class="min-w-0">
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                            <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@a.JobPostingId" class="item-title">
+                            <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@a.JobPostingId"
+                               class="tutor-name text-decoration-none">
                                 @(a.JobPosting?.Title ?? $"Job #{a.JobPostingId}")
                             </a>
                             <span class="badge @StatusBadge(a.Status)">@a.Status</span>
                         </div>
-                        @if (!string.IsNullOrWhiteSpace(a.CoverNote))
-                        {
-                            <div class="small text-muted text-truncate" style="max-width:480px">@a.CoverNote</div>
-                        }
+                        <div class="small text-muted">
+                            Gửi @a.AppliedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                            @if (a.JobPosting?.Subject != null)
+                            {
+                                <span>· @a.JobPosting.Subject.Name</span>
+                            }
+                        </div>
                     </div>
-                    @if (a.Status == "Pending")
-                    {
-                        <form asp-action="Cancel" method="post">
+                    <div class="text-end">
+                        <div class="proposed-rate">@(a.ProposedRate?.ToString("N0") ?? "—") ₫</div>
+                        <div class="small text-muted">đề xuất / giờ</div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(a.CoverNote))
+                {
+                    <div class="cover-note text-truncate" style="max-width:100%">@a.CoverNote</div>
+                }
+
+                @if (a.Status == "Pending")
+                {
+                    <div class="mt-2">
+                        <form asp-action="Cancel" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@a.Id" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Hủy apply</button>
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Rút apply</button>
                         </form>
-                    }
-                </div>
-            }
-        </div>
+                    </div>
+                }
+            </div>
+        }
     }
 </div>

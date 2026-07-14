@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -25,85 +25,170 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chá»§</a>
+                    @* Primary marketplace nav — Upwork-style: few top links *@
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 sm-nav-primary">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Tìm việc
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="JobPosting" asp-action="Index">
+                                        <i class="bi bi-briefcase"></i> Tất cả yêu cầu
+                                    </a>
+                                </li>
+                                @if (User.IsInRole("Tutor"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Matching" asp-action="RecommendedJobs">
+                                            <i class="bi bi-stars"></i> Job gợi ý AI
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Application" asp-action="MyApplications">
+                                            <i class="bi bi-send"></i> Apply của tôi
+                                        </a>
+                                    </li>
+                                }
+                                @if (User.IsInRole("Student"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="JobPosting" asp-action="MyJobs">
+                                            <i class="bi bi-folder2-open"></i> Job của tôi
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="JobPosting" asp-action="Create">
+                                            <i class="bi bi-plus-circle"></i> Đăng yêu cầu mới
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="TutorProfile" asp-action="Search">TĂ¬m gia sÆ°</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="JobPosting" asp-action="Index">Viá»‡c lĂ m</a>
+                            <a class="nav-link" asp-controller="TutorProfile" asp-action="Search">Tìm gia sư</a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Profile">Há»“ sÆ¡</a>
+                                <a class="nav-link" asp-controller="Booking" asp-action="Index">Lịch học</a>
                             </li>
-                            @if (User.IsInRole("Student"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="JobPosting" asp-action="MyJobs">Job cá»§a tĂ´i</a>
-                                </li>
-                            }
-                            @if (User.IsInRole("Tutor"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="MyProfile">Há»“ sÆ¡ gia sÆ°</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="TutorProfile" asp-action="Certificates">Chá»©ng chá»‰</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Matching" asp-action="RecommendedJobs">Job gá»£i Ă½</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Application" asp-action="MyApplications">Apply cá»§a tĂ´i</a>
-                                </li>
-                            }
                         }
                     </ul>
-                    <ul class="navbar-nav align-items-lg-center gap-lg-1">
+
+                    @* Quick search — marketplace feel *@
+                    <form class="sm-nav-search d-none d-lg-flex me-3" method="get" asp-controller="JobPosting" asp-action="Index">
+                        <div class="sm-search-field">
+                            <i class="bi bi-search"></i>
+                            <input type="search" name="q" class="form-control" placeholder="Tìm yêu cầu, môn học..." aria-label="Tìm kiếm" />
+                        </div>
+                    </form>
+
+                    <ul class="navbar-nav align-items-lg-center gap-lg-1 sm-nav-actions">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @if (User.IsInRole("Student"))
+                            {
+                                <li class="nav-item d-none d-lg-block me-1">
+                                    <a class="btn btn-sm btn-primary sm-nav-cta" asp-controller="JobPosting" asp-action="Create">
+                                        <i class="bi bi-plus-lg me-1"></i> Đăng job
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link sm-icon-link" asp-controller="Chat" asp-action="Index" title="Tin nhắn">
+                                    <i class="bi bi-chat-dots"></i>
+                                    <span class="d-lg-none ms-2">Chat</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link sm-icon-link" asp-controller="Notification" asp-action="Index" title="Thông báo">
+                                    <i class="bi bi-bell"></i>
+                                    <span class="d-lg-none ms-2">Thông báo</span>
+                                </a>
+                            </li>
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="sm-user-chip">
                                         <span class="chip-avatar"><i class="bi bi-person-fill"></i></span>
-                                        <span class="d-none d-sm-inline text-truncate" style="max-width:140px">@User.Identity.Name</span>
+                                        <span class="d-none d-sm-inline text-truncate" style="max-width:120px">@User.Identity.Name</span>
                                     </span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
+                                <ul class="dropdown-menu dropdown-menu-end sm-account-menu">
+                                    <li class="px-3 py-2 small text-muted">Tài khoản</li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
-                                            <i class="bi bi-person"></i> Há»“ sÆ¡ cĂ¡ nhĂ¢n
+                                            <i class="bi bi-person"></i> Hồ sơ cá nhân
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
-                                            <i class="bi bi-shield-lock"></i> Äá»•i máº­t kháº©u
+                                        <a class="dropdown-item" asp-controller="Wallet" asp-action="Index">
+                                            <i class="bi bi-wallet2"></i> Ví &amp; thanh toán
                                         </a>
                                     </li>
                                     @if (User.IsInRole("Tutor"))
                                     {
+                                        <li><hr class="dropdown-divider my-1" /></li>
+                                        <li class="px-3 py-2 small text-muted">Gia sư</li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="TutorProfile" asp-action="MyProfile">
-                                                <i class="bi bi-mortarboard"></i> Há»“ sÆ¡ gia sÆ°
+                                                <i class="bi bi-mortarboard"></i> Hồ sơ gia sư
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="TutorProfile" asp-action="Certificates">
-                                                <i class="bi bi-award"></i> Chá»©ng chá»‰
+                                                <i class="bi bi-award"></i> Chứng chỉ
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Application" asp-action="MyApplications">
+                                                <i class="bi bi-send"></i> Apply của tôi
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Matching" asp-action="RecommendedJobs">
+                                                <i class="bi bi-stars"></i> Job gợi ý
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (User.IsInRole("Student"))
+                                    {
+                                        <li><hr class="dropdown-divider my-1" /></li>
+                                        <li class="px-3 py-2 small text-muted">Học viên</li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="JobPosting" asp-action="MyJobs">
+                                                <i class="bi bi-folder2-open"></i> Job của tôi
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="JobPosting" asp-action="Create">
+                                                <i class="bi bi-plus-circle"></i> Đăng yêu cầu
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><hr class="dropdown-divider my-1" /></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Index">
+                                                <i class="bi bi-shield-check"></i> Admin
                                             </a>
                                         </li>
                                     }
                                     <li><hr class="dropdown-divider my-1" /></li>
                                     <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                                            <i class="bi bi-shield-lock"></i> Đổi mật khẩu
+                                        </a>
+                                    </li>
+                                    <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="px-1">
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-box-arrow-right"></i> ÄÄƒng xuáº¥t
+                                                <i class="bi bi-box-arrow-right"></i> Đăng xuất
                                             </button>
                                         </form>
                                     </li>
@@ -113,10 +198,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">ÄÄƒng nháº­p</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link btn-nav-primary" asp-controller="Account" asp-action="Register">ÄÄƒng kĂ½</a>
+                                <a class="nav-link btn-nav-primary" asp-controller="Account" asp-action="Register">Đăng ký</a>
                             </li>
                         }
                     </ul>
@@ -146,9 +231,35 @@
     </div>
 
     <footer class="sm-footer mt-auto">
-        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span>&copy; 2026 StudyMate â€” Káº¿t ná»‘i há»c viĂªn &amp; gia sÆ°</span>
-            <a asp-controller="Home" asp-action="Privacy" class="text-muted-soft">ChĂ­nh sĂ¡ch</a>
+        <div class="container">
+            <div class="sm-footer-grid">
+                <div>
+                    <div class="sm-footer-brand">
+                        <span class="sm-brand-mark sm-brand-mark-sm"><i class="bi bi-mortarboard-fill"></i></span>
+                        StudyMate
+                    </div>
+                    <p class="sm-footer-tagline mb-0">Marketplace kết nối học viên và gia sư — tìm người phù hợp, học hiệu quả.</p>
+                </div>
+                <div>
+                    <div class="sm-footer-title">Dành cho học viên</div>
+                    <a asp-controller="TutorProfile" asp-action="Search">Tìm gia sư</a>
+                    <a asp-controller="JobPosting" asp-action="Create">Đăng yêu cầu</a>
+                    <a asp-controller="JobPosting" asp-action="Index">Xem việc làm</a>
+                </div>
+                <div>
+                    <div class="sm-footer-title">Dành cho gia sư</div>
+                    <a asp-controller="JobPosting" asp-action="Index">Tìm việc dạy</a>
+                    <a asp-controller="TutorProfile" asp-action="MyProfile">Hồ sơ gia sư</a>
+                    <a asp-controller="Account" asp-action="Register">Đăng ký dạy</a>
+                </div>
+                <div>
+                    <div class="sm-footer-title">Hỗ trợ</div>
+                    <a asp-controller="Home" asp-action="Privacy">Chính sách</a>
+                </div>
+            </div>
+            <div class="sm-footer-bottom">
+                <span>&copy; 2026 StudyMate</span>
+            </div>
         </div>
     </footer>
 
@@ -158,8 +269,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
-
-
-
-
