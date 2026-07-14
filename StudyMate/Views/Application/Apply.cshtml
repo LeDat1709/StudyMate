@@ -1,42 +1,72 @@
 @model StudyMate.Controllers.ApplyFormVm
-@{ ViewData["Title"] = "Apply"; }
+@{ ViewData["Title"] = "Gửi apply"; }
 
 <div class="page-shell">
-    <div class="page-header">
-        <div>
-            <h1>Ứng tuyển job</h1>
-            <p>@ViewData["JobTitle"]</p>
-        </div>
-        <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@Model.JobPostingId" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> Chi tiết job
-        </a>
-    </div>
+    <nav class="breadcrumb-sm" aria-label="breadcrumb">
+        <a asp-controller="JobPosting" asp-action="Index">Tìm việc</a>
+        <span class="sep">/</span>
+        <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@Model.JobPostingId">Chi tiết job</a>
+        <span class="sep">/</span>
+        <span>Gửi apply</span>
+    </nav>
 
-    <div class="surface-card" style="max-width:640px">
-        <div class="card-body">
-            <div class="card-section-title">
-                <i class="bi bi-send text-primary"></i> Đơn apply
+    <div class="proposal-layout">
+        <div class="proposal-card">
+            <h1>Gửi proposal</h1>
+            <p class="text-muted mb-3">Viết cover note ngắn gọn — học viên sẽ so sánh apply theo mức fit và mức giá.</p>
+
+            <div class="proposal-summary">
+                <div class="small text-muted mb-1">Bạn đang apply vào</div>
+                <a class="job-link" asp-controller="JobPosting" asp-action="Details" asp-route-id="@Model.JobPostingId">
+                    @(ViewData["JobTitle"] ?? $"Job #{Model.JobPostingId}")
+                </a>
             </div>
+
             <form asp-action="Apply" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="JobPostingId" />
+
                 <div class="mb-3">
-                    <label asp-for="CoverNote" class="form-label"></label>
-                    <textarea asp-for="CoverNote" class="form-control" rows="4" maxlength="500"
-                              placeholder="Giới thiệu ngắn về kinh nghiệm phù hợp với job này..."></textarea>
+                    <label asp-for="CoverNote" class="form-label">Cover note</label>
+                    <textarea asp-for="CoverNote" class="form-control" rows="6" maxlength="500"
+                              placeholder="Giới thiệu kinh nghiệm phù hợp, cách bạn sẽ hỗ trợ học viên, lịch dạy sẵn có..."></textarea>
+                    <div class="form-text">Tối đa 500 ký tự. Nên nêu rõ môn, thành tích, và lịch dạy.</div>
                     <span asp-validation-for="CoverNote" class="text-danger small"></span>
                 </div>
+
                 <div class="mb-3">
-                    <label asp-for="ProposedRate" class="form-label"></label>
-                    <input asp-for="ProposedRate" class="form-control" type="number" placeholder="VND / giờ" />
+                    <label asp-for="ProposedRate" class="form-label">Mức giá đề xuất (₫ / giờ)</label>
+                    <div class="input-group" style="max-width:280px">
+                        <input asp-for="ProposedRate" class="form-control" type="number" placeholder="VD: 200000" />
+                        <span class="input-group-text">₫/h</span>
+                    </div>
                     <span asp-validation-for="ProposedRate" class="text-danger small"></span>
                 </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-send me-1"></i> Gửi apply
                     </button>
+                    <a asp-controller="JobPosting" asp-action="Details" asp-route-id="@Model.JobPostingId"
+                       class="btn btn-outline-secondary">Hủy</a>
                 </div>
             </form>
         </div>
+
+        <aside>
+            <div class="job-aside-card">
+                <div class="aside-label mb-2">Mẹo proposal tốt</div>
+                <ul class="small text-muted mb-0 ps-3">
+                    <li class="mb-2">Nêu rõ bạn khớp yêu cầu môn / trình độ thế nào</li>
+                    <li class="mb-2">Đề xuất lịch học cụ thể (số buổi, khung giờ)</li>
+                    <li class="mb-2">Giá hợp lý so với budget job</li>
+                    <li>Giữ tone chuyên nghiệp, ngắn gọn</li>
+                </ul>
+            </div>
+        </aside>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

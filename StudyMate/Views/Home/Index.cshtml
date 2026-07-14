@@ -4,52 +4,104 @@
 
 <section class="hero">
     <span class="auth-aside-badge mb-3">
-        <i class="bi bi-stars"></i> Nền tảng gia sư thông minh
+        <i class="bi bi-lightning-charge-fill"></i> Marketplace gia sư thông minh
     </span>
-    <h1>Học đúng người. Dạy đúng nhu cầu.</h1>
+    <h1>Thuê gia sư phù hợp. Nhận lớp phù hợp.</h1>
     <p>
-        StudyMate giúp học viên tìm gia sư phù hợp, và giúp gia sư xây dựng hồ sơ chuyên nghiệp
-        với xác thực chứng chỉ minh bạch.
+        StudyMate kết nối học viên và gia sư theo flow marketplace:
+        đăng yêu cầu → nhận apply → chat → đặt lịch — giống hiring, nhưng cho việc học.
     </p>
+
+    <form class="home-search-bar" method="get" asp-controller="JobPosting" asp-action="Index">
+        <input type="search" name="q" class="form-control" placeholder="Tìm yêu cầu: IELTS, Toán 12, lập trình..." />
+        <button type="submit" class="btn btn-light">
+            <i class="bi bi-search me-1"></i> Tìm việc
+        </button>
+    </form>
+
     <div class="hero-actions">
         @if (User.Identity?.IsAuthenticated != true)
         {
             <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Register">
                 Bắt đầu miễn phí
             </a>
-            <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Login">
-                Đăng nhập
+            <a class="btn btn-outline-light btn-lg" asp-controller="TutorProfile" asp-action="Search">
+                Duyệt gia sư
+            </a>
+        }
+        else if (User.IsInRole("Tutor"))
+        {
+            <a class="btn btn-light btn-lg" asp-controller="JobPosting" asp-action="Index">
+                <i class="bi bi-briefcase me-1"></i> Tìm việc dạy
+            </a>
+            <a class="btn btn-outline-light btn-lg" asp-controller="Matching" asp-action="RecommendedJobs">
+                <i class="bi bi-stars me-1"></i> Job gợi ý AI
+            </a>
+        }
+        else if (User.IsInRole("Student"))
+        {
+            <a class="btn btn-light btn-lg" asp-controller="JobPosting" asp-action="Create">
+                <i class="bi bi-plus-lg me-1"></i> Đăng yêu cầu
+            </a>
+            <a class="btn btn-outline-light btn-lg" asp-controller="TutorProfile" asp-action="Search">
+                <i class="bi bi-people me-1"></i> Tìm gia sư
             </a>
         }
         else
         {
             <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Profile">
-                <i class="bi bi-person-circle me-1"></i> Hồ sơ của tôi
+                Hồ sơ của tôi
             </a>
-            @if (User.IsInRole("Tutor"))
-            {
-                <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Certificates">
-                    <i class="bi bi-award me-1"></i> Chứng chỉ
-                </a>
-            }
         }
     </div>
 </section>
 
+<section class="home-role-cards">
+    <article class="home-role-card">
+        <div class="icon-box mb-3" style="width:44px;height:44px;border-radius:12px;background:var(--sm-primary-soft);color:var(--sm-primary);display:inline-flex;align-items:center;justify-content:center;font-size:1.2rem">
+            <i class="bi bi-mortarboard"></i>
+        </div>
+        <h3>Dành cho học viên</h3>
+        <p>Đăng job như post việc trên marketplace — nhận proposals từ gia sư, chọn người phù hợp.</p>
+        <ul>
+            <li><i class="bi bi-check-circle-fill"></i> Đăng yêu cầu theo môn &amp; budget</li>
+            <li><i class="bi bi-check-circle-fill"></i> Xem apply / cover note / giá đề xuất</li>
+            <li><i class="bi bi-check-circle-fill"></i> Chat, đặt lịch, đánh giá sau buổi học</li>
+        </ul>
+        <a class="btn btn-primary" asp-controller="JobPosting" asp-action="Create">Đăng job ngay</a>
+        <a class="btn btn-outline-secondary ms-1" asp-controller="TutorProfile" asp-action="Search">Tìm gia sư</a>
+    </article>
+
+    <article class="home-role-card">
+        <div class="icon-box mb-3" style="width:44px;height:44px;border-radius:12px;background:var(--sm-accent-soft);color:var(--sm-success);display:inline-flex;align-items:center;justify-content:center;font-size:1.2rem">
+            <i class="bi bi-briefcase"></i>
+        </div>
+        <h3>Dành cho gia sư</h3>
+        <p>Browse job feed, gửi apply với cover note và mức giá — xây hồ sơ có chứng chỉ &amp; rating.</p>
+        <ul>
+            <li><i class="bi bi-check-circle-fill"></i> Feed việc làm + AI gợi ý job</li>
+            <li><i class="bi bi-check-circle-fill"></i> Gửi proposal chuyên nghiệp</li>
+            <li><i class="bi bi-check-circle-fill"></i> Quản lý apply, chat, lịch dạy</li>
+        </ul>
+        <a class="btn btn-primary" asp-controller="JobPosting" asp-action="Index">Tìm việc dạy</a>
+        <a class="btn btn-outline-secondary ms-1" asp-controller="TutorProfile" asp-action="MyProfile">Hồ sơ gia sư</a>
+    </article>
+</section>
+
 <section class="feature-grid">
     <article class="feature-card">
+        <div class="icon-box"><i class="bi bi-search"></i></div>
+        <h3>Find work / Find talent</h3>
+        <p>Hai luồng rõ: học viên tìm gia sư, gia sư tìm job — filter sidebar, list dọc, chi tiết + CTA.</p>
+    </article>
+    <article class="feature-card">
+        <div class="icon-box"><i class="bi bi-send"></i></div>
+        <h3>Proposal flow</h3>
+        <p>Apply như proposal: cover note, proposed rate, Accept/Reject — theo dõi trạng thái rõ ràng.</p>
+    </article>
+    <article class="feature-card">
         <div class="icon-box"><i class="bi bi-shield-check"></i></div>
-        <h3>Tài khoản an toàn</h3>
-        <p>Xác thực email OTP, khóa tài khoản khi cần, và bảo mật mật khẩu theo chuẩn Identity.</p>
-    </article>
-    <article class="feature-card">
-        <div class="icon-box"><i class="bi bi-people"></i></div>
-        <h3>Học viên &amp; Gia sư</h3>
-        <p>Đăng ký đúng vai trò, quản lý hồ sơ cá nhân và xây dựng lòng tin qua chứng chỉ.</p>
-    </article>
-    <article class="feature-card">
-        <div class="icon-box"><i class="bi bi-lightning-charge"></i></div>
-        <h3>Trải nghiệm mượt</h3>
-        <p>Giao diện gọn, rõ ràng trên desktop và mobile — tập trung vào việc hoàn thành mục tiêu học tập.</p>
+        <h3>Tin cậy &amp; minh bạch</h3>
+        <p>Chứng chỉ, rating, AI match stub — giúp chọn người dạy phù hợp hơn “tìm bừa”.</p>
     </article>
 </section>

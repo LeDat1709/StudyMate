@@ -35,12 +35,12 @@ public class ApplicationController : Controller
         if (user == null) return Challenge();
         if (!await _db.TutorProfiles.AnyAsync(p => p.UserId == user.Id && p.IsVerified))
         {
-            TempData["Error"] = "Cáº§n há»“ sÆ¡ gia sÆ° Ä‘Ă£ duyá»‡t (IsVerified).";
+            TempData["Error"] = "Cần hồ sơ gia sư đã duyệt (IsVerified).";
             return RedirectToAction("Details", "JobPosting", new { id = jobId });
         }
         if (await _db.Applications.AnyAsync(a => a.JobPostingId == jobId && a.TutorId == user.Id))
         {
-            TempData["Error"] = "Báº¡n Ä‘Ă£ apply job nĂ y.";
+            TempData["Error"] = "Bạn đã apply job này.";
             return RedirectToAction("Details", "JobPosting", new { id = jobId });
         }
 
@@ -61,17 +61,17 @@ public class ApplicationController : Controller
 
         if (!await _db.TutorProfiles.AnyAsync(p => p.UserId == user.Id && p.IsVerified))
         {
-            TempData["Error"] = "Cáº§n há»“ sÆ¡ gia sÆ° Ä‘Ă£ duyá»‡t.";
+            TempData["Error"] = "Cần hồ sơ gia sư đã duyệt.";
             return RedirectToAction("Details", "JobPosting", new { id = model.JobPostingId });
         }
         if (await _db.Applications.AnyAsync(a => a.JobPostingId == model.JobPostingId && a.TutorId == user.Id))
         {
-            TempData["Error"] = "Báº¡n Ä‘Ă£ apply job nĂ y.";
+            TempData["Error"] = "Bạn đã apply job này.";
             return RedirectToAction("Details", "JobPosting", new { id = model.JobPostingId });
         }
 
         if (model.CoverNote?.Length > 500)
-            ModelState.AddModelError(nameof(model.CoverNote), "Tá»‘i Ä‘a 500 kĂ½ tá»±.");
+            ModelState.AddModelError(nameof(model.CoverNote), "Tối đa 500 ký tự.");
         if (!ModelState.IsValid)
         {
             ViewData["JobTitle"] = job.Title;
@@ -88,7 +88,7 @@ public class ApplicationController : Controller
             AppliedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Apply thĂ nh cĂ´ng.";
+        TempData["Success"] = "Apply thành công.";
         return RedirectToAction("Details", "JobPosting", new { id = model.JobPostingId });
     }
 
@@ -146,7 +146,7 @@ public class ApplicationController : Controller
     {
         var me = _users.GetUserId(User)!;
         var list = await _db.Applications.AsNoTracking()
-            .Include(a => a.JobPosting)
+            .Include(a => a.JobPosting)!.ThenInclude(j => j!.Subject)
             .Where(a => a.TutorId == me)
             .OrderByDescending(a => a.AppliedAt)
             .ToListAsync();
@@ -182,10 +182,10 @@ public class ApplyFormVm
     public int JobPostingId { get; set; }
 
     [StringLength(500)]
-    [Display(Name = "ThÆ° giá»›i thiá»‡u")]
+    [Display(Name = "Thư giới thiệu")]
     public string? CoverNote { get; set; }
 
-    [Display(Name = "Há»c phĂ­ Ä‘á» xuáº¥t")]
+    [Display(Name = "Học phí đề xuất")]
     public decimal? ProposedRate { get; set; }
 }
 
